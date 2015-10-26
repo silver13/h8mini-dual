@@ -573,11 +573,6 @@
               <FilePath>.\src\pid.c</FilePath>
             </File>
             <File>
-              <FileName>angle_pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\angle_pid.c</FilePath>
-            </File>
-            <File>
               <FileName>rx_bayang_protocol.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\rx_bayang_protocol.c</FilePath>
@@ -608,14 +603,14 @@
               <FilePath>.\src\imu.c</FilePath>
             </File>
             <File>
-              <FileName>drv_fmc1.c</FileName>
+              <FileName>angle_pid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\drv_fmc1.c</FilePath>
+              <FilePath>.\src\angle_pid.c</FilePath>
             </File>
             <File>
               <FileName>flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\flash.c</FilePath>
+              <FilePath>.\src\flash.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -671,6 +666,11 @@
               <FileName>drv_i2c.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\drv_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_fmc1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\drv_fmc1.c</FilePath>
             </File>
           </Files>
         </Group>
