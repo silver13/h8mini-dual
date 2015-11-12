@@ -35,10 +35,16 @@ THE SOFTWARE.
 
 #include "sixaxis.h"
 
-extern float rx[7];
+extern float rx[4];
 extern float gyro[3];
 extern int failsafe;
-extern float pidoutput[PIDNUMBER];
+extern float pidoutput[3];
+
+extern char auxchange[AUXNUMBER];
+extern char aux[AUXNUMBER];
+
+extern float looptime;
+extern float attitude[3];
 
 int onground = 1;
 float pwmsum;
@@ -49,22 +55,14 @@ float motormap( float input);
 int lastchange;
 int pulse;
 float yawangle;
-
-extern float looptime;
-
-extern int auxchange[AUXNUMBER];
-extern int aux[AUXNUMBER];
-
-extern float attitude[3];
 float angleerror[3];
 
 extern float apid(int x );
 extern void imu_calc( void);
+extern void savecal( void);
 
 void motorcontrol(void);
 int gestures(void);
-extern void savecal( void);
-
 void pid_precalc( void);
 
 void control( void)
@@ -99,7 +97,7 @@ void control( void)
 		yawangle = 0;
 	}
 	
-	if ( aux[HEADLESSMODE] ) 
+	if ( aux[HEADLESSMODE]&&!aux[LEVELMODE] ) 
 	{
 		float temp = rx[0];
 		rx[0] = rx[0] * cosf( yawangle) - rx[1] * sinf(yawangle );
