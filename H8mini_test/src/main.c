@@ -177,7 +177,6 @@ if ( liberror )
  extern int rxmode;
  extern int failsafe;
 
-//float vbattfilt = 3.0;
  float thrfilt;
 
 //
@@ -192,8 +191,8 @@ if ( liberror )
 		maintime = gettime();
 		looptime = ((uint32_t)( maintime - lastlooptime));
 		if ( looptime <= 0 ) looptime = 1;
-		looptime = looptime * 1e-6;
-		if ( looptime > 0.02 ) // max loop 20ms or else...
+		looptime = looptime * 1e-6f;
+		if ( looptime > 0.02f ) // max loop 20ms or else...
 		{
 			failloop( 3);	
 			//endless loop			
@@ -250,10 +249,10 @@ if ( liberror )
 			else ledon( 255);	
 			} 		
 		}
-	if ( maxlooptime < gettime() - maintime) maxlooptime = gettime() - maintime;
-	while ( gettime() - maintime < 8000 )
+	//if ( maxlooptime < gettime() - maintime) maxlooptime = gettime() - maintime;
+	//while ( gettime() - maintime < 8000 )
 	{
-		delay(100);
+	//	delay(100);
 	}
 	
 		

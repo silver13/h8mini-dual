@@ -4,14 +4,17 @@
 
  TIMER_OCInitPara  TIM_OCInitStructure;
 
-// 2Khz
+// CENTER ALIGNED PWM METHOD
+
+// 490Khz
+#define PWMTOP 8191
+
+// 1Khz
 //#define PWMTOP 4095
 
-// 8Khz
-#define PWMTOP 1023
+// 4Khz
+//#define PWMTOP 1023
 
-// 490Hz
-//#define PWMTOP 16383 
 
 void pwm_init(void)
 {
@@ -45,7 +48,7 @@ void pwm_init(void)
 // TIMER3 for pins A8 A9 A10
 
     TIM_TimeBaseStructure.TIMER_Prescaler = 0;  //
-    TIM_TimeBaseStructure.TIMER_CounterMode = TIMER_COUNTER_UP;
+    TIM_TimeBaseStructure.TIMER_CounterMode = TIMER_COUNTER_CENTER_ALIGNED2;
     TIM_TimeBaseStructure.TIMER_Period = PWMTOP;
     TIM_TimeBaseStructure.TIMER_ClockDivision = TIMER_CDIV_DIV1;
     TIMER_BaseInit(TIMER3,&TIM_TimeBaseStructure);
@@ -55,27 +58,22 @@ void pwm_init(void)
     TIM_OCInitStructure.TIMER_OCPolarity = TIMER_OC_POLARITY_HIGH;
     TIM_OCInitStructure.TIMER_OutputState = TIMER_OUTPUT_STATE_ENABLE;
     TIM_OCInitStructure.TIMER_OCIdleState = TIMER_OC_IDLE_STATE_RESET;
+		TIM_OCInitStructure.TIMER_Pulse = 0;	
+
+   TIMER_OC1_Init(TIMER1, &TIM_OCInitStructure);
+	 TIMER_OC2_Init(TIMER1, &TIM_OCInitStructure);
+	 TIMER_OC3_Init(TIMER1, &TIM_OCInitStructure);
+	 
+   TIMER_OC4_Init(TIMER3, &TIM_OCInitStructure);
 		
-    TIM_OCInitStructure.TIMER_Pulse = 0;
-    TIMER_OC4_Init(TIMER3, &TIM_OCInitStructure);
 
-		TIMER_CtrlPWMOutputs(TIMER3,ENABLE);
+   TIMER_CARLPreloadConfig(TIMER3,ENABLE);
 
-    TIMER_CARLPreloadConfig(TIMER3,ENABLE);
-
-    TIMER_Enable( TIMER3, ENABLE );
 		
-    TIMER_BaseInit(TIMER1,&TIM_TimeBaseStructure);
-
-    TIMER_OC1_Init(TIMER1, &TIM_OCInitStructure);
-
-    TIMER_OC2_Init(TIMER1, &TIM_OCInitStructure);
-
-    TIMER_OC3_Init(TIMER1, &TIM_OCInitStructure);
+   TIMER_BaseInit(TIMER1,&TIM_TimeBaseStructure);
+	
 		
-		TIMER_CtrlPWMOutputs(TIMER1,ENABLE);	
-		
-    TIMER_CARLPreloadConfig(TIMER1,ENABLE);
+   TIMER_CARLPreloadConfig(TIMER1,ENABLE);
 
 	TIMER_OC1_Preload(TIMER1,TIMER_OC_PRELOAD_DISABLE);
 	TIMER_OC2_Preload(TIMER1,TIMER_OC_PRELOAD_DISABLE);
@@ -83,7 +81,15 @@ void pwm_init(void)
 	TIMER_OC4_Preload(TIMER3,TIMER_OC_PRELOAD_DISABLE);
 	
   TIMER_Enable( TIMER1, ENABLE );
+	TIMER_Enable( TIMER3, ENABLE );
+
+	TIMER_CtrlPWMOutputs(TIMER1,ENABLE);
+	TIMER_CtrlPWMOutputs(TIMER3,ENABLE);
+	
 }
+
+
+#include  <math.h>
 
 void pwm_set( uint8_t number , float pwm)
 {
@@ -92,23 +98,29 @@ void pwm_set( uint8_t number , float pwm)
 	if ( pwm < 0 ) pwm = 0;
   if ( pwm > PWMTOP ) pwm = PWMTOP;
 	
-  TIM_OCInitStructure.TIMER_Pulse = (uint32_t) pwm;
+	pwm = lroundf(pwm);
+	
+//  TIM_OCInitStructure.TIMER_Pulse = (uint32_t) pwm;
   switch( number)
 	{
 		case 0:
-			TIMER_OC1_Init(TIMER1, &TIM_OCInitStructure);
+		//	TIMER_OC1_Init(TIMER1, &TIM_OCInitStructure);
+		  TIMER1->CHCC1 = (uint32_t) pwm; 
 		break;
 		
 		case 1:
-			TIMER_OC4_Init(TIMER3, &TIM_OCInitStructure);
+			//TIMER_OC4_Init(TIMER3, &TIM_OCInitStructure);
+		  TIMER3->CHCC4 = (uint32_t) pwm; 
 		break;
 		
 		case 2:
-			TIMER_OC2_Init(TIMER1, &TIM_OCInitStructure);
+			//TIMER_OC2_Init(TIMER1, &TIM_OCInitStructure);
+		  TIMER1->CHCC2 = (uint32_t) pwm; 
 		break;
 		
 		case 3:
-			TIMER_OC3_Init(TIMER1, &TIM_OCInitStructure);
+			//TIMER_OC3_Init(TIMER1, &TIM_OCInitStructure);
+		  TIMER1->CHCC3 = (uint32_t) pwm; 
 		break;
 		
 		default:

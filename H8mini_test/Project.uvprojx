@@ -349,7 +349,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>3</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -366,7 +366,7 @@
             <v6Lang>0</v6Lang>
             <v6LangP>0</v6LangP>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls> --fpmode=fast</MiscControls>
               <Define>USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
               <IncludePath>..\; ..\Peripherals\inc; ..\CMSIS; .\src</IncludePath>
@@ -568,11 +568,6 @@
               <FilePath>.\src\main.c</FilePath>
             </File>
             <File>
-              <FileName>pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\pid.c</FilePath>
-            </File>
-            <File>
               <FileName>rx_bayang_protocol.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\rx_bayang_protocol.c</FilePath>
@@ -588,19 +583,19 @@
               <FilePath>.\src\util.c</FilePath>
             </File>
             <File>
-              <FileName>config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\src\config.h</FilePath>
-            </File>
-            <File>
-              <FileName>defines.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\src\defines.h</FilePath>
-            </File>
-            <File>
               <FileName>imu.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\imu.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\pid.c</FilePath>
             </File>
             <File>
               <FileName>angle_pid.c</FileName>
@@ -608,9 +603,14 @@
               <FilePath>.\src\angle_pid.c</FilePath>
             </File>
             <File>
-              <FileName>flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\flash.c</FilePath>
+              <FileName>defines.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\defines.h</FilePath>
+            </File>
+            <File>
+              <FileName>config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\config.h</FilePath>
             </File>
           </Files>
         </Group>

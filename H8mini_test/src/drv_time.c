@@ -6,12 +6,12 @@ void failloop( int val);
 
 unsigned long lastticks;
 unsigned long globalticks;
-volatile unsigned long systickcount = 0;
+//volatile unsigned long systickcount = 0;
 
 // systick interrupt routine
 void SysTick_Handler(void)
 {
-    systickcount++;
+  //  systickcount++;
 }
 
 
@@ -23,7 +23,7 @@ void time_init()
 			  failloop(5);
         while (1);
     }
-    NVIC_SetPriority(SysTick_IRQn, 0x00);	
+   // NVIC_SetPriority(SysTick_IRQn, 0x00);	
 }
 
 // called at least once per second or time will overflow

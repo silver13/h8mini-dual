@@ -61,27 +61,34 @@ float angleerror[3];
 extern float apid(int x );
 extern void imu_calc( void);
 
-float lastmotor[4];
 void motorcontrol(void);
 int gestures(void);
 extern void savecal( void);
-	
+
+void pid_precalc( void);
+
 void control( void)
 {
 
 	// hi rates
 	float ratemulti;
 	float ratemultiyaw;
-
+	float maxangle;
+	float anglerate;
+	
 	if ( aux[RATES] ) 
 	{
 		ratemulti = HIRATEMULTI;
 		ratemultiyaw = HIRATEMULTIYAW;
+		maxangle = MAX_ANGLE_HI;
+		anglerate = LEVEL_MAX_RATE_HI;
 	}
 	else 
 	{
-		ratemulti = 1.0;
-		ratemultiyaw = 1.0;
+		ratemulti = 1.0f;
+		ratemultiyaw = 1.0f;
+		maxangle = MAX_ANGLE_LO;
+		anglerate = LEVEL_MAX_RATE_LO;
 	}
 
 	
@@ -99,7 +106,7 @@ void control( void)
 		rx[1] = rx[1] * cosf( yawangle) + temp * sinf(yawangle ) ;
 	}
 	
-
+// check for acc calibration
 if (gestures()==1 )
 {
 	gyro_cal(); // for flashing lights
@@ -111,14 +118,18 @@ if (gestures()==1 )
 }
 
 imu_calc();
+
+pid_precalc();
+
 	if ( aux[LEVELMODE] ) 
 	{// level mode
 
-	angleerror[0] = rx[0] * MAX_ANGLE - attitude[0];
-	angleerror[1] = rx[1] * MAX_ANGLE - attitude[1];
+	angleerror[0] = rx[0] * maxangle - attitude[0];
+	angleerror[1] = rx[1] * maxangle - attitude[1];
 
-	error[0] = apid(0) * LEVEL_MAX_RATE * DEGTORAD  - gyro[0];
-	error[1] = apid(1) * LEVEL_MAX_RATE * DEGTORAD  - gyro[1];	 
+	error[0] = apid(0) * anglerate * DEGTORAD  - gyro[0];
+	error[1] = apid(1) * anglerate * DEGTORAD  - gyro[1];	 
+
 	}
 else
 { // rate mode
@@ -127,16 +138,16 @@ else
 	
 	// reduce angle Iterm towards zero
 	extern float aierror[3];
-	for ( int i = 0 ; i <= 3 ; i++) aierror[i] *= 0.8;
+	for ( int i = 0 ; i <= 3 ; i++) aierror[i] *= 0.8f;
 }	
 
-	error[2] = rx[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
+error[2] = rx[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
 
 	pid(0);
 	pid(1);
 	pid(2);
 
-motorcontrol();
+ motorcontrol();
 	
 }
 
@@ -148,7 +159,7 @@ float	throttle = mapf(rx[3], 0 , 1 , -0.1 , 1 );
 if ( throttle < 0   ) throttle = 0;
 
 // turn motors off if throttle is off and pitch / roll sticks are centered
-	if ( failsafe || (throttle < 0.001 && (!ENABLESTIX||  (fabs(rx[0]) < 0.5 && fabs(rx[1]) < 0.5 ) ) ) ) 
+	if ( failsafe || (throttle < 0.001f && (!ENABLESTIX||  (fabs(rx[0]) < 0.5f && fabs(rx[1]) < 0.5f ) ) ) ) 
 
 	{ // motors off
 		onground = 1;
@@ -157,7 +168,6 @@ if ( throttle < 0   ) throttle = 0;
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
 			pwm_set( i , 0 );
-			lastmotor[i] = 0;
 		}	
 	}
 	else
@@ -175,25 +185,12 @@ if ( throttle < 0   ) throttle = 0;
 		
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
+		float test = motormap( mix[i] );
 		#ifndef NOMOTORS
-			float test = motormap( mix[i] );
-		//pwm_set( i , ( test+ lastmotor[i] ) * 0.5 );
 		pwm_set( i , ( test )  );
-		//pwm_set( i ,  throttle  );
-		lastmotor[i] = test;
 		#endif
 		}	
-		
-		pwmsum = 0;
-		for ( int i = 0 ; i <= 3 ; i++)
-		{
-			if ( mix[i] < 0 ) mix[i] = 0;
-			if ( mix[i] > 1 ) mix[i] = 1;
-			pwmsum+= mix[i];
-		}	
-		pwmsum = pwmsum / 4;
-		
-		thrsum = 0;
+
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
 			if ( mix[i] < 0 ) mix[i] = 0;
@@ -237,11 +234,11 @@ float motormap( float input)
 	// a*x^2 + b*x + c
 	// a = 0.262 , b = 0.771 , c = -0.0258
 
-if (input > 1.0) input = 1.0;
+if (input > 1) input = 1;
 if (input < 0) input = 0;
 
-input = input*input*0.262  + input*(0.771);
-input += -0.0258;
+input = input*input*0.262f  + input*(0.771f);
+input += -0.0258f;
 
 return input;   
 }
@@ -250,9 +247,9 @@ static unsigned gesturetime;
 
 int gestures()
 {
-	if ( aux[LEVELMODE] && rx[3] < 0.1 )
+	if ( aux[LEVELMODE] && rx[3] < 0.1f )
 	{
-		if ( rx[2] < -0.9 && fabs(rx[1]) < 0.2 && fabs(rx[1]) < 0.2   )
+		if ( rx[2] < -0.9f && fabs(rx[1]) < 0.2f && fabs(rx[1]) < 0.2f   )
 		{
 			
 			if ( gesturetime == 0 ) 

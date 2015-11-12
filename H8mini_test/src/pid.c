@@ -30,27 +30,25 @@ THE SOFTWARE.
 
 #include "defines.h"
 
-#define PIDGAIN 1.0
-#define GYROPERCENT 0.0
 
 // this Kp is used for a normal PID ( PI-D , really )
-float pidkp[PIDNUMBER] = {3e-2*PIDGAIN*(1-GYROPERCENT) , 3e-2*PIDGAIN*(1-GYROPERCENT)  , 5e-1 }; 
+float pidkp[PIDNUMBER] = {13e-2 ,    13e-2 ,  10e-1 };  // 17
 //  											ROLL       PITCH     YAW
 // this Kp2 is used for a I-PD controller instead of the above PID
-float pidkp2[PIDNUMBER] = { 5e-2*PIDGAIN*(1-GYROPERCENT) , 5e-2*PIDGAIN*(1-GYROPERCENT) ,  0e-2 };	
+float pidkp2[PIDNUMBER] ={ 0e-2 ,   0e-2 ,  0e-2 };	
 // Ki
-float pidki[PIDNUMBER] = { 8e-1*PIDGAIN  , 8e-1*PIDGAIN , 25e-1 };	
+float pidki[PIDNUMBER] = { 13e-1  ,  13e-1 ,  5e-1 };	
 // Kd											ROLL       PITCH     YAW
-float pidkd[PIDNUMBER] = { 1.8e-1*PIDGAIN , 1.8e-1*PIDGAIN  , 1.0e-1 };	
+float pidkd[PIDNUMBER] = { 2.2e-1 , 2.2e-1 , 2.0e-1 };	
 
 
 
 
 // output limit			
-const float outlimit[PIDNUMBER] = { 1.0 , 1.0 , 0.4 };
+const float outlimit[PIDNUMBER] = { 0.8 , 0.8 , 0.4 };
 
 // limit of integral term (abs)
-const float integrallimit[PIDNUMBER] = { 1.0 , 1.0 , 0.2 };
+const float integrallimit[PIDNUMBER] = { 0.8 , 0.8 , 0.4 };
 
 
 float ierror[PIDNUMBER] = { 0 , 0 , 0};	
@@ -70,12 +68,20 @@ float lastdt[3];
 
 float dtfilt[3];
 
+float timefactor;
+
+void pid_precalc()
+{
+	timefactor = 0.008f / looptime;
+}
+
+
 float pid(int x )
 { 
 
         if (onground) 
 				{
-           ierror[x] *= 0.8;
+           ierror[x] *= 0.8f;
 				}
 	
 				int iwindup = 0;
@@ -90,7 +96,7 @@ float pid(int x )
         if ( !iwindup)
 				{
 				 // trapezoidal rule instead of rectangular
-         ierror[x] = ierror[x] + (error[x] + lasterror[x]) * 0.5 *  pidki[x] * looptime;
+         ierror[x] = ierror[x] + (error[x] + lasterror[x]) * 0.5f *  pidki[x] * looptime;
 				 //ierror[x] = ierror[x] + error[x] *  pidki[x] * looptime; 					
 				}
 				
@@ -101,7 +107,7 @@ float pid(int x )
           pidoutput[x] = error[x] * pidkp[x] ;
 									
 				// P2 (direct feedback) term	
-				  pidoutput[x] = pidoutput[x] -  ( gyro[x] + lastrate[x] ) * 0.5 *pidkp2[x];
+				  pidoutput[x] = pidoutput[x] -  ( gyro[x] + lastrate[x] ) * 0.5f *pidkp2[x];
 				
 				// I term	
 					pidoutput[x] += ierror[x];
@@ -110,7 +116,7 @@ float pid(int x )
 			
 				//lpf ( &dtfilt[x] , (gyro[x] - lastrate[x] ) , 0.8 );
 				
-					pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x] ) * pidkd[x]; 
+					pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x] ) * pidkd[x] * timefactor; 
 				//pidoutput[x] = pidoutput[x] - dtfilt[x]* pidkd[x];
 				//pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x] + lastdt[x])*0.5 * pidkd[x]; 
 		
