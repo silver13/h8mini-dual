@@ -35,10 +35,15 @@ THE SOFTWARE.
 
 #include "sixaxis.h"
 
+int gestures2( void);
+extern int ledcommand;		
+
 extern float rx[4];
 extern float gyro[3];
 extern int failsafe;
 extern float pidoutput[3];
+
+extern float lpffilter( float in,int num );
 
 extern char auxchange[AUXNUMBER];
 extern char aux[AUXNUMBER];
@@ -50,12 +55,21 @@ int onground = 1;
 float pwmsum;
 float thrsum;
 
+float rxcopy[4];
+
 float error[PIDNUMBER];
 float motormap( float input);
 int lastchange;
 int pulse;
 float yawangle;
 float angleerror[3];
+
+/*
+// bump test vars
+int lastchange;
+int pulse;
+unsigned long timestart;
+*/
 
 extern float apid(int x );
 extern void imu_calc( void);
@@ -64,6 +78,7 @@ extern void savecal( void);
 void motorcontrol(void);
 int gestures(void);
 void pid_precalc( void);
+
 
 void control( void)
 {
@@ -89,6 +104,41 @@ void control( void)
 		anglerate = LEVEL_MAX_RATE_LO;
 	}
 
+/*	
+int change = ( aux[PULSE] );
+
+if ( change != lastchange )
+{
+	pulse = 1;
+}
+lastchange = change;
+
+float motorchange = 0;
+
+
+if ( pulse )
+{
+	if ( !timestart) timestart = gettime();
+	
+	
+	if ( gettime() - timestart < 200000 )
+	{
+		motorchange = 0.2;	
+	}
+	else
+	{
+		motorchange = 0.0;
+		pulse = 0;
+		timestart = 0;
+	}
+}
+*/
+	
+	for ( int i = 0 ; i < 3; i++)
+	{
+		rxcopy[i]=   rx[i];
+	}
+	
 	
 	yawangle = yawangle + gyro[2]*looptime;
 
@@ -97,23 +147,42 @@ void control( void)
 		yawangle = 0;
 	}
 	
-	if ( aux[HEADLESSMODE]&&!aux[LEVELMODE] ) 
+	if ( (aux[HEADLESSMODE] )&&!aux[LEVELMODE] ) 
 	{
-		float temp = rx[0];
-		rx[0] = rx[0] * cosf( yawangle) - rx[1] * sinf(yawangle );
-		rx[1] = rx[1] * cosf( yawangle) + temp * sinf(yawangle ) ;
+		float temp = rxcopy[0];
+		rxcopy[0] = rxcopy[0] * cosf( yawangle) - rxcopy[1] * sinf(yawangle );
+		rxcopy[1] = rxcopy[1] * cosf( yawangle) + temp * sinf(yawangle ) ;
 	}
 	
 // check for acc calibration
-if (gestures()==1 )
-{
-	gyro_cal(); // for flashing lights
-	acc_cal();
-  savecal();
-	// reset loop time 
-	extern unsigned lastlooptime;
-	lastlooptime = gettime();
-}
+		
+	int command = gestures2();
+
+	if ( command )
+	{	
+			if ( command == 3 )
+			{
+				gyro_cal(); // for flashing lights
+				acc_cal();
+				savecal();
+				// reset loop time 
+				extern unsigned lastlooptime;
+				lastlooptime = gettime();
+			}
+			else
+			{
+				ledcommand = 1;
+				if ( command == 2 )
+				{
+					aux[CH_AUX1]= 1;
+					
+				}
+				if ( command == 1 )
+				{
+					aux[CH_AUX1]= 0;
+				}
+			}
+	}
 
 imu_calc();
 
@@ -122,36 +191,33 @@ pid_precalc();
 	if ( aux[LEVELMODE] ) 
 	{// level mode
 
-	angleerror[0] = rx[0] * maxangle - attitude[0];
-	angleerror[1] = rx[1] * maxangle - attitude[1];
+	angleerror[0] = rxcopy[0] * maxangle - attitude[0];
+	angleerror[1] = rxcopy[1] * maxangle - attitude[1];
 
 	error[0] = apid(0) * anglerate * DEGTORAD  - gyro[0];
 	error[1] = apid(1) * anglerate * DEGTORAD  - gyro[1];	 
 
+	error[2] = rxcopy[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
+		
 	}
 else
 { // rate mode
-	error[0] = rx[0] * MAX_RATE * DEGTORAD * ratemulti - gyro[0];
-	error[1] = rx[1] * MAX_RATE * DEGTORAD * ratemulti - gyro[1];
+	
+	error[0] = rxcopy[0] * MAX_RATE * DEGTORAD * ratemulti - gyro[0];
+	error[1] = rxcopy[1] * MAX_RATE * DEGTORAD * ratemulti - gyro[1];
 	
 	// reduce angle Iterm towards zero
 	extern float aierror[3];
 	for ( int i = 0 ; i <= 3 ; i++) aierror[i] *= 0.8f;
+
+	error[2] = rxcopy[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
 }	
 
-error[2] = rx[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
 
 	pid(0);
 	pid(1);
 	pid(2);
 
- motorcontrol();
-	
-}
-
-
-void motorcontrol(void)
-{	
 // map throttle so under 10% it is zero	
 float	throttle = mapf(rx[3], 0 , 1 , -0.1 , 1 );
 if ( throttle < 0   ) throttle = 0;
@@ -173,19 +239,31 @@ if ( throttle < 0   ) throttle = 0;
 		onground = 0;
 		float mix[4];	
 		
-//		pidoutput[2] += motorchange;
+//		pidoutput[0] += motorchange;
 		
+/*
+static float offset;
+if ( !pulse )
+{
+  offset = pidoutput[2];
+}
+else 	pidoutput[2] = motorchange + offset;
+*/
+
 		mix[MOTOR_FR] = throttle - pidoutput[0] - pidoutput[1] + pidoutput[2];		// FR
 		mix[MOTOR_FL] = throttle + pidoutput[0] - pidoutput[1] - pidoutput[2];		// FL	
 		mix[MOTOR_BR] = throttle - pidoutput[0] + pidoutput[1] - pidoutput[2];		// BR
 		mix[MOTOR_BL] = throttle + pidoutput[0] + pidoutput[1] + pidoutput[2];		// BL	
-			
+
+
 		
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
 		float test = motormap( mix[i] );
 		#ifndef NOMOTORS
 		pwm_set( i , ( test )  );
+		#else
+		#warning "NO MOTORS"
 		#endif
 		}	
 
@@ -241,39 +319,219 @@ input += -0.0258f;
 return input;   
 }
 
+
+
+
+#define STICKMAX 0.7f
+#define STICKCENTER 0.2f
+
+#ifdef GESTURES_USE_YAW
+
+	#define GMACRO_LEFT (rx[2] < - STICKMAX)
+	#define GMACRO_RIGHT (rx[2] >  STICKMAX)
+	#define GMACRO_XCENTER (fabs(rx[2]) < STICKCENTER)
+
+#else
+
+	#define GMACRO_LEFT (rx[0] < - STICKMAX)
+	#define GMACRO_RIGHT (rx[0] >  STICKMAX)
+	#define GMACRO_XCENTER (fabs(rx[0]) < STICKCENTER)
+
+#endif
+
+#define GMACRO_DOWN (rx[1] < - STICKMAX)
+#define GMACRO_UP (rx[1] >  STICKMAX)
+
+#define GMACRO_PITCHCENTER (fabs(rx[1]) < STICKCENTER)
+
+
+#define GESTURE_CENTER 0 
+#define GESTURE_CENTER_IDLE 12 
+#define GESTURE_YAWLEFT 1 
+#define GESTURE_YAWRIGHT 2
+#define GESTURE_PITCHDOWN 3
+#define GESTURE_PITCHUP 4
+#define GESTURE_OTHER 127
+#define GESTURE_LONG 255
+
+#define GESTURETIME_MIN 100e3 
+#define GESTURETIME_MAX 500e3
+#define GESTURETIME_IDLE 1000e3
+
+int gesture_start;
+int lastgesture;
+int setgesture;
 static unsigned gesturetime;
 
-int gestures()
+int gestures2()
 {
-	if ( aux[LEVELMODE] && rx[3] < 0.1f )
+	if ( onground )
 	{
-		if ( rx[2] < -0.9f && fabs(rx[1]) < 0.2f && fabs(rx[1]) < 0.2f   )
-		{
-			
-			if ( gesturetime == 0 ) 
-					gesturetime = gettime();
-			else
-			{
-				// if waited more then 5sec
-				if ( gettime() - gesturetime > 5e6) return 1;
-			}
-			
+		if ( GMACRO_XCENTER && GMACRO_PITCHCENTER  )
+		{				
+		gesture_start = GESTURE_CENTER;
+		}
+		else
+		if ( GMACRO_LEFT && GMACRO_PITCHCENTER  )
+		{				
+		gesture_start = GESTURE_YAWLEFT;
+		}
+		else
+		if ( GMACRO_RIGHT && GMACRO_PITCHCENTER   )
+		{				
+		gesture_start = GESTURE_YAWRIGHT;
+		}
+		else
+		if ( GMACRO_DOWN && GMACRO_XCENTER  )
+		{				
+		gesture_start = GESTURE_PITCHDOWN;
+		}
+		else
+		if ( GMACRO_UP && GMACRO_XCENTER  )
+		{				
+		gesture_start = GESTURE_PITCHUP;
 		}
 		else
 		{
-			gesturetime = 0;
+		//	gesture_start = GESTURE_OTHER;	
 		}
+
+		unsigned long time = gettime();
 		
-	}else
+		if ( gesture_start!=lastgesture ) 
+		{
+		gesturetime = time;
+		}
+
+
+				if ( time - gesturetime > GESTURETIME_MIN )
+				{
+					if ( ( gesture_start == GESTURE_CENTER) && (time - gesturetime > GESTURETIME_IDLE) )
+					{		
+						setgesture = GESTURE_CENTER_IDLE;										
+					}
+					else
+					if ( time - gesturetime > GESTURETIME_MAX)
+					{
+						if ( (gesture_start != GESTURE_OTHER)  )
+								setgesture = GESTURE_LONG;										
+					}
+					
+					else 
+						setgesture = gesture_start;
+					
+				}
+		
+				
+  lastgesture = gesture_start;				
+	
+
+	int gesture_sequence( int gesture);			
+	return	gesture_sequence(setgesture);	
+				
+	}
+	else
 	{
-			gesturetime = 0;
+		setgesture = GESTURE_OTHER;
+		lastgesture = GESTURE_OTHER;
 	}
 	
-	
-	return 0;
+return 0;
 }
 
+#define GSIZE 7
 
 
+#include <inttypes.h>
 
+uint8_t gbuffer[GSIZE];
+
+// L L D
+const uint8_t command1[GSIZE] = {
+	GESTURE_CENTER_IDLE , GESTURE_YAWLEFT, GESTURE_CENTER , GESTURE_YAWLEFT, GESTURE_CENTER, GESTURE_PITCHDOWN, GESTURE_CENTER 
+																			}	;
+// R R D
+const uint8_t command2[GSIZE] = {
+	GESTURE_CENTER_IDLE , GESTURE_YAWRIGHT, GESTURE_CENTER , GESTURE_YAWRIGHT, GESTURE_CENTER, GESTURE_PITCHDOWN, GESTURE_CENTER 
+																			}	;
+// D D D
+const uint8_t command3[GSIZE] = {
+	GESTURE_CENTER_IDLE , GESTURE_PITCHDOWN, GESTURE_CENTER , GESTURE_PITCHDOWN, GESTURE_CENTER, GESTURE_PITCHDOWN, GESTURE_CENTER 
+																			}	;
+																	
+																		
+int gesture_sequence( int currentgesture)
+{
+
+	if (currentgesture!= gbuffer[0])
+	{// add to queue
+   int ok;
+   
+		for (int i = GSIZE ; i >= 1 ; i--)
+		{
+			gbuffer[i] = gbuffer[i-1];
+			 
+		}
+		gbuffer[0] = currentgesture; 
+
+
+// check commands
+	 ok = 1;		
+		
+		for (int i = 0 ; i <GSIZE ; i++)
+		{
+			if (gbuffer[i] != command1[GSIZE - i - 1] )
+			{
+				 ok = 0;		 
+			}
+		}
+		if ( ok )
+		{
+			// command 1
+			
+			//change buffer so it does not trigger again
+			gbuffer[1] = GESTURE_OTHER;
+			return 1;
+		}	 
+
+	 ok = 1;		
+		
+		for (int i = 0 ; i <GSIZE ; i++)
+		{
+			if (gbuffer[i] != command2[GSIZE - i - 1] )
+			{
+				 ok = 0;		 
+			}	
+		}
+		if ( ok )
+		{
+			// command 2
+			
+			//change buffer so it does not trigger again
+			gbuffer[1] = GESTURE_OTHER;
+			return 2;
+		}	 
+		
+		ok = 1;		
+		
+		for (int i = 0 ; i <GSIZE ; i++)
+		{
+			if (gbuffer[i] != command3[GSIZE - i - 1] )
+			{
+				 ok = 0; 
+			}
+		}	
+		if ( ok )
+		{
+			// command 3
+			
+			//change buffer so it does not trigger again
+			gbuffer[1] = GESTURE_OTHER;
+			return 3;
+		}	
+				
+	}
+	
+return 0;	
+}
 

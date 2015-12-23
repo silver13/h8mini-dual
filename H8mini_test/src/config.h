@@ -67,9 +67,6 @@
 // in volts
 #define HYST 0.10f
 
-// enable serial out on back-left LED
-// serial is quite slow
-//#define SERIAL
 
 // Gyro LPF filter frequency
 // gyro filter 0 = 260hz
@@ -83,44 +80,82 @@
 // on newer boards the gyro setting controls the acc as well
 #define ACC_LOW_PASS_FILTER 3
 
+
+
+
+// 0 - flip 
+// 1 - expert
+// 2 - headfree
+// 3 - headingreturn
+// 4 - AUX1 ( gestures <<v and >>v)
+// 5 - AUX2+ (  none    )
+// 6 - on always
+// 7 - off always
+// CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
+// CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
+#define HEADLESSMODE CH_OFF
+
+
+// 0 - flip 
+// 1 - expert
+// 2 - headfree
+// 3 - headingreturn
+// 4 - AUX1 ( gestures <<v and >>v)
+// 5 - AUX2+ (  none    )
+// 6 - on always
+// 7 - off always
+// CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
+// CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
+#define RATES 1
+
+// 0 - flip 
+// 1 - expert
+// 2 - headfree
+// 3 - headingreturn
+// 4 - AUX1 ( gestures <<v and >>v)
+// 5 - AUX2+ (  none    )
+// 6 - on always
+// 7 - off always
+// CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
+// CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
+#define LEVELMODE CH_FLIP
+
+
+
+// aux1 starts on if this is defined, otherwise off.
+#define AUX1_START_ON
+
+// use yaw/pitch instead of roll/pitch for gestures
+#define GESTURES_USE_YAW
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// things that are experimental / old / etc
+// do not change things below
+
 // 
 // disable motors for testing
 //#define NOMOTORS
 
-
-// channel for headless mode switch
-// 0 - flip
-// 1 - expert
-// 2 - headfree
-// 3 - headingreturn
-// 4 - on always
-// 5 - off always
-#define HEADLESSMODE 5
-
-// channel for rates switch
-// 0 - flip
-// 1 - expert
-// 2 - headfree
-// 3 - headingreturn
-// 4 - on always
-// 5 - off always
-#define RATES 1
-
-// 0 - flip
-// 1 - expert
-// 2 - headfree
-// 3 - headingreturn
-// 4 - on always
-// 5 - off always
-#define LEVELMODE 0
-
-
-
-
-// do not change things below
-
-
-
+// enable serial out on back-left LED
+// serial is quite slow
+//#define SERIAL
 
 // enable motors if pitch / roll controls off center (at zero throttle)
 // possible values: 0 / 1

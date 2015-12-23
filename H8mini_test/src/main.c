@@ -67,9 +67,19 @@ extern void loadcal(void);
 // max loop time for debug 
 unsigned long maxlooptime;
 
+
+int ledcommand = 0;
+unsigned long ledcommandtime = 0;
+
+ 
+ int lowbatt = 0;
+
+
+
+
 int main(void)
 {
-	//System_Init();
+
 	clk_init();
 	
   gpio_init();
@@ -77,7 +87,7 @@ int main(void)
 #ifdef SERIAL	
 	serial_init();
 #endif
-//	softi2c_init();
+
 	i2c_init();
 	
 	spi_init();
@@ -158,10 +168,6 @@ loadcal();
 
 	gyro_cal();
 
-  //acc_cal( );
-	
-//savecal();
-
 
 extern unsigned int liberror;
 if ( liberror ) 
@@ -213,7 +219,7 @@ if ( liberror )
 		control();
 		
 // battery low logic
-		int lowbatt = 0;
+	  
 		float battadc = adc_read(1);
 
 		// average of all 4 motor thrusts
@@ -222,38 +228,49 @@ if ( liberror )
 		// filter motorpwm so it has the same delay as the filtered voltage
 		// ( or they can use a single filter)		
 		lpf ( &thrfilt , thrsum , 0.9968);	// 0.5 sec at 1.6ms loop time	
-		//printf(" %2.2f \n" , pwmfilt);	
+	
 		
 		lpf ( &vbattfilt , battadc , 0.9968);		
-		//printf(" %2.2f \n" , vbattfilt);
+
 		if ( vbattfilt + VDROP_FACTOR * thrfilt < VBATTLOW + (lowbatt==1)?HYST:0 ) lowbatt = 1;
 		
 // led flash logic		
-		if ( rxmode == 0)
-		{// bind mode
-		ledflash ( 100000+ 500000*(lowbatt) , 12);
-		}else
-		{// non bind
-		if ( failsafe) 
-		{
-		if ( lowbatt )
-				ledflash ( 500000 , 8);
-		else
-				ledflash ( 500000, 15);	
-			
-		}
+
+		if ( rxmode != 0)
+		{// non bind			
+			if ( failsafe) 
+			{
+				if ( lowbatt )
+						ledflash ( 500000 , 8);
+				else
+						ledflash ( 500000, 15);				
+			}
 			else
 			{					
 			if ( lowbatt) 
 				 ledflash ( 500000 , 8);	
-			else ledon( 255);	
+			else 
+					{
+						if ( ledcommand)
+						{ 
+							if ( !ledcommandtime ) ledcommandtime = gettime();
+							if ( gettime() - ledcommandtime > 500000 ) 
+								{
+									ledcommand = 0;
+									ledcommandtime = 0;
+								}
+							ledflash ( 100000 , 8 );
+						}
+						else	ledon( 255);	
+					}
 			} 		
 		}
-	//if ( maxlooptime < gettime() - maintime) maxlooptime = gettime() - maintime;
-	//while ( gettime() - maintime < 8000 )
-	{
-	//	delay(100);
-	}
+		else
+		{// bind mode
+			ledflash ( 100000+ 500000*(lowbatt) , 12);
+		}
+		
+
 	
 		
 	}// end loop

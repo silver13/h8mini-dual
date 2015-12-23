@@ -113,13 +113,9 @@ float pid(int x )
 					pidoutput[x] += ierror[x];
 			
 				// D term
-			
-				//lpf ( &dtfilt[x] , (gyro[x] - lastrate[x] ) , 0.8 );
-				
+	
 					pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x] ) * pidkd[x] * timefactor; 
-				//pidoutput[x] = pidoutput[x] - dtfilt[x]* pidkd[x];
-				//pidoutput[x] = pidoutput[x] - (gyro[x] - lastrate[x] + lastdt[x])*0.5 * pidkd[x]; 
-		
+				
 					lastdt[x] = gyro[x] - lastrate[x];
 				
 				  limitf(  &pidoutput[x] , outlimit[x]);

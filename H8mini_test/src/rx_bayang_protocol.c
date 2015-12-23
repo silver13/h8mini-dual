@@ -36,6 +36,12 @@ THE SOFTWARE.
 #include "rx_bayang.h"
 
 
+float rx[4];
+
+char aux[AUXNUMBER] = { 0 ,0 ,0 , 0 , 0 , 0 , 0 , 0 };
+char lastaux[AUXNUMBER];
+char auxchange[AUXNUMBER];
+int rxdata[15];
 
 void rx_init()
 {
@@ -86,7 +92,18 @@ xn_writerxaddress( rxaddress);
 	xn_command( FLUSH_RX);
   xn_writereg( RF_CH , 0 );  // bind on channel 0
   xn_writereg( 0 , B00001111 ); // power up, crc enabled
-	
+
+
+
+// always on channel set 1
+  aux[AUXNUMBER - 2] = 1;
+// always off channel set 0
+  aux[AUXNUMBER - 1] = 0;
+
+#ifdef AUX1_START_ON
+	aux[CH_AUX1] = 1;
+#endif
+
 }
 
 static char checkpacket()
@@ -110,13 +127,6 @@ static char checkpacket()
   return 0;
 }
 
-
-float rx[4];
-// the last 2 are always on and off respectively
-char aux[AUXNUMBER] = { 0 ,0 ,0 , 0 , 1 , 0};
-char lastaux[AUXNUMBER];
-char auxchange[AUXNUMBER];
-int rxdata[15];
 
 #define CHANOFFSET 512
 
