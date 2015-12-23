@@ -126,7 +126,7 @@
 #define AUX1_START_ON
 
 // use yaw/pitch instead of roll/pitch for gestures
-#define GESTURES_USE_YAW
+//#define GESTURES_USE_YAW
 
 
 
