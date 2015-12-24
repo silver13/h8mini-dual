@@ -34,6 +34,7 @@ THE SOFTWARE.
 #include "defines.h"
 
 #include "rx_bayang.h"
+#include "util.h"
 
 
 float rx[4];
