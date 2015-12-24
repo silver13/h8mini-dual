@@ -3,16 +3,52 @@
 #include <stdio.h>
 #include "drv_serial.h"
 
+#define SERIAL_BUFFER_SIZE 64
+
+uint8_t buffer[SERIAL_BUFFER_SIZE];
+char buffer_start = 0;
+char buffer_end = 1;
+
+
 int fputc(int ch, FILE *f)
+{	
+
+  //  USART_DataSend( USART2 , (uint8_t) ch );
+  //  while (USART_GetBitState( USART2 , USART_FLAG_TBE) == RESET);
+
+	buffer[buffer_end] =(char) ch;
+	buffer_end++;
+	buffer_end=buffer_end%(SERIAL_BUFFER_SIZE);
+	NVIC_EnableIRQ( USART2_IRQn);
+
+  return ch;
+}
+
+void writebuff( int ch)
 {
-    USART_DataSend( USART2 , (uint8_t) ch );
-    while (USART_GetBitState( USART2 , USART_FLAG_TBE) == RESET);
-    return ch;
+	buffer[buffer_end]= (uint8_t) ch;
+	buffer_end++;
+	buffer_end=buffer_end%(SERIAL_BUFFER_SIZE);
+}
+
+void USART2_IRQHandler(void)
+{
+	if ( buffer_end != buffer_start  ) 
+	{
+		USART_DataSend( USART2 , buffer[buffer_start] );
+		buffer_start++;
+		buffer_start=buffer_start%(SERIAL_BUFFER_SIZE);
+	}
+	else
+	{
+		 NVIC_DisableIRQ( USART2_IRQn);
+	}
 }
 
 void serial_init(void)
 {
 
+	
     //RCC_AHBPeriphClock_Enable( RCC_AHBPERIPH_GPIOA , ENABLE );   
 
     RCC_APB1PeriphClock_Enable( RCC_APB1PERIPH_USART2 , ENABLE );
@@ -47,5 +83,10 @@ void serial_init(void)
 		USART_Init(USART2, &USART_InitStructure);
 
     USART_Enable(USART2, ENABLE);
+		
+	  USART_INT_Set(USART2, USART_INT_TC , ENABLE); // USART_INT_TBE
+		
+ //  NVIC_EnableIRQ( USART2_IRQn);
+
 
 }

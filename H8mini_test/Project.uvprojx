@@ -588,6 +588,11 @@
               <FilePath>.\src\imu.c</FilePath>
             </File>
             <File>
+              <FileName>gestures.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\gestures.c</FilePath>
+            </File>
+            <File>
               <FileName>flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\flash.c</FilePath>
