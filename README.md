@@ -24,7 +24,7 @@ Channels work as intended except the rate/expert channel which is always on. Dyn
 * a battery low warning fix
 * some level mode settings changed ( acc filter time, acc lpf )
 
-### Update 23.12.15
+### 23.12.15
 * added gestures
 * fix battery low hysteresys bug
 
