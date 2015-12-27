@@ -12,12 +12,12 @@ To set / reset AUX1 channel use left - left - down (off) or right - right - down
 Do not switch level mode on while upside down.
 
 #####Stock tx:
-On the stock tx only the rate button works, so you should set level mode to CH_AUX1 and use the gestures for on/off
+On the stock tx only the rate (expert) button works, so you should set level mode to CH_AUX1 and use the gestures for on/off
 To start in acro mode by default with CH_AUX1 enabled comment out "#define AUX1_START_ON"
 Trims are currently not functional on the stock tx.
 
 #####Devo tx:
-Channels work as intended except the expert channel which is always on. Dynamic trims are not used. If gestures are to be used make sure the tx can reach at least 80% of max rates ( high rates on).
+Channels work as intended except the rate/expert channel which is always on. Dynamic trims are not used. If gestures are to be used make sure the tx can reach at least 80% of max rates ( high rates on).
 
 ### 28.12.15
 * a battery low warning fix
