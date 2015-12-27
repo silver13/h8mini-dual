@@ -269,6 +269,7 @@ else 	pidoutput[2] = motorchange + offset;
 		#endif
 		}	
 
+		thrsum = 0;
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
 			if ( mix[i] < 0 ) mix[i] = 0;

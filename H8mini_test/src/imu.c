@@ -43,11 +43,11 @@
 // filter time in seconds
 // time to correct gyro readings using the accelerometer
 // 1-4 are generally good
-#define FILTERTIME 4.0
+#define FILTERTIME 2.0
 
 // accel magnitude limits for drift correction
-#define ACC_MIN 0.8f
-#define ACC_MAX 1.2f 
+#define ACC_MIN 0.7f
+#define ACC_MAX 1.3f 
 
 // rotation matrix method
 // small angle approx = fast, somewhat more inaccurate
@@ -262,7 +262,7 @@ static unsigned int count = 0;
 if (  ( accmag > ACC_MIN * ACC_1G ) && ( accmag < ACC_MAX * ACC_1G )
 					&& !DISABLE_ACC  ) 
 		{
-			if ( count >= 3 ) //
+			if ( count >= 3 || 1 ) //
 			{
 			 float filtcoeff = lpfcalc( deltatime , FILTERTIME );
 			 for (int x = 0; x < 3; x++) 
