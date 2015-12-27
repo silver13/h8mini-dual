@@ -13,7 +13,8 @@ Do not switch level mode on while upside down.
 
 #####Stock tx:
 On the stock tx only the rate (expert) button works, so you should set level mode to CH_AUX1 and use the gestures for on/off.
-To start in acro mode by default with CH_AUX1 enabled comment out "#define AUX1_START_ON"
+To start in acro mode by default with CH_AUX1 enabled comment out "#define AUX1_START_ON".
+
 Trims are currently not functional on the stock tx.
 
 #####Devo tx:
