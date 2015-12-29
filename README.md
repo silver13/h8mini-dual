@@ -2,6 +2,10 @@
 
 This is a dual mode version of the firmware for Eachine H8 mini / JJRC H8 mini.
 
+**Do not flash the H8 firmware to the H101**
+
+**Do not flash the H8 firmware to the H8S**
+
 The firmware uses cascaded pids in level mode.
 
 
