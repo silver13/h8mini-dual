@@ -232,7 +232,8 @@ if ( liberror )
 		
 		lpf ( &vbattfilt , battadc , 0.9968);		
 
-		if ( vbattfilt + VDROP_FACTOR * thrfilt < VBATTLOW + (lowbatt==1)?HYST:0 ) lowbatt = 1;
+		if ( vbattfilt + VDROP_FACTOR * thrfilt < VBATTLOW ) lowbatt = 1;
+		else lowbatt = 0;
 		
 // led flash logic		
 

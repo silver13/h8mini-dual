@@ -64,7 +64,7 @@
 #define VDROP_FACTOR 0.60f
 
 // voltage hysteresys
-// in volts
+// in volts (not working right now)
 #define HYST 0.10f
 
 
