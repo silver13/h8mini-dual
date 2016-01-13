@@ -77,7 +77,8 @@ int sixaxis_check( void)
 {
 	// read "who am I" register
 	int id = i2c_readreg( 117 );
-	return (0x78==id||0x68==id );
+	
+	return (0x78==id||0x68==id||0x7d==id );
 }
 
 
@@ -93,8 +94,19 @@ void sixaxis_read( void)
 {
 int data[16];
 
-i2c_readdata( 59 , data, 14 );	
+int error = 0;
 
+error = ( i2c_readdata( 59 , data, 14 ) );	
+// 2nd attempt at an i2c read	
+if (error) 
+	{
+		error = ( i2c_readdata( 59 , data, 14 ) );
+		// set a warning flag 
+		// not implemented
+		// warningflag = 1;
+	}	
+
+//if (error) return;
 
 accel[0] = (int16_t) ((data[0]<<8) + data[1]);
 accel[1] = (int16_t) ((data[2]<<8) + data[3]);

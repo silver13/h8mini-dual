@@ -7,13 +7,11 @@
 // CENTER ALIGNED PWM METHOD
 
 // 490Khz
-#define PWMTOP 8191
+//#define PWMTOP 16383
 
-// 1Khz
-//#define PWMTOP 4095
 
-// 4Khz
-//#define PWMTOP 1023
+// 8Khz - ch div
+#define PWMTOP 1023
 
 
 void pwm_init(void)
@@ -47,7 +45,7 @@ void pwm_init(void)
 
 // TIMER3 for pins A8 A9 A10
 
-    TIM_TimeBaseStructure.TIMER_Prescaler = 0;  //
+    TIM_TimeBaseStructure.TIMER_Prescaler = 2;  // +1
     TIM_TimeBaseStructure.TIMER_CounterMode = TIMER_COUNTER_CENTER_ALIGNED2;
     TIM_TimeBaseStructure.TIMER_Period = PWMTOP;
     TIM_TimeBaseStructure.TIMER_ClockDivision = TIMER_CDIV_DIV1;
@@ -100,26 +98,21 @@ void pwm_set( uint8_t number , float pwm)
 	
 	pwm = lroundf(pwm);
 	
-//  TIM_OCInitStructure.TIMER_Pulse = (uint32_t) pwm;
   switch( number)
 	{
 		case 0:
-		//	TIMER_OC1_Init(TIMER1, &TIM_OCInitStructure);
 		  TIMER1->CHCC1 = (uint32_t) pwm; 
 		break;
 		
 		case 1:
-			//TIMER_OC4_Init(TIMER3, &TIM_OCInitStructure);
 		  TIMER3->CHCC4 = (uint32_t) pwm; 
 		break;
 		
 		case 2:
-			//TIMER_OC2_Init(TIMER1, &TIM_OCInitStructure);
 		  TIMER1->CHCC2 = (uint32_t) pwm; 
 		break;
 		
 		case 3:
-			//TIMER_OC3_Init(TIMER1, &TIM_OCInitStructure);
 		  TIMER1->CHCC3 = (uint32_t) pwm; 
 		break;
 		

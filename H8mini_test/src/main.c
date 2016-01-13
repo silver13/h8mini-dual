@@ -191,6 +191,9 @@ if ( liberror )
 //
 //
 
+		
+checkrx();
+
 	while(1)
 	{
 		// gettime() needs to be called at least once per second 
@@ -198,7 +201,7 @@ if ( liberror )
 		looptime = ((uint32_t)( maintime - lastlooptime));
 		if ( looptime <= 0 ) looptime = 1;
 		looptime = looptime * 1e-6f;
-		if ( looptime > 0.02f ) // max loop 20ms or else...
+		if ( looptime > 0.02f ) // max loop 20ms
 		{
 			failloop( 3);	
 			//endless loop			
@@ -210,16 +213,13 @@ if ( liberror )
 			failloop(8);
 			// endless loop
 		}
-		
-		checkrx();
-		
-		//gyro_read();
+
 		sixaxis_read();
 		
 		control();
 		
 // battery low logic
-	  
+  
 		float battadc = adc_read(1);
 
 		// average of all 4 motor thrusts
@@ -271,6 +271,11 @@ if ( liberror )
 			ledflash ( 100000+ 500000*(lowbatt) , 12);
 		}
 		
+		
+	checkrx();
+
+// loop time 1ms		
+while ( (gettime() - maintime) < 1000 ) delay(10); 		
 
 	
 		
@@ -298,9 +303,9 @@ void failloop( int val)
 		for ( int i = 0 ; i < val; i++)
 		{
 		 ledon( 255);		
-		 delay(400000);
+		 delay(200000);
 		 ledoff( 255);	
-		 delay(400000);			
+		 delay(200000);			
 		}
 		delay(1600000);
 	}	

@@ -11,7 +11,7 @@
 // 										ANGLE PIDS	
 // yaw is done by the rate yaw pid
 // Kp													ROLL     PITCH    YAW
-float apidkp[APIDNUMBER] = { 2.5e-2 , 2.5e-2  , 0e-1 }; //
+float apidkp[APIDNUMBER] = { 2.2e-2 , 2.2e-2  , 0e-1 }; //
 
 // angle feedforward
 float apidff[APIDNUMBER] = { 0.0e-2 , 0.0e-2  , 0e-1 }; 
@@ -20,7 +20,7 @@ float apidff[APIDNUMBER] = { 0.0e-2 , 0.0e-2  , 0e-1 };
 float apidki[APIDNUMBER] = { 1.0e-2  , 1.0e-2 , 0e-1 };	//
 //   													ROLL     PITCH    YAW
 // Kd 
-float apidkd[APIDNUMBER] = { 3.0e-2 ,	 3.0e-2 , 0e-2 };	// 
+float apidkd[APIDNUMBER] = { 0.0e-2 ,	 0.0e-2 , 0e-2 };	// 
 	
 
 // limit of integral term (abs)

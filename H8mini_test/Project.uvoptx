@@ -172,6 +172,16 @@
           <WinNumber>1</WinNumber>
           <ItemText>accel</ItemText>
         </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>i2cerror</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>liberror</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

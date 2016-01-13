@@ -44,8 +44,8 @@
 #define FAILSAFETIME 1000000  // one second
 
 
-// battery saver
-// do not start software if battery is too low
+// battery saver ( only at powerup )
+// does not start software if battery is too low
 // flashes 2 times repeatedly at startup
 #define STOP_LOWBATTERY
 
@@ -64,7 +64,7 @@
 #define VDROP_FACTOR 0.60f
 
 // voltage hysteresys
-// in volts (not working right now)
+// in volts
 #define HYST 0.10f
 
 
@@ -74,15 +74,17 @@
 // gyro filter 2 = 94hz
 // gyro filter 3 = 42hz
 // 4 , 5, 6
-#define GYRO_LOW_PASS_FILTER 2
+#define GYRO_LOW_PASS_FILTER 3
 
-// this works only on older boards
-// on newer boards the gyro setting controls the acc as well
+// this works only on newer boards (non mpu-6050)
+// on older boards the gyro setting controls the acc as well
 #define ACC_LOW_PASS_FILTER 5
 
 
 
 
+// Headless mode
+// Only in acro mode
 // 0 - flip 
 // 1 - expert
 // 2 - headfree
@@ -96,6 +98,7 @@
 #define HEADLESSMODE CH_OFF
 
 
+// rates / expert mode
 // 0 - flip 
 // 1 - expert
 // 2 - headfree
@@ -108,6 +111,9 @@
 // CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
 #define RATES 1
 
+
+// level / acro mode switch
+// CH_AUX1 = gestures
 // 0 - flip 
 // 1 - expert
 // 2 - headfree
@@ -118,7 +124,7 @@
 // 7 - off always
 // CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
 // CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
-#define LEVELMODE CH_FLIP
+#define LEVELMODE CH_AUX1
 
 
 
@@ -156,6 +162,9 @@
 // enable serial out on back-left LED
 // serial is quite slow
 //#define SERIAL
+
+// enable motor filter
+#define MOTOR_FILTER
 
 // enable motors if pitch / roll controls off center (at zero throttle)
 // possible values: 0 / 1

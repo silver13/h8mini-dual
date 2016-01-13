@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <stdio.h>
 
 #include "drv_i2c.h"
+#include "drv_time.h"
 
 #define I2CADDRESS 0x68  
 
@@ -55,11 +56,12 @@ void i2c_init( void)
 	// this happens mainly in debug mode and perhaps at low voltage reset
 int i2cfail = 0;
 	// sda is set with pullup
-	// id sda is low the gyro might have become stuck while waiting for clock(and is sending a "zero")
+	// if sda is low the gyro might have become stuck while waiting for clock(and is sending a "zero")
 	if ( Bit_RESET == GPIO_ReadInputBit( GPIOB, GPIO_PIN_7) )
 	{
 	i2cfail = 1;	
 	}
+delay(10);
 GPIO_InitStructure.GPIO_Pin = GPIO_PIN_7;
 GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLDOWN;
 GPIO_Init(GPIOB,&GPIO_InitStructure);	
@@ -82,10 +84,11 @@ GPIO_Init(GPIOB,&GPIO_InitStructure);
 	GPIO_InitStructure.GPIO_Mode = GPIO_MODE_OUT;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLUP;
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
-//	printf("I2C fail xxx\n");
-	for ( int i = 0 ; i < 9 ; i++)
+delay(10);
+	for ( int i = 0 ; i < 18 ; i++)
 		{// send 9 clock pulses on scl to clear any pending byte
 		GPIO_WriteBit(GPIOB, GPIO_PIN_6, Bit_RESET);	
+			delay(25);
 		GPIO_WriteBit(GPIOB, GPIO_PIN_6, Bit_SET);					
 		}
 		

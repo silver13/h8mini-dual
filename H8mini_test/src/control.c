@@ -257,8 +257,17 @@ else 	pidoutput[2] = motorchange + offset;
 		mix[MOTOR_BR] = throttle - pidoutput[0] + pidoutput[1] - pidoutput[2];		// BR
 		mix[MOTOR_BL] = throttle + pidoutput[0] + pidoutput[1] + pidoutput[2];		// BL	
 
+#ifdef MOTOR_FILTER		
+float motorfilter( float motorin ,int number);
 
-		
+for ( int i = 0 ; i < 3 ; i++)
+			{
+			if ( mix[i] < 0 ) mix[i] = 0;
+			if ( mix[i] > 1 ) mix[i] = 1;
+			mix[i] = motorfilter(  mix[i] , i);
+			}	
+#endif
+
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
 		float test = motormap( mix[i] );
@@ -282,29 +291,8 @@ else 	pidoutput[2] = motorchange + offset;
 	
 }
 	
-/*
-float motormap_old( float input)
-{ 
-	// this is a thrust to pwm function
-	//  float 0 to 1 input and output
-	// reverse of a power to thrust graph for 8.5 mm coreless motors + hubsan prop
-	// should be ok for other motors without reduction gears.
-	// a*x^2 + b*x + c
-	// a = 0.75 , b = 0.061 , c = 0.185
-
-if (input > 1.0) input = 1.0;
-if (input < 0) input = 0;
-	
-if ( input < 0.25 ) return input;
-
-input = input*input*0.75  + input*(0.0637);
-input += 0.185;
-
-return input;   
-}
-*/
-
-float motormap( float input)
+// the old map for 490Hz
+float motormapx( float input)
 { 
 	// this is a thrust to pwm function
 	//  float 0 to 1 input and output
@@ -322,4 +310,25 @@ input += -0.0258f;
 return input;   
 }
 
+// 8k pwm is where the motor thrust is relatively linear for the H8 6mm motors
+// it's due to the motor inductance cancelling the nonlinearities.
+float motormap( float input)
+{
+	return input;
+}
 
+
+
+float lastsample[4];
+float lastsample2[4];
+
+// hanning 3 sample filter
+float motorfilter( float motorin ,int number)
+{
+ 	float ans = motorin*0.25f + lastsample[number] * 0.5f +   lastsample2[number] * 0.25f ;
+	
+	lastsample2[number] = lastsample[number];
+	lastsample[number] = motorin;
+	
+	return ans;
+}
