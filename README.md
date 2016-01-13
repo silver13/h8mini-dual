@@ -24,6 +24,14 @@ Trims are currently not functional on the stock tx.
 #####Devo tx:
 Channels work as intended except the rate/expert channel which is always on. Dynamic trims are not used. If gestures are to be used make sure the tx can reach at least 80% of max rates ( high rates on).
 
+### 13.1.16
+* clock setting fix
+* pid's are now compatible with the acro only version 
+* only rate d term is affected, new kd = old kd * 2.5
+* 8Khz pwm used instead of 490Hz
+* 1ms loop time, fixed
+* level mode switch set to gestures by default now
+
 ### 28.12.15
 * a battery low warning fix
 * some level mode settings changed ( acc filter time, acc lpf )
