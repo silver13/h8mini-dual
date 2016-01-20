@@ -58,7 +58,7 @@ void sixaxis_init( void)
  i2c_writereg( 107 , 0);
 	
 
-int newboard = (0x78==i2c_readreg( 117 ));
+int newboard = !(0x68==i2c_readreg( 117 ));
  
 	i2c_writereg( 27 , 24);	
 	
@@ -166,6 +166,8 @@ for ( int i = 0 ; i < 3; i++)
 int count = 0;
 void loadcal(void);
 
+#define CAL_TIME 2e6
+
 void gyro_cal(void)
 {
 int data[6];
@@ -175,8 +177,16 @@ unsigned long timestart = time;
 unsigned long timemax = time;
 unsigned long lastlooptime;
 
+float gyro[3];	
+float limit[3];
+	
+ for ( int i = 0 ; i < 3 ; i++)
+			{
+			limit[i] = gyrocal[i];
+			}
+
 // 2 and 15 seconds
-while ( time - timestart < 2e6  &&  time - timemax < 15e6 )
+while ( time - timestart < CAL_TIME  &&  time - timemax < 15e6 )
 	{	
 		
 		unsigned long looptime; 
@@ -189,44 +199,57 @@ while ( time - timestart < 2e6  &&  time - timemax < 15e6 )
 		gyro[0] = (int16_t) ((data[2]<<8) + data[3]);
 		gyro[1] = (int16_t) ((data[0]<<8) + data[1]);
 		gyro[2] = (int16_t) ((data[4]<<8) + data[5]);	
+	
 		
 if ( (time - timestart)%200000 > 100000) 
 {
-	ledon(B0101);
-	ledoff(B1010);
+	ledon(B00000101);
+	ledoff(B00001010);
 }
 else 
 {
-	ledon(B1010);
-	ledoff(B0101);
+	ledon(B00001010);
+	ledoff(B00000101);
 }
+		
 		 for ( int i = 0 ; i < 3 ; i++)
 			{
-				if ( fabs(gyro[i]) > 100 ) 
-				{
-					count = 0;
-					timestart = gettime();
-				}
-				else
-				{
-					lpf( &gyrocal[i] , gyro[i], lpfcalc( (float) looptime , 0.5 * 1e6) );
-					count++;
-				}
+
+					if ( gyro[i] > limit[i] )  limit[i] += 0.1f; // 100 gyro bias / second change
+					if ( gyro[i] < limit[i] )  limit[i] -= 0.1f;
 				
+					limitf( &limit[i] , 800);
+				
+					if ( fabs(gyro[i]) > 100+ fabs(limit[i]) ) 
+					{										
+						timestart = gettime();
+					}
+					else
+					{						
+					lpf( &gyrocal[i] , gyro[i], lpfcalc( (float) looptime , 0.5 * 1e6) );
+				
+					}
+
 			}
 
-			
-		time = gettime();
+while ( (gettime() - time) < 1000 ) delay(10); 				
+time = gettime();
+
 	}
 
-if ( count < 100 )
+	
+
+if ( time - timestart < CAL_TIME )
 {
 	for ( int i = 0 ; i < 3; i++)
 	{
-		gyrocal[i] = 0;
+	gyrocal[i] = 0;
+
 	}
+	
 	loadcal();
 }
+	
 	
 #ifdef SERIAL	
 printf("gyro calibration  %f %f %f \n "   , gyrocal[0] , gyrocal[1] , gyrocal[2]);
@@ -249,6 +272,12 @@ void acc_cal( void)
 				
 			}
 	accelcal[2] -= 2048; 
+			
+	
+	 for ( int x = 0 ; x < 3 ; x++)
+				{			
+					limitf(&accelcal[x] , 500);
+				}
 
 }
 
