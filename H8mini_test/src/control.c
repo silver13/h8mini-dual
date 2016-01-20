@@ -45,8 +45,6 @@ extern float gyro[3];
 extern int failsafe;
 extern float pidoutput[3];
 
-extern float lpffilter( float in,int num );
-
 extern char auxchange[AUXNUMBER];
 extern char aux[AUXNUMBER];
 
@@ -62,16 +60,10 @@ float rxcopy[4];
 float error[PIDNUMBER];
 float motormap( float input);
 int lastchange;
-int pulse;
+
 float yawangle;
 float angleerror[3];
 
-/*
-// bump test vars
-int lastchange;
-int pulse;
-unsigned long timestart;
-*/
 
 extern float apid(int x );
 extern void imu_calc( void);
@@ -80,6 +72,7 @@ extern void savecal( void);
 void motorcontrol(void);
 int gestures(void);
 void pid_precalc( void);
+float motorfilter( float motorin ,int number);
 
 
 void control( void)
@@ -106,35 +99,6 @@ void control( void)
 		anglerate = LEVEL_MAX_RATE_LO;
 	}
 
-/*	
-int change = ( aux[PULSE] );
-
-if ( change != lastchange )
-{
-	pulse = 1;
-}
-lastchange = change;
-
-float motorchange = 0;
-
-
-if ( pulse )
-{
-	if ( !timestart) timestart = gettime();
-	
-	
-	if ( gettime() - timestart < 200000 )
-	{
-		motorchange = 0.2;	
-	}
-	else
-	{
-		motorchange = 0.0;
-		pulse = 0;
-		timestart = 0;
-	}
-}
-*/
 	
 	for ( int i = 0 ; i < 3; i++)
 	{
@@ -167,7 +131,7 @@ if ( pulse )
 				gyro_cal(); // for flashing lights
 				acc_cal();
 				savecal();
-				// reset loop time 
+				// reset loop time so it does not trigger check
 				extern unsigned lastlooptime;
 				lastlooptime = gettime();
 			}
@@ -210,7 +174,7 @@ else
 	
 	// reduce angle Iterm towards zero
 	extern float aierror[3];
-	for ( int i = 0 ; i <= 3 ; i++) aierror[i] *= 0.8f;
+	for ( int i = 0 ; i <= 2 ; i++) aierror[i] *= 0.8f;
 
 	error[2] = rxcopy[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
 }	
@@ -228,29 +192,26 @@ if ( throttle < 0   ) throttle = 0;
 	if ( failsafe || (throttle < 0.001f && (!ENABLESTIX||  (fabs(rx[0]) < 0.5f && fabs(rx[1]) < 0.5f ) ) ) ) 
 
 	{ // motors off
+		
 		onground = 1;
-		pwmsum = 0;
 		thrsum = 0;
 		for ( int i = 0 ; i <= 3 ; i++)
 		{
 			pwm_set( i , 0 );
-		}	
+		}				
+		#ifdef MOTOR_FILTER		
+		for ( int i = 0 ; i <= 3 ; i++)
+					{		
+					motorfilter( 0 , i);
+					}	
+		#endif
+		
 	}
 	else
 	{
 		onground = 0;
 		float mix[4];	
-		
-//		pidoutput[0] += motorchange;
-		
-/*
-static float offset;
-if ( !pulse )
-{
-  offset = pidoutput[2];
-}
-else 	pidoutput[2] = motorchange + offset;
-*/
+
 
 		mix[MOTOR_FR] = throttle - pidoutput[0] - pidoutput[1] + pidoutput[2];		// FR
 		mix[MOTOR_FL] = throttle + pidoutput[0] - pidoutput[1] - pidoutput[2];		// FL	
@@ -258,12 +219,11 @@ else 	pidoutput[2] = motorchange + offset;
 		mix[MOTOR_BL] = throttle + pidoutput[0] + pidoutput[1] + pidoutput[2];		// BL	
 
 #ifdef MOTOR_FILTER		
-float motorfilter( float motorin ,int number);
 
-for ( int i = 0 ; i < 3 ; i++)
+for ( int i = 0 ; i <= 3 ; i++)
 			{
-			if ( mix[i] < 0 ) mix[i] = 0;
-			if ( mix[i] > 1 ) mix[i] = 1;
+			//if ( mix[i] < 0 ) mix[i] = 0;
+			//if ( mix[i] > 1 ) mix[i] = 1;
 			mix[i] = motorfilter(  mix[i] , i);
 			}	
 #endif
