@@ -50,7 +50,7 @@ If binding is completed the leds should light up continuously, while if tx conne
 Overriding all this patterns except gyro calibration, is the low battery flash which is a slow, equally spaced on and off flash. 
 
 ### 25.1.16
-* (option) selectable software gyro lpf
+* (option) selectable software gyro filter
 * (option) auto throttle lowering to prevent control issues
 * (option) throttle angle compensation for level mode
 * new options all disabled by default
