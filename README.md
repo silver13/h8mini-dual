@@ -51,7 +51,7 @@ Overriding all this patterns except gyro calibration, is the low battery flash w
 
 ### 25.1.16
 * (option) selectable software gyro filter
-* (option) auto throttle lowering to prevent control issues
+* (option) auto throttle lowering to prevent control issues when near full throttle
 * (option) throttle angle compensation for level mode
 * new options all disabled by default
 * rearranged config.h
