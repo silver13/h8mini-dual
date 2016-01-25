@@ -25,7 +25,9 @@ THE SOFTWARE.
 
 #include <math.h>
 #include "util.h"
+#include "drv_time.h"
 
+// calculates the coefficient for lpf filter, times in the same units
 float lpfcalc( float sampleperiod , float filtertime)
 {
 	if ( sampleperiod <= 0 ) return 0;
@@ -35,7 +37,7 @@ float lpfcalc( float sampleperiod , float filtertime)
 	return ga;
 }
 
-
+// arduino style map function
 float mapf(float x, float in_min, float in_max, float out_min, float out_max)
 {
 
@@ -43,7 +45,7 @@ return ((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
 
 }
 
-
+// simple lpf
 void lpf( float *out, float in , float coeff)
 {
 	*out = ( *out )* coeff + in * ( 1-coeff); 
@@ -66,8 +68,48 @@ float rcexpo ( float in , float exp )
 }
 
 
+// timing routines for debugging
+static unsigned long timestart;
+unsigned long timeend;
+
+// timestart
+void TS( void)
+{
+	timestart = gettime(); 
+}
+// timeend
+void TE( void)
+{
+	timeend =( gettime() - timestart );	
+}
 
 
 
+float fastsin( float x )
+{
+ //always wrap input angle to -PI..PI
+while (x < -3.14159265)
+    x += 6.28318531;
 
+while (x >  3.14159265)
+    x -= 6.28318531;
+float sin1;
+
+//compute sine
+if (x < 0)
+   sin1 = (1.27323954 + .405284735 * x) *x;
+else
+   sin1 = (1.27323954 - .405284735 * x) *x;
+
+
+return sin1; 
+    
+} 
+
+
+float fastcos( float x )
+{
+ x += 1.57079632;
+	return fastsin(x);
+}
 

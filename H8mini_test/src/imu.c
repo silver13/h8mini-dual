@@ -29,6 +29,8 @@
 #include "util.h"
 #include "sixaxis.h"
 
+#include <stdlib.h>
+
 // for arm_sin_f32
 //   --"-- cos
 //#define ARM_MATH_CM3
@@ -138,8 +140,6 @@ void vectorcopy( float *vector1 , float *vector2)
 
 float normal = ACC_1G;
 
-float roll, pitch;
-
 
 void imu_calc(void)
 {
@@ -148,7 +148,6 @@ void imu_calc(void)
    float EstG[3];	
 	 float deltatime; // time in seconds
 	 	 
-float angleoffset[3] = { 0 , 0 , 0};
 	 
 vectorcopy ( &EstG[0] , &GEstG[0] );
 	 
@@ -227,29 +226,19 @@ for ( int i = 0 ; i < 3; i++)
 
 #endif // end small angle approx
 
+#ifdef DEBUG
 attitude[2] += RADTODEG * gyro[2]  * deltatime ;
 
 limit180 ( &attitude[2] );
-
+#endif
 // orientation vector magnitude
-float mag = 0;
-mag = calcmagnitude( &EstG[0] );
 	
-// normalize orientation vector
-if (1) 
-	{
-	 for (int x = 0; x < 3; x++) 
-		{
-			EstG[x] =  EstG[x] / ( mag / normal );
-		}	
-	}
 	
 // calc acc mag
  float accmag = 0;
 	
 accmag = calcmagnitude( &accel[0] );	
 	
-//normvector( acc , accmag, normal);
 	// normalize acc
  for (int axis = 0; axis < 3; axis++) 
 	{
@@ -276,27 +265,29 @@ if (  ( accmag > ACC_MIN * ACC_1G ) && ( accmag < ACC_MAX * ACC_1G )
 		else 
 		{// acc mag out of bounds
 		count = 0;
+			if ( rand()%20==5)
+				{				
+				float mag = 0;
+				mag = calcmagnitude( &EstG[0] );
+					
+				// normalize orientation vector
+				
+				for (int x = 0; x < 3; x++) 
+				{
+					EstG[x] =  EstG[x] / ( mag / normal );
+				}	
+			}
 		}
 
  vectorcopy ( &GEstG[0] , &EstG[0]);
 	 
-roll = atan2approx(	EstG[0] , 	EstG[2] ) ;		
-// XXX  TEST		
-attitude[0] = roll + angleoffset[0];
+attitude[0] = atan2approx(	EstG[0] , EstG[2] ) ;		
 		
-pitch = atan2approx (EstG[1], EstG[2]);
+attitude[1] = atan2approx (EstG[1], EstG[2]);
 		
-// XXX TEST
-attitude[1] = pitch + angleoffset[1];
-
 }
 
-void normvector( float * vector , float mag , float newmag)
-{
-	for (int axis = 0; axis < 3; axis++) {
-	  vector[axis] =  vector[axis] / (newmag / mag) ;
-	}	
-}
+
 
 #define M_PI  3.14159265358979323846  /* pi */
 
@@ -312,7 +303,7 @@ void normvector( float * vector , float mag , float newmag)
 // +-0.09 deg error
 float atan2approx( float y, float x)
 {
-    //if(y==0)    return (x>=0 ? 0 : M_PI);
+
 		if (x == 0) x = 123e-15; 
     float phi = 0;
     float dphi;
@@ -320,13 +311,10 @@ float atan2approx( float y, float x)
 
     OCTANTIFY(x, y, phi);
     
-    // --- <specifics> ---
     t=(y/ x);
 		// atan function for 0 - 1 interval
     dphi= M_PI/4*t - t*((t) - 1)*(0.2447 + 0.0663*(t));
-    // --- </specifics> ---
- //   std::cout <<t<<" ";
- //   std::cout <<phi<<" ";
+
     phi *= M_PI/4;  
     dphi = phi + dphi;
     if ( dphi > M_PI ) dphi -= 2*M_PI;

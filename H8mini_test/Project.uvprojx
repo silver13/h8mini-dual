@@ -578,9 +578,9 @@
               <FilePath>.\src\sixaxis.c</FilePath>
             </File>
             <File>
-              <FileName>util.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\util.c</FilePath>
+              <FileName>filter.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\src\filter.cpp</FilePath>
             </File>
             <File>
               <FileName>imu.c</FileName>
@@ -596,6 +596,11 @@
               <FileName>flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\util.c</FilePath>
             </File>
             <File>
               <FileName>pid.c</FileName>

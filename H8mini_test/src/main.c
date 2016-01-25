@@ -74,8 +74,9 @@ unsigned long ledcommandtime = 0;
  
  int lowbatt = 0;
 
-
-
+#ifdef DEBUG
+unsigned long elapsedtime;
+#endif
 
 int main(void)
 {
@@ -163,7 +164,7 @@ while ( count < 64 )
 if ( vbattfilt < STOP_LOWBATTERY_TRESH) failloop(2);
 #endif
 
-// loads gyro dafaults too
+// loads acc calibration and gyro dafaults
 loadcal();
 
 	gyro_cal();
@@ -273,7 +274,9 @@ checkrx();
 		
 		
 	checkrx();
-
+#ifdef DEBUG
+		elapsedtime = gettime()- maintime;
+#endif		
 // loop time 1ms		
 while ( (gettime() - maintime) < 1000 ) delay(10); 		
 

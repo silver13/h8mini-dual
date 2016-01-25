@@ -37,16 +37,6 @@ THE SOFTWARE.
 
 #include <math.h>
 
-#define UNK_INVENSENSE_ADDRESS 0x68
-
-
-#if (GYRO_LOW_PASS_FILTER<=6)
-#define UNK_INVENSENSE_DLPF_CFG GYRO_LOW_PASS_FILTER
-#else
-#define UNK_INVENSENSE_DLPF_CFG   6
-#endif
-
-
 
 void sixaxis_init( void)
 {
@@ -69,7 +59,7 @@ int newboard = !(0x68==i2c_readreg( 117 ));
 if (newboard)	i2c_writereg( 29 , ACC_LOW_PASS_FILTER );	
 
 // Gyro and acc DLPF low pass filter(old board)  or gyro only for the new board
-i2c_writereg( 26 , UNK_INVENSENSE_DLPF_CFG);		
+i2c_writereg( 26 , GYRO_LOW_PASS_FILTER);		
 }
 
 
@@ -86,15 +76,19 @@ int sixaxis_check( void)
 float accel[3];
 float gyro[3];
 
-float gyrocal[3];
 float accelcal[3];
+float gyrocal[3];
 
+
+float lpffilter( float in,int num );
 
 void sixaxis_read( void)
 {
 int data[16];
 
 int error = 0;
+
+float gyronew[3];
 
 error = ( i2c_readdata( 59 , data, 14 ) );	
 // 2nd attempt at an i2c read	
@@ -113,23 +107,28 @@ accel[1] = (int16_t) ((data[2]<<8) + data[3]);
 accel[2] = (int16_t) ((data[4]<<8) + data[5]);
 
 
-gyro[1] = (int16_t) ((data[8]<<8) + data[9]);
-gyro[0] = (int16_t) ((data[10]<<8) + data[11]);
-gyro[2] = (int16_t) ((data[12]<<8) + data[13]);
+gyronew[1] = (int16_t) ((data[8]<<8) + data[9]);
+gyronew[0] = (int16_t) ((data[10]<<8) + data[11]);
+gyronew[2] = (int16_t) ((data[12]<<8) + data[13]);
 
-
-gyro[0] = gyro[0] - gyrocal[0];
-gyro[1] = gyro[1] - gyrocal[1];
-gyro[2] = gyro[2] - gyrocal[2];
-
-gyro[0] = - gyro[0];
-gyro[2] = - gyro[2];
 
 
 for ( int i = 0 ; i < 3; i++)
 {
-	gyro[i] = gyro[i] *  0.061035156f * 0.017453292f ;
+	
+  gyronew[i] = gyronew[i] - gyrocal[i];
+	
+	gyronew[i] = gyronew[i] *  0.061035156f * 0.017453292f ;
+#ifndef SOFT_LPF_NONE
+	gyro[i]= lpffilter(  gyronew[i], i );
+#else
+	gyro[i] = gyronew[i];
+#endif	
 }
+
+
+gyro[0] = - gyro[0];
+gyro[2] = - gyro[2];
 
 
 }
@@ -142,28 +141,35 @@ int data[6];
 	
  i2c_readdata( 67 , data, 6 );
 	
-gyro[1] = (int16_t) ((data[0]<<8) + data[1]);
-gyro[0] = (int16_t) ((data[2]<<8) + data[3]);
-gyro[2] = (int16_t) ((data[4]<<8) + data[5]);
+float gyronew[3];
+	
+gyronew[1] = (int16_t) ((data[0]<<8) + data[1]);
+gyronew[0] = (int16_t) ((data[2]<<8) + data[3]);
+gyronew[2] = (int16_t) ((data[4]<<8) + data[5]);
 
 
-gyro[0] = gyro[0] - gyrocal[0];
-gyro[1] = gyro[1] - gyrocal[1];
-gyro[2] = gyro[2] - gyrocal[2];
+gyronew[0] = gyronew[0] - gyrocal[0];
+gyronew[1] = gyronew[1] - gyrocal[1];
+gyronew[2] = gyronew[2] - gyrocal[2];
 
-gyro[0] = - gyro[0];
-gyro[2] = - gyro[2];
+gyronew[0] = - gyronew[0];
+gyronew[2] = - gyronew[2];
 
 
 for ( int i = 0 ; i < 3; i++)
 {
-	gyro[i] = gyro[i] *  0.061035156f * 0.017453292f ;
+	gyronew[i] = gyronew[i] *  0.061035156f * 0.017453292f ;
+#ifndef SOFT_LPF_NONE	
+	gyro[i]= lpffilter(  gyronew[i], i );
+#else
+	gyro[i] = gyronew[i];
+#endif		
 }
 
 }
 
 
-int count = 0;
+
 void loadcal(void);
 
 #define CAL_TIME 2e6
