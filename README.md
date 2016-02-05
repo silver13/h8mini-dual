@@ -35,6 +35,8 @@ For accelerometer calibration move the pitch stick down 3 times within about 1- 
 
 Note the acc calibration also saves gyro biases which are used in some cases. The flash pattern is similar to the gyro calibration pattern.
 
+*Calibration has to be done on a horizontal surface*
+
 #####Led error codes
 In some cases the leds are used to indicate error conditions, and as such they flash a number of times, then a brake occurs, then the pattern repeats. In all such cases the quadcopter will not respond to commands, a power cycle will be required.
 
@@ -48,6 +50,20 @@ Following should be a fast (20 times/sec) flash indicating that the quad is wait
 If binding is completed the leds should light up continuously, while if tx connection is lost they will flash a short time a couple of times / second.
 
 Overriding all this patterns except gyro calibration, is the low battery flash which is a slow, equally spaced on and off flash. 
+
+
+####Linux support
+```
+Just a basic compilation under Linux:
+$ cd gcc
+$ make
+$ st-flash write /dev/sg0 h8mini 0x08000000
+```
+
+###05.02.16
+* added linux compilation support by balrog-kun
+* (option) added throttle transient compensation 
+* (option) added "anti-clipping" with feedforward 
 
 ### 25.1.16
 * (option) selectable software gyro filter
