@@ -64,6 +64,7 @@ $ st-flash write /dev/sg0 h8mini 0x08000000
 * added linux compilation support by balrog-kun
 * (option) added throttle transient compensation 
 * (option) added "anti-clipping" with feedforward 
+* new options disabled by default for now
 
 ### 25.1.16
 * (option) selectable software gyro filter
