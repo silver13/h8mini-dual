@@ -64,7 +64,7 @@ $ st-flash write /dev/sg0 h8mini 0x08000000
 * added linux compilation support by balrog-kun
 * (option) added throttle transient compensation 
 * (option) added "anti-clipping" with feedforward 
-* new options disabled by default for now
+* new options disabled by default
 
 ### 25.1.16
 * (option) selectable software gyro filter
@@ -82,7 +82,7 @@ $ st-flash write /dev/sg0 h8mini 0x08000000
 * only rate d term is affected, new kd = old kd * 2.5
 * 8Khz pwm used instead of 490Hz
 * 1ms loop time, fixed
-* level mode switch set to gestures by default now
+* level mode switch set to gestures by default
 
 ### 28.12.15
 * a battery low warning fix
