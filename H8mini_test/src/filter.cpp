@@ -2,6 +2,11 @@
 #include "config.h"
 
 
+// These filters were made with the filter calculator at  "http://www.schwietering.com/jayduino/filtuino/"
+// the sample rate is 1Khz (loop time)
+
+
+
 #ifdef SOFT_LPF_1ST_023HZ
 //Low pass bessel filter order=1 alpha1=0.023 
 class  FilterBeLp1
@@ -243,44 +248,6 @@ class  FilterBeLp4
 FilterBeLp4 filter[3];
 #endif
 
-/*
-//Low pass bessel filter order=5 alpha1=0.25 
-class  FilterBeLp5
-{
-	public:
-		FilterBeLp5()
-		{
-			for(int i=0; i <= 5; i++)
-				v[i]=0.0;
-		}
-	private:
-		float v[6];
-	public:
-		float step(float x) //class II 
-		{
-			v[0] = v[1];
-			v[1] = v[2];
-			v[2] = v[3];
-			v[3] = v[4];
-			v[4] = v[5];
-			v[5] = (1.208351322781343190e-1 * x)
-				 + (-0.00774391679467501329 * v[0])
-				 + (-0.08681030832138836306 * v[1])
-				 + (-0.39832002985015058094 * v[2])
-				 + (-1.01897580490117678487 * v[3])
-				 + (-1.35487417303290746950 * v[4]);
-			return 
-				 (v[0] + v[5])
-				+5 * (v[1] + v[4])
-				+10 * (v[2] + v[3]);
-		}
-};
-
-FilterBeLp5 filter[3];
-*/
-//no go 
-// 250 4th + 250gyro
-// 250 3rd + 250 gyro
 
 extern "C" float lpffilter( float in,int num )
 {
@@ -291,5 +258,36 @@ extern "C" float lpffilter( float in,int num )
 	#endif
 	
 }
+
+
+// 16Hz hpf filter for throttle compensation
+//High pass bessel filter order=1 alpha1=0.016 
+class  FilterBeHp1
+{
+	public:
+		FilterBeHp1()
+		{
+			v[0]=0.0;
+		}
+	private:
+		float v[2];
+	public:
+		float step(float x) //class II 
+		{
+			v[0] = v[1];
+			v[1] = (9.521017968695103528e-1f * x)
+				 + (0.90420359373902081668f * v[0]);
+			return 
+				 (v[1] - v[0]);
+		}
+};
+
+FilterBeHp1 throttlehpf1;
+
+extern "C" float throttlehpf( float in )
+{
+	return throttlehpf1.step(in );
+}
+
 
 

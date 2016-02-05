@@ -8,6 +8,8 @@
 // not including the "f" after float numbers will give a warning
 // it will still work
 
+
+
 // rate in deg/sec
 // for low rates ( acro mode)
 #define MAX_RATE 180.0f
@@ -177,12 +179,16 @@
 #define MOTOR_FILTER
 
 
+// clip feedforward attempts to resolve issues that occur near full throttle
+//#define CLIP_FF
+
+// motor transient correction applied	to throttle stick
+//#define THROTTLE_TRANSIENT_COMPENSATION
+
+
 
 // failsafe time in uS
 #define FAILSAFETIME 1000000  // one second
-
-
-
 
 
 

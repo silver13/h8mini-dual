@@ -47,6 +47,8 @@ extern float pidoutput[3];
 
 extern float lpffilter( float in,int num );
 
+extern float throttlehpf( float in );
+
 extern char auxchange[AUXNUMBER];
 extern char aux[AUXNUMBER];
 
@@ -65,8 +67,6 @@ int lastchange;
 
 float yawangle;
 float angleerror[3];
-
-float debugthr;
 
 float overthrottlefilt;
 
@@ -231,9 +231,24 @@ if ( throttle > 1.0f ) throttle = 1.0f;
 					}	
 		#endif
 		
+		
+		#ifdef 	THROTTLE_TRANSIENT_COMPENSATION	
+		// reset hpf filter;
+    throttlehpf( 0 );	
+		#endif	
+		
 	}
 	else
 	{
+
+
+#ifdef 	THROTTLE_TRANSIENT_COMPENSATION	
+			throttle += 7.0f*throttlehpf( throttle );	
+			if ( throttle < 0   ) throttle = 0;
+			if ( throttle > 1.0f ) throttle = 1.0f;		
+#endif			
+		
+		
 		// throttle angle compensation
 #ifdef AUTO_THROTTLE
 		if ( aux[LEVELMODE]||AUTO_THROTTLE_ACRO_MODE ) 
@@ -247,7 +262,6 @@ if ( throttle > 1.0f ) throttle = 1.0f;
 			if ( old_throttle < 0.9f ) if ( throttle > 0.9f ) throttle = 0.9f;
 
 			if ( throttle > 1.0f ) throttle = 1.0f;
-			debugthr = autothrottle;
 
 		}
 #endif		
@@ -316,9 +330,19 @@ if ( overthrottle > 0 )
 
 for ( int i = 0 ; i <= 3 ; i++)
 			{
-			//if ( mix[i] < 0 ) mix[i] = 0;
-			//if ( mix[i] > 1 ) mix[i] = 1;
 			mix[i] = motorfilter(  mix[i] , i);
+			}	
+#endif
+
+	
+
+
+#ifdef CLIP_FF		
+float clip_ff( float motorin ,int number);
+			
+for ( int i = 0 ; i <= 3 ; i++)
+			{
+			mix[i] = clip_ff(  mix[i] , i);
 			}	
 #endif
 
@@ -385,4 +409,34 @@ float motorfilter( float motorin ,int number)
 	hann_lastsample[number] = motorin;
 	
 	return ans;
+}
+
+
+float clip_feedforward[4];
+// clip feedforward adds the amount of thrust exceeding 1.0 ( max) 
+// to the next iteration(s) of the loop
+// so samples 0.5 , 1.5 , 0.4 would transform into 0.5 , 1.0 , 0.9;
+
+float clip_ff( float motorin ,int number)
+{
+ 
+	if ( motorin > 1.0f)
+	{
+		clip_feedforward[number] += ( motorin - 1.0f);
+		//cap feedforward to prevent windup 
+		if ( clip_feedforward[number] > .5f ) clip_feedforward[number] = .5f;
+	}
+	else if ( clip_feedforward[number] > 0)
+	{
+		float difference = 1.0f - motorin;
+		motorin = motorin + clip_feedforward[number];
+		if ( motorin > 1.0f ) 
+		{
+			clip_feedforward[number]-=difference;
+			if ( clip_feedforward[number] < 0 ) clip_feedforward[number] = 0;
+		}
+		else clip_feedforward[number] = 0;
+		
+	}
+	return motorin;
 }

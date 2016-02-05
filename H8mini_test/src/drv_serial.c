@@ -2,8 +2,11 @@
 #include "gd32f1x0.h"
 #include <stdio.h>
 #include "drv_serial.h"
+#include "config.h"
 
 #define SERIAL_BUFFER_SIZE 64
+
+#ifdef SERIAL 
 
 uint8_t buffer[SERIAL_BUFFER_SIZE];
 char buffer_start = 0;
@@ -12,10 +15,6 @@ char buffer_end = 1;
 
 int fputc(int ch, FILE *f)
 {	
-
-  //  USART_DataSend( USART2 , (uint8_t) ch );
-  //  while (USART_GetBitState( USART2 , USART_FLAG_TBE) == RESET);
-
 	buffer[buffer_end] =(char) ch;
 	buffer_end++;
 	buffer_end=buffer_end%(SERIAL_BUFFER_SIZE);
@@ -24,12 +23,7 @@ int fputc(int ch, FILE *f)
   return ch;
 }
 
-void writebuff( int ch)
-{
-	buffer[buffer_end]= (uint8_t) ch;
-	buffer_end++;
-	buffer_end=buffer_end%(SERIAL_BUFFER_SIZE);
-}
+
 
 void USART2_IRQHandler(void)
 {
@@ -53,9 +47,6 @@ void serial_init(void)
 
     RCC_APB1PeriphClock_Enable( RCC_APB1PERIPH_USART2 , ENABLE );
     
-
-    //GPIO_DeInit( GPIOA );
-	
 		GPIO_InitPara GPIO_InitStructure;
 
 		GPIO_PinAFConfig( GPIOA , GPIO_PINSOURCE2, GPIO_AF_1 );    
@@ -72,8 +63,6 @@ void serial_init(void)
 
 		USART_InitPara USART_InitStructure;
 		
-//		USART_DeInit( USART2 );
-		
 		USART_InitStructure.USART_BRR           = 57600;
 		USART_InitStructure.USART_WL            = USART_WL_8B;
 		USART_InitStructure.USART_STBits        = USART_STBITS_1;
@@ -86,7 +75,8 @@ void serial_init(void)
 		
 	  USART_INT_Set(USART2, USART_INT_TC , ENABLE); // USART_INT_TBE
 		
- //  NVIC_EnableIRQ( USART2_IRQn);
 
 
 }
+
+#endif
