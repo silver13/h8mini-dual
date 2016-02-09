@@ -187,6 +187,21 @@
 
 
 
+// motor curve to use
+// the pwm frequency has to be set independently
+#define MOTOR_CURVE_NONE
+//#define MOTOR_CURVE_6MM_490HZ
+//#define MOTOR_CURVE_85MM_8KHZ
+//#define MOTOR_CURVE_85MM_32KHZ
+
+// pwm frequency for motor control
+// a higher frequency makes the motors more linear
+//#define PWM_490HZ
+//#define PWM_8KHZ
+#define PWM_16KHZ
+//#define PWM_24KHZ
+//#define PWM_32KHZ
+
 // failsafe time in uS
 #define FAILSAFETIME 1000000  // one second
 
@@ -196,9 +211,12 @@
 // things that are experimental / old / etc
 // do not change things below
 
+// invert yaw pid for hubsan motors
+//#define INVERT_YAW_PID
+
 //some debug stuff
 //#define DEBUG
-// 
+
 // disable motors for testing
 //#define NOMOTORS
 
@@ -210,10 +228,14 @@
 // possible values: 0 / 1
 #define ENABLESTIX 0
 
+// only for compilers other than gcc
+#ifndef __GNUC__
+
 #pragma diag_warning 1035 , 177 , 4017
 
 #pragma diag_error 260 
 
+#endif
 // --fpmode=fast ON
 
 

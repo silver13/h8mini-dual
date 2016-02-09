@@ -36,12 +36,14 @@ void spi_init(void)
 #define SPION gpioset( GPIOB, 5);
 
 #define READMISO ((GPIOA->DIR & GPIO_PIN_15) != (uint32_t)Bit_RESET)
+#ifndef __GNUC__ 
  
 #pragma push
 
 #pragma Otime
 #pragma O2
 
+#endif
 __inline void spi_cson( )
 {
 	GPIO_WriteBit(GPIOB, GPIO_PIN_5, Bit_RESET);
@@ -142,8 +144,9 @@ int spi_sendrecvbyte2( int data)
     return recv;
 }
 
-
+#ifndef __GNUC__
 #pragma pop
+#endif
 
 
 

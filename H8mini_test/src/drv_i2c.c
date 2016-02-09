@@ -90,6 +90,11 @@ delay(10);
 		GPIO_WriteBit(GPIOB, GPIO_PIN_6, Bit_RESET);	
 			delay(25);
 		GPIO_WriteBit(GPIOB, GPIO_PIN_6, Bit_SET);					
+			delay(5);
+		if ( Bit_RESET != GPIO_ReadInputBit( GPIOB, GPIO_PIN_7) )
+			{
+				break;
+			}
 		}
 		
 	}

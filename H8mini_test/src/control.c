@@ -268,11 +268,20 @@ if ( throttle > 1.0f ) throttle = 1.0f;
 		onground = 0;
 		float mix[4];	
 
+#ifdef INVERT_YAW_PID
+pidoutput[2] = -pidoutput[2];			
+#endif
 
 		mix[MOTOR_FR] = throttle - pidoutput[0] - pidoutput[1] + pidoutput[2];		// FR
 		mix[MOTOR_FL] = throttle + pidoutput[0] - pidoutput[1] - pidoutput[2];		// FL	
 		mix[MOTOR_BR] = throttle - pidoutput[0] + pidoutput[1] - pidoutput[2];		// BR
 		mix[MOTOR_BL] = throttle + pidoutput[0] + pidoutput[1] + pidoutput[2];		// BL	
+
+		
+#ifdef INVERT_YAW_PID
+// we invert again cause it's used by the pid internally (for limit)
+pidoutput[2] = -pidoutput[2];			
+#endif
 
 		
 #ifdef MIX_LOWER_THROTTLE 	
@@ -369,8 +378,9 @@ for ( int i = 0 ; i <= 3 ; i++)
 	
 }
 	
+#ifdef MOTOR_CURVE_6MM_490HZ
 // the old map for 490Hz
-float motormapx( float input)
+float motormap( float input)
 { 
 	// this is a thrust to pwm function
 	//  float 0 to 1 input and output
@@ -387,15 +397,49 @@ input += -0.0258f;
 
 return input;   
 }
+#endif
 
 // 8k pwm is where the motor thrust is relatively linear for the H8 6mm motors
 // it's due to the motor inductance cancelling the nonlinearities.
+#ifdef MOTOR_CURVE_NONE
 float motormap( float input)
 {
 	return input;
 }
+#endif
+
+#ifdef MOTOR_CURVE_85MM_8KHZ	
+// Hubsan 8.5mm 8khz pwm motor map
+float motormap( float input)
+{ 
+//	Hubsan 8.5mm motors and props 
+
+if (input > 1) input = 1;
+if (input < 0) input = 0;
+
+input = input*input*0.789f  + input*(0.172f);
+input += 0.04f;
+
+return input;   
+}
+#endif
 
 
+#ifdef MOTOR_CURVE_85MM_32KHZ	
+// Hubsan 8.5mm 8khz pwm motor map
+float motormap( float input)
+{ 
+//	Hubsan 8.5mm motors and props 
+
+if (input > 1) input = 1;
+if (input < 0) input = 0;
+
+input = input*input*0.197f  + input*(0.74f);
+input += 0.067f;
+
+return input;   
+}
+#endif
 
 float hann_lastsample[4];
 float hann_lastsample2[4];

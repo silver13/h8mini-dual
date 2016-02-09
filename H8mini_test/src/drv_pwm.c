@@ -1,18 +1,57 @@
 #include <gd32f1x0.h>
 
 #include "drv_pwm.h"
+#include "config.h"
 
  TIMER_OCInitPara  TIM_OCInitStructure;
 
 // CENTER ALIGNED PWM METHOD
 
+// set in config.h 
+
+//#define PWM_490HZ
+//#define PWM_8KHZ_OLD
+//#define PWM_8KHZ
+//#define PWM_16KHZ
+//#define PWM_24KHZ
+
 // 490Khz
-//#define PWMTOP 16383
+#ifdef PWM_490HZ
+#define PWMTOP 16383
+#define TIMER_PRESCALER 3
+#endif
 
 
-// 8Khz - ch div
+// 8Khz - ch div 3
+#ifdef PWM_8KHZ_OLD
 #define PWMTOP 1023
+#define TIMER_PRESCALER 3
+#endif
 
+// 8Khz
+#ifdef PWM_8KHZ
+#define PWMTOP 3072
+#define TIMER_PRESCALER 1
+#endif
+
+// 16Khz
+#ifdef PWM_16KHZ
+#define PWMTOP 1535
+#define TIMER_PRESCALER 1
+#endif
+
+// 24Khz
+#ifdef PWM_24KHZ
+#define PWMTOP 1023
+#define TIMER_PRESCALER 1
+#endif
+
+
+// 32Khz
+#ifdef PWM_32KHZ
+#define PWMTOP 767
+#define TIMER_PRESCALER 1
+#endif
 
 void pwm_init(void)
 {
@@ -45,7 +84,7 @@ void pwm_init(void)
 
 // TIMER3 for pins A8 A9 A10
 
-    TIM_TimeBaseStructure.TIMER_Prescaler = 2;  // +1
+    TIM_TimeBaseStructure.TIMER_Prescaler = TIMER_PRESCALER - 1;  //
     TIM_TimeBaseStructure.TIMER_CounterMode = TIMER_COUNTER_CENTER_ALIGNED2;
     TIM_TimeBaseStructure.TIMER_Period = PWMTOP;
     TIM_TimeBaseStructure.TIMER_ClockDivision = TIMER_CDIV_DIV1;

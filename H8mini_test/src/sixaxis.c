@@ -181,7 +181,7 @@ int data[6];
 unsigned long time = gettime();
 unsigned long timestart = time;
 unsigned long timemax = time;
-unsigned long lastlooptime;
+unsigned long lastlooptime = time;
 
 float gyro[3];	
 float limit[3];
