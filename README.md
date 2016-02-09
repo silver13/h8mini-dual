@@ -60,6 +60,13 @@ $ make
 $ st-flash write /dev/sg0 h8mini 0x08000000
 ```
 
+
+###09.02.16
+* fixed "gyro not found" in debug mode / after flashing (hopefully)
+* selectable motor curves, also with 8.5mm hubsan motors support
+* pwm frequency in config.h (now set to 16k)
+* "invert yaw option" for hubsan motors/other builds that have spinning yaw
+
 ###05.02.16
 * added linux compilation support by balrog-kun
 * (option) added throttle transient compensation 
