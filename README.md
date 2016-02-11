@@ -53,12 +53,8 @@ Overriding all this patterns except gyro calibration, is the low battery flash w
 
 
 ####Linux support
-```
-Just a basic compilation under Linux:
-$ cd gcc
-$ make
-$ st-flash write /dev/sg0 h8mini 0x08000000
-```
+See post by balrog-kun:
+http://www.rcgroups.com/forums/showpost.php?p=33971694&postcount=743
 
 
 ###09.02.16
