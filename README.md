@@ -33,7 +33,7 @@ During calibration the leds flash in an "X" like pattern. If movement is detecte
 #####Accelerometer calibration
 For accelerometer calibration move the pitch stick down 3 times within about 1- 2 seconds. Wait a couple of seconds after a failed attempt. Throttle has to be low, and roll centered. Flashing lights indicate the calibration process. This is saved so it has to be done only once.
 
-Note the acc calibration also saves gyro biases which are used in some cases. The flash pattern is similar to the gyro calibration pattern.
+Note, the acc calibration also saves gyro biases which are used in some cases. The flash pattern is similar to the gyro calibration pattern.
 
 *Calibration has to be done on a horizontal surface*
 
