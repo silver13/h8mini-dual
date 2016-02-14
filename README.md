@@ -37,6 +37,8 @@ Note, the acc calibration also saves gyro biases which are used in some cases. T
 
 *Calibration has to be done on a horizontal surface*
 
+The calibration does not get erased between firmware flashes unless "erase" is used in the relevant menu.
+
 #####Led error codes
 In some cases the leds are used to indicate error conditions, and as such they flash a number of times, then a brake occurs, then the pattern repeats. In all such cases the quadcopter will not respond to commands, a power cycle will be required.
 
