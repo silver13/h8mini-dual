@@ -17,28 +17,22 @@ MCFLAGS = -mcpu=$(MCU) -mthumb -mlittle-endian -mthumb-interwork -ffast-math -fd
 
 topdir = ..
 INCLUDES = -I$(topdir)/H8mini-test/src/ \
-	 -I$(topdir)/H8mini-acro/src/ \
+	-I$(topdir)/H8mini-acro/src/ \
 	-I$(topdir)/CMSIS/ \
 	-I$(topdir)/Peripherals/inc/
 
 OPTIMIZE = -Os
 
-CFLAGS = $(MCFLAGS)  $(OPTIMIZE)  $(DEFS) -I. -I./ $(INCLUDES) -Wl,-T,flash.ld,-Map,output.map,--gc-sections -std=gnu99
+CFLAGS = $(MCFLAGS) $(OPTIMIZE) $(DEFS) $(INCLUDES) -std=gnu99
 AFLAGS = $(MCFLAGS)
+LDFLAGS = -nostdlib -lm -lnosys -Wl,-T,flash.ld,-Map,$(TARGET).map,--gc-sections,-Os
 
-SRC = $(wildcard $(topdir)/H8mini_acro/src/*.c) \
-	$(wildcard $(topdir)/H8mini_test/src/*.c) \
-	$(wildcard $(topdir)/H8mini_test/src/*.cpp) \
+SRC = $(wildcard $(topdir)/H8mini_*/src/*.c) \
+	$(wildcard $(topdir)/H8mini_*/src/*.cpp) \
 	$(topdir)/CMSIS/system_gd32f1x0.c \
 	core_cm3.c \
-	$(topdir)/Peripherals/src/gd32f1x0_adc.c \
-	$(topdir)/Peripherals/src/gd32f1x0_dma.c \
-	$(topdir)/Peripherals/src/gd32f1x0_fmc.c \
-	$(topdir)/Peripherals/src/gd32f1x0_gpio.c \
-	$(topdir)/Peripherals/src/gd32f1x0_i2c.c \
-	$(topdir)/Peripherals/src/gd32f1x0_rcc.c \
-	$(topdir)/Peripherals/src/gd32f1x0_timer.c \
-	$(topdir)/Peripherals/src/gd32f1x0_usart.c
+	$(wildcard $(topdir)/Peripherals/src/*.c)
+HEADERS = $(wildcard $(topdir)/H8mini_*/src/*.h)
 
 OBJDIR = .
 OBJ = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRC)))
@@ -52,9 +46,8 @@ $(TARGET).hex: $(EXECUTABLE)
 $(TARGET): $(EXECUTABLE)
 	$(CP) -O binary $^ $@
 
-$(EXECUTABLE): $(SRC) $(STARTUP)
-	$(CC) $(CFLAGS) $^ -lm -lnosys -o $@
-	
+$(EXECUTABLE): $(SRC) $(STARTUP) $(HEADERS)
+	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 clean:
 	rm -f Startup.lst $(TARGET) $(TARGET).lst $(AUTOGEN) \
