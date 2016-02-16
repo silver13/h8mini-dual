@@ -80,10 +80,15 @@
 // 3 - headingreturn
 // 4 - AUX1 ( gestures <<v and >>v)
 // 5 - AUX2+ (  none    )
-// 6 - on always
-// 7 - off always
+// 6 - Pitch trims
+// 7 - Roll trims
+// 8 - Throttle trims
+// 9 - Yaw trims
+// 10 - on always
+// 11 - off always
 // CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
 // CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
+// CH_PIT_TRIM, CH_RLL_TRIM, CH_THR_TRIM, CH_YAW_TRIM
 #define HEADLESSMODE CH_OFF
 
 
@@ -94,10 +99,15 @@
 // 3 - headingreturn
 // 4 - AUX1 ( gestures <<v and >>v)
 // 5 - AUX2+ (  none    )
-// 6 - on always
-// 7 - off always
+// 6 - Pitch trims
+// 7 - Roll trims
+// 8 - Throttle trims
+// 9 - Yaw trims
+// 10 - on always
+// 11 - off always
 // CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
 // CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
+// CH_PIT_TRIM, CH_RLL_TRIM, CH_THR_TRIM, CH_YAW_TRIM
 #define RATES 1
 
 
@@ -109,10 +119,15 @@
 // 3 - headingreturn
 // 4 - AUX1 ( gestures <<v and >>v)
 // 5 - AUX2+ (  none    )
-// 6 - on always
-// 7 - off always
+// 6 - Pitch trims
+// 7 - Roll trims
+// 8 - Throttle trims
+// 9 - Yaw trims
+// 10 - on always
+// 11 - off always
 // CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
 // CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
+// CH_PIT_TRIM, CH_RLL_TRIM, CH_THR_TRIM, CH_YAW_TRIM
 #define LEVELMODE CH_AUX1
 
 
