@@ -41,7 +41,8 @@ SRC = $(wildcard $(topdir)/H8mini_acro/src/*.c) \
 	$(topdir)/Peripherals/src/gd32f1x0_usart.c
 
 OBJDIR = .
-OBJ = $(SRC:%.c=$(OBJDIR)/%.o)
+OBJ = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRC)))
+OBJ += $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRC)))
 OBJ += Startup.o
 
 all: $(TARGET)
@@ -56,6 +57,6 @@ $(EXECUTABLE): $(SRC) $(STARTUP)
 	
 
 clean:
-	rm -f Startup.lst $(TARGET) $(TARGET).lst $(OBJ) $(AUTOGEN) \
+	rm -f Startup.lst $(TARGET) $(TARGET).lst $(AUTOGEN) \
 		$(TARGET).out $(TARGET).hex  $(TARGET).map \
 		$(TARGET).dmp $(EXECUTABLE)
