@@ -29,8 +29,7 @@ LDFLAGS = -nostdlib -lm -lnosys -Wl,-T,flash.ld,-Map,$(TARGET).map,--gc-sections
 
 SRC = $(wildcard $(topdir)/H8mini_*/src/*.c) \
 	$(wildcard $(topdir)/H8mini_*/src/*.cpp) \
-	$(topdir)/CMSIS/system_gd32f1x0.c \
-	core_cm3.c \
+	$(wildcard $(topdir)/CMSIS/*.c) \
 	$(wildcard $(topdir)/Peripherals/src/*.c)
 HEADERS = $(wildcard $(topdir)/H8mini_*/src/*.h)
 
