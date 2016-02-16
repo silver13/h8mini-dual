@@ -39,10 +39,11 @@ THE SOFTWARE.
 
 float rx[4];
 
-char aux[AUXNUMBER] = { 0 ,0 ,0 , 0 , 0 , 0 , 0 , 0 };
+char aux[AUXNUMBER];
 char lastaux[AUXNUMBER];
 char auxchange[AUXNUMBER];
 int rxdata[15];
+char lasttrim[4];
 
 void rx_init()
 {
@@ -139,6 +140,8 @@ float packettodata( int *  data)
 
 static int decodepacket( void)
 {
+	char trims[4];
+
 	if ( rxdata[0] == 165 )
 	{
 		 int sum = 0;
@@ -161,21 +164,33 @@ static int decodepacket( void)
 #endif
 
 			
-		// trims are 50% of controls at max		
-	// trims are not used because they interfere with dynamic trims feature of devo firmware
+			// trims are 50% of controls at max
+			// trims are not used as trims because they interfere
+			// with dynamic trims feature of devo firmware
 			
 //			rx[0] = rx[0] + 0.03225 * 0.5 * (float)(((rxdata[4])>>2) - 31);
 //			rx[1] = rx[1] + 0.03225 * 0.5 * (float)(((rxdata[6])>>2) - 31);
 //			rx[2] = rx[2] + 0.03225 * 0.5 * (float)(((rxdata[10])>>2) - 31);
-		
 
-			aux[0] = (rxdata[2] &  0x08)?1:0;
-	
-			aux[1] = (rxdata[1] == 0xfa)?1:0;
-	
-		  aux[2] = (rxdata[2] &  0x02)?1:0;
+			// Instead they are used as binary aux channels
+			trims[0] = rxdata[4] >> 2;
+			trims[1] = rxdata[6] >> 2;
+			trims[2] = rxdata[8] >> 2;
+			trims[3] = rxdata[10] >> 2;
+			for (int i = 0; i < 4; i++)
+				if (trims[i] != lasttrim[i]) {
+					aux[CH_PIT_TRIM + i] =
+						trims[i] > lasttrim[i];
+					lasttrim[i] = trims[i];
+				}
 
-			aux[3] = (rxdata[2] &  0x01)?1:0;// rth channel
+			aux[CH_FLIP] = (rxdata[2] &  0x08)?1:0;
+	
+			aux[CH_EXPERT] = (rxdata[1] == 0xfa)?1:0;
+	
+			aux[CH_HEADFREE] = (rxdata[2] &  0x02)?1:0;
+
+			aux[CH_RTH] = (rxdata[2] &  0x01)?1:0;// rth channel
 
 			for ( int i = 0 ; i < AUXNUMBER - 2 ; i++)
 			{
