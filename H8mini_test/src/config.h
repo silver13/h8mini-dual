@@ -107,7 +107,7 @@
 // 11 - off always
 // CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
 // CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
-// CH_PIT_TRIM, CH_RLL_TRIM, CH_THR_TRIM, CH_YAW_TRIM
+// CH_PIT_TRIM, CH_RLL_TRIM
 #define RATES 1
 
 
@@ -127,7 +127,7 @@
 // 11 - off always
 // CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
 // CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
-// CH_PIT_TRIM, CH_RLL_TRIM, CH_THR_TRIM, CH_YAW_TRIM
+// CH_PIT_TRIM, CH_RLL_TRIM
 #define LEVELMODE CH_AUX1
 
 
@@ -138,7 +138,8 @@
 // use yaw/pitch instead of roll/pitch for gestures
 //#define GESTURES_USE_YAW
 
-
+// comment out if not using ( disables trim as channels, will still work with stock tx except that feature )
+//#define USE_STOCK_TX
 
 
 // throttle angle compensation in level mode

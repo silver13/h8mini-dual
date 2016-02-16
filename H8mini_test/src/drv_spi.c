@@ -6,10 +6,10 @@
 #include "binary.h"
 
 void spi_init(void)
-{    
+{
 	GPIO_InitPara GPIO_InitStructure;
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_3| GPIO_PIN_4 | GPIO_PIN_5  ;
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5;
 	GPIO_InitStructure.GPIO_Speed = GPIO_SPEED_50MHZ;
 	GPIO_InitStructure.GPIO_Mode = GPIO_MODE_OUT;
 	GPIO_InitStructure.GPIO_OType = GPIO_OTYPE_PP;
@@ -20,7 +20,7 @@ void spi_init(void)
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_15;
 	GPIO_InitStructure.GPIO_Mode = GPIO_MODE_IN;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	
+
 	spi_csoff();
 }
 
@@ -36,128 +36,120 @@ void spi_init(void)
 #define SPION gpioset( GPIOB, 5);
 
 #define READMISO ((GPIOA->DIR & GPIO_PIN_15) != (uint32_t)Bit_RESET)
-#ifndef __GNUC__ 
- 
+#ifndef __GNUC__
+
 #pragma push
 
 #pragma Otime
 #pragma O2
 
 #endif
-__inline void spi_cson( )
+__inline void spi_cson()
 {
 	GPIO_WriteBit(GPIOB, GPIO_PIN_5, Bit_RESET);
 }
 
-__inline void spi_csoff( )
+__inline void spi_csoff()
 {
-	gpioset( GPIOB, 5);
+	gpioset(GPIOB, 5);
 }
 
 
-void spi_sendbyte ( int data)
+void spi_sendbyte(int data)
 {
-for ( int i =7 ; i >=0 ; i--)
-	{
-		if ( bitRead( data , i)  ) 
-		{
-			MOSIHIGH;
-		}
-		else 
-		{
-			MOSILOW;
-		}
-	
-		SCKHIGH;
-		SCKLOW;
-	}
+	for (int i = 7; i >= 0; i--)
+	  {
+		  if (bitRead(data, i))
+		    {
+			    MOSIHIGH;
+		    }
+		  else
+		    {
+			    MOSILOW;
+		    }
+
+		  SCKHIGH;
+		  SCKLOW;
+	  }
 }
 
 
-int spi_sendrecvbyte2( int data)
-{ int recv = 0;
-	for ( int i =7 ; i >=0 ; i--)
-	{
-		if ( (data) & (1<<7)  ) 
-		{
-			MOSIHIGH;
-		}
-		else 
-		{
-			MOSILOW;
-		}
-		SCKHIGH;
-		data = data<<1;
-		if ( READMISO ) recv= recv|(1<<7);
+int spi_sendrecvbyte2(int data)
+{
+	int recv = 0;
+	for (int i = 7; i >= 0; i--)
+	  {
+		  if ((data) & (1 << 7))
+		    {
+			    MOSIHIGH;
+		    }
+		  else
+		    {
+			    MOSILOW;
+		    }
+		  SCKHIGH;
+		  data = data << 1;
+		  if (READMISO)
+			  recv = recv | (1 << 7);
 
-		recv = recv<<1;
-		SCKLOW;
-	}	
-	  recv = recv>>8;
-    return recv;
+		  recv = recv << 1;
+		  SCKLOW;
+	  }
+	recv = recv >> 8;
+	return recv;
 }
 
 
- int spi_sendrecvbyte( int data)
-{ int recv = 0;
+int spi_sendrecvbyte(int data)
+{
+	int recv = 0;
 
-	for ( int i = 7 ; i >=0 ; i--)
-	{
-		recv = recv<<1;
-		if ( (data) & (1<<7)  ) 
-		{
-			MOSIHIGH;
-		}
-		else 
-		{
-			MOSILOW;
-		}
-		
-		data = data<<1;
-		
-		SCKHIGH;
-		
-		if ( READMISO ) recv= recv|1;
+	for (int i = 7; i >= 0; i--)
+	  {
+		  recv = recv << 1;
+		  if ((data) & (1 << 7))
+		    {
+			    MOSIHIGH;
+		    }
+		  else
+		    {
+			    MOSILOW;
+		    }
 
-		SCKLOW;
-		
-	}	
-    return recv;
+		  data = data << 1;
+
+		  SCKHIGH;
+
+		  if (READMISO)
+			  recv = recv | 1;
+
+		  SCKLOW;
+
+	  }
+	return recv;
 }
 
 
- int spi_sendzerorecvbyte( )
-{ int recv = 0;
+int spi_sendzerorecvbyte()
+{
+	int recv = 0;
 	MOSILOW;
 
-	for ( int i = 7 ; i >=0 ; i--)
-	{
-		recv = recv<<1;
-		
-		SCKHIGH;
-		
-		if ( READMISO ) recv= recv|1;
+	for (int i = 7; i >= 0; i--)
+	  {
+		  recv = recv << 1;
 
-		SCKLOW;
-		
-	}	
-    return recv;
+		  SCKHIGH;
+
+		  if (READMISO)
+			  recv = recv | 1;
+
+		  SCKLOW;
+
+	  }
+	return recv;
 }
 
 #ifndef __GNUC__
 #pragma pop
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-

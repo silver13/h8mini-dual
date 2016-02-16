@@ -57,10 +57,10 @@ void clk_init(void);
 
 float looptime;
 
-void failloop( int val);
+void failloop(int val);
 
 unsigned long maintime;
-unsigned long lastlooptime; 
+unsigned long lastlooptime;
 
 extern void loadcal(void);
 
@@ -71,8 +71,8 @@ unsigned long maxlooptime;
 int ledcommand = 0;
 unsigned long ledcommandtime = 0;
 
- 
- int lowbatt = 0;
+
+int lowbatt = 0;
 
 #ifdef DEBUG
 unsigned long elapsedtime;
@@ -82,208 +82,217 @@ int main(void)
 {
 
 	clk_init();
-	
-  gpio_init();
 
-#ifdef SERIAL	
+	gpio_init();
+
+#ifdef SERIAL
 	serial_init();
 #endif
 
 	i2c_init();
-	
+
 	spi_init();
-	
+
 	pwm_init();
 
-	pwm_set( MOTOR_FL , 0);   // FL
-	pwm_set( MOTOR_FR , 0);	 
-	pwm_set( MOTOR_BL , 0);   // BL
-	pwm_set( MOTOR_BR , 0);   // FR
+	pwm_set(MOTOR_FL, 0);	// FL
+	pwm_set(MOTOR_FR, 0);
+	pwm_set(MOTOR_BL, 0);	// BL
+	pwm_set(MOTOR_BR, 0);	// FR
 
-  time_init();
-	
+	time_init();
 
-#ifdef SERIAL	
-	printf( "\n clock source:" );
-	#endif
-	if (  RCC_GetCK_SYSSource() == 8)  
-	{
-		#ifdef SERIAL	
-		printf( " PLL \n" );
-		#endif
-	}
-	else 
-	{
-	#ifdef SERIAL	
-	if (  RCC_GetCK_SYSSource() == 0)  printf( " HSI \n" );
-	else  printf( " OTHER \n" );
-	#endif
-  failloop( 5 );
-	}
+
+#ifdef SERIAL
+	printf("\n clock source:");
+#endif
+	if (RCC_GetCK_SYSSource() == 8)
+	  {
+#ifdef SERIAL
+		  printf(" PLL \n");
+#endif
+	  }
+	else
+	  {
+#ifdef SERIAL
+		  if (RCC_GetCK_SYSSource() == 0)
+			  printf(" HSI \n");
+		  else
+			  printf(" OTHER \n");
+#endif
+		  failloop(5);
+	  }
 
 	sixaxis_init();
-	
-	if ( sixaxis_check() ) 
-	{
-		#ifdef SERIAL	
-		printf( " MPU found \n" );
-		#endif
-	}
-	else 
-	{
-		#ifdef SERIAL	
-		printf( "ERROR: MPU NOT FOUND \n" );	
-		#endif
-		failloop(4);
-	}
-	
-	adc_init();
-	
-	rx_init();
-	
-int count = 0;
-float vbattfilt = 0.0;
-	
-while ( count < 64 )
-{
-	vbattfilt += adc_read(1);
-	count++;
-}
- vbattfilt = vbattfilt/64;	
 
-#ifdef SERIAL	
-		printf( "Vbatt %2.2f \n", vbattfilt );
+	if (sixaxis_check())
+	  {
+#ifdef SERIAL
+		  printf(" MPU found \n");
+#endif
+	  }
+	else
+	  {
+#ifdef SERIAL
+		  printf("ERROR: MPU NOT FOUND \n");
+#endif
+		  failloop(4);
+	  }
+
+	adc_init();
+
+	rx_init();
+
+	int count = 0;
+	float vbattfilt = 0.0;
+
+	while (count < 64)
+	  {
+		  vbattfilt += adc_read(1);
+		  count++;
+	  }
+	vbattfilt = vbattfilt / 64;
+
+#ifdef SERIAL
+	printf("Vbatt %2.2f \n", vbattfilt);
 #ifdef NOMOTORS
-    printf( "NO MOTORS\n" );
+	printf("NO MOTORS\n");
 #warning "NO MOTORS"
 #endif
 #endif
-	
+
 #ifdef STOP_LOWBATTERY
 // infinite loop
-if ( vbattfilt < STOP_LOWBATTERY_TRESH) failloop(2);
+	if (vbattfilt < STOP_LOWBATTERY_TRESH)
+		failloop(2);
 #endif
 
 // loads acc calibration and gyro dafaults
-loadcal();
+	loadcal();
 
 	gyro_cal();
 
 
-extern unsigned int liberror;
-if ( liberror ) 
-{
-	  #ifdef SERIAL	
-		printf( "ERROR: I2C \n" );	
-		#endif
-		failloop(7);
-}
+	extern unsigned int liberror;
+	if (liberror)
+	  {
+#ifdef SERIAL
+		  printf("ERROR: I2C \n");
+#endif
+		  failloop(7);
+	  }
 
 
- lastlooptime = gettime();
- extern int rxmode;
- extern int failsafe;
+	lastlooptime = gettime();
+	extern int rxmode;
+	extern int failsafe;
 
- float thrfilt;
+	float thrfilt;
 
 //
 //
-// 		MAIN LOOP
+//              MAIN LOOP
 //
 //
 
-		
-checkrx();
 
-	while(1)
-	{
-		// gettime() needs to be called at least once per second 
-		maintime = gettime();
-		looptime = ((uint32_t)( maintime - lastlooptime));
-		if ( looptime <= 0 ) looptime = 1;
-		looptime = looptime * 1e-6f;
-		if ( looptime > 0.02f ) // max loop 20ms
-		{
-			failloop( 3);	
-			//endless loop			
-		}
-		lastlooptime = maintime;
-		
-		if ( liberror > 20) 
-		{
-			failloop(8);
-			// endless loop
-		}
-
-		sixaxis_read();
-		
-		control();
-		
-// battery low logic
-  
-		float battadc = adc_read(1);
-
-		// average of all 4 motor thrusts
-		// should be proportional with battery current			
-		extern float thrsum; // from control.c
-		// filter motorpwm so it has the same delay as the filtered voltage
-		// ( or they can use a single filter)		
-		lpf ( &thrfilt , thrsum , 0.9968);	// 0.5 sec at 1.6ms loop time	
-	
-		
-		lpf ( &vbattfilt , battadc , 0.9968);		
-
-		if ( vbattfilt + VDROP_FACTOR * thrfilt < VBATTLOW ) lowbatt = 1;
-		else lowbatt = 0;
-		
-// led flash logic		
-
-		if ( rxmode != 0)
-		{// non bind			
-			if ( failsafe) 
-			{
-				if ( lowbatt )
-						ledflash ( 500000 , 8);
-				else
-						ledflash ( 500000, 15);				
-			}
-			else
-			{					
-			if ( lowbatt) 
-				 ledflash ( 500000 , 8);	
-			else 
-					{
-						if ( ledcommand)
-						{ 
-							if ( !ledcommandtime ) ledcommandtime = gettime();
-							if ( gettime() - ledcommandtime > 500000 ) 
-								{
-									ledcommand = 0;
-									ledcommandtime = 0;
-								}
-							ledflash ( 100000 , 8 );
-						}
-						else	ledon( 255);	
-					}
-			} 		
-		}
-		else
-		{// bind mode
-			ledflash ( 100000+ 500000*(lowbatt) , 12);
-		}
-		
-		
 	checkrx();
-#ifdef DEBUG
-		elapsedtime = gettime()- maintime;
-#endif		
-// loop time 1ms		
-while ( (gettime() - maintime) < 1000 ) delay(10); 		
 
-	
-		
-	}// end loop
-	
+	while (1)
+	  {
+		  // gettime() needs to be called at least once per second 
+		  maintime = gettime();
+		  looptime = ((uint32_t) (maintime - lastlooptime));
+		  if (looptime <= 0)
+			  looptime = 1;
+		  looptime = looptime * 1e-6f;
+		  if (looptime > 0.02f)	// max loop 20ms
+		    {
+			    failloop(3);
+			    //endless loop                  
+		    }
+		  lastlooptime = maintime;
+
+		  if (liberror > 20)
+		    {
+			    failloop(8);
+			    // endless loop
+		    }
+
+		  sixaxis_read();
+
+		  control();
+
+// battery low logic
+
+		  float battadc = adc_read(1);
+
+		  // average of all 4 motor thrusts
+		  // should be proportional with battery current                  
+		  extern float thrsum;	// from control.c
+		  // filter motorpwm so it has the same delay as the filtered voltage
+		  // ( or they can use a single filter)           
+		  lpf(&thrfilt, thrsum, 0.9968);	// 0.5 sec at 1.6ms loop time   
+
+
+		  lpf(&vbattfilt, battadc, 0.9968);
+
+		  if (vbattfilt + VDROP_FACTOR * thrfilt < VBATTLOW)
+			  lowbatt = 1;
+		  else
+			  lowbatt = 0;
+
+// led flash logic              
+
+		  if (rxmode != RX_MODE_BIND)
+		    {		// non bind                    
+			    if (failsafe)
+			      {
+				      if (lowbatt)
+					      ledflash(500000, 8);
+				      else
+					      ledflash(500000, 15);
+			      }
+			    else
+			      {
+				      if (lowbatt)
+					      ledflash(500000, 8);
+				      else
+					{
+						if (ledcommand)
+						  {
+							  if (!ledcommandtime)
+								  ledcommandtime = gettime();
+							  if (gettime() - ledcommandtime > 500000)
+							    {
+								    ledcommand = 0;
+								    ledcommandtime = 0;
+							    }
+							  ledflash(100000, 8);
+						  }
+						else
+							ledon(255);
+					}
+			      }
+		    }
+		  else
+		    {		// bind mode
+			    ledflash(100000 + 500000 * (lowbatt), 12);
+		    }
+
+
+		  checkrx();
+#ifdef DEBUG
+		  elapsedtime = gettime() - maintime;
+#endif
+// loop time 1ms                
+		  while ((gettime() - maintime) < 1000)
+			  delay(10);
+
+
+
+	  }			// end loop
+
 
 }
 
@@ -294,25 +303,25 @@ while ( (gettime() - maintime) < 1000 ) delay(10);
 // 7 - i2c error 
 // 8 - i2c error main loop
 
-void failloop( int val)
+void failloop(int val)
 {
-	for ( int i = 0 ; i <= 3 ; i++)
-	{
-		pwm_set( i ,0 );
-	}	
+	for (int i = 0; i <= 3; i++)
+	  {
+		  pwm_set(i, 0);
+	  }
 
-	while(1)
-	{
-		for ( int i = 0 ; i < val; i++)
-		{
-		 ledon( 255);		
-		 delay(200000);
-		 ledoff( 255);	
-		 delay(200000);			
-		}
-		delay(1600000);
-	}	
-	
+	while (1)
+	  {
+		  for (int i = 0; i < val; i++)
+		    {
+			    ledon(255);
+			    delay(200000);
+			    ledoff(255);
+			    delay(200000);
+		    }
+		  delay(800000);
+	  }
+
 }
 
 
@@ -320,20 +329,18 @@ void HardFault_Handler(void)
 {
 	failloop(5);
 }
-void MemManage_Handler(void) 
-{
-	failloop(5);
-}
-void BusFault_Handler(void) 
-{
-	failloop(5);
-}
-void UsageFault_Handler(void) 
+
+void MemManage_Handler(void)
 {
 	failloop(5);
 }
 
+void BusFault_Handler(void)
+{
+	failloop(5);
+}
 
-
-
-
+void UsageFault_Handler(void)
+{
+	failloop(5);
+}

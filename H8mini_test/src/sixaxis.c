@@ -38,37 +38,38 @@ THE SOFTWARE.
 #include <math.h>
 
 
-void sixaxis_init( void)
+void sixaxis_init(void)
 {
-// gyro soft reset	
- i2c_writereg( 107 , 128);	
-	 
- delay(40000);
-// clear sleep bit on old type gyro
- i2c_writereg( 107 , 0);
-	
+// gyro soft reset      
+	i2c_writereg(107, 128);
 
-int newboard = !(0x68==i2c_readreg( 117 ));
- 
-	i2c_writereg( 27 , 24);	
-	
-	i2c_writereg( 28 , B00011000);	// 16G scale
+	delay(40000);
+// clear sleep bit on old type gyro
+	i2c_writereg(107, 0);
+
+
+	int newboard = !(0x68 == i2c_readreg(117));
+
+	i2c_writereg(27, 24);
+
+	i2c_writereg(28, B00011000);	// 16G scale
 
 // acc lpf for the new gyro type
-//	 0-6 ( same as gyro)
-if (newboard)	i2c_writereg( 29 , ACC_LOW_PASS_FILTER );	
+//       0-6 ( same as gyro)
+	if (newboard)
+		i2c_writereg(29, ACC_LOW_PASS_FILTER);
 
 // Gyro and acc DLPF low pass filter(old board)  or gyro only for the new board
-i2c_writereg( 26 , GYRO_LOW_PASS_FILTER);		
+	i2c_writereg(26, GYRO_LOW_PASS_FILTER);
 }
 
 
-int sixaxis_check( void)
+int sixaxis_check(void)
 {
 	// read "who am I" register
-	int id = i2c_readreg( 117 );
-	
-	return (0x78==id||0x68==id||0x7d==id );
+	int id = i2c_readreg(117);
+
+	return (0x78 == id || 0x68 == id || 0x7d == id);
 }
 
 
@@ -80,91 +81,91 @@ float accelcal[3];
 float gyrocal[3];
 
 
-float lpffilter( float in,int num );
+float lpffilter(float in, int num);
 
-void sixaxis_read( void)
+void sixaxis_read(void)
 {
-int data[16];
+	int data[16];
 
-int error = 0;
+	int error = 0;
 
-float gyronew[3];
+	float gyronew[3];
 
-error = ( i2c_readdata( 59 , data, 14 ) );	
-// 2nd attempt at an i2c read	
-if (error) 
-	{
-		error = ( i2c_readdata( 59 , data, 14 ) );
-		// set a warning flag 
-		// not implemented
-		// warningflag = 1;
-	}	
+	error = (i2c_readdata(59, data, 14));
+// 2nd attempt at an i2c read   
+	if (error)
+	  {
+		  error = (i2c_readdata(59, data, 14));
+		  // set a warning flag 
+		  // not implemented
+		  // warningflag = 1;
+	  }
 
 //if (error) return;
 
-accel[0] = (int16_t) ((data[0]<<8) + data[1]);
-accel[1] = (int16_t) ((data[2]<<8) + data[3]);
-accel[2] = (int16_t) ((data[4]<<8) + data[5]);
+	accel[0] = (int16_t) ((data[0] << 8) + data[1]);
+	accel[1] = (int16_t) ((data[2] << 8) + data[3]);
+	accel[2] = (int16_t) ((data[4] << 8) + data[5]);
 
 
-gyronew[1] = (int16_t) ((data[8]<<8) + data[9]);
-gyronew[0] = (int16_t) ((data[10]<<8) + data[11]);
-gyronew[2] = (int16_t) ((data[12]<<8) + data[13]);
+	gyronew[1] = (int16_t) ((data[8] << 8) + data[9]);
+	gyronew[0] = (int16_t) ((data[10] << 8) + data[11]);
+	gyronew[2] = (int16_t) ((data[12] << 8) + data[13]);
 
 
 
-for ( int i = 0 ; i < 3; i++)
-{
-	
-  gyronew[i] = gyronew[i] - gyrocal[i];
-	
-	gyronew[i] = gyronew[i] *  0.061035156f * 0.017453292f ;
+	for (int i = 0; i < 3; i++)
+	  {
+
+		  gyronew[i] = gyronew[i] - gyrocal[i];
+
+		  gyronew[i] = gyronew[i] * 0.061035156f * 0.017453292f;
 #ifndef SOFT_LPF_NONE
-	gyro[i]= lpffilter(  gyronew[i], i );
+		  gyro[i] = lpffilter(gyronew[i], i);
 #else
-	gyro[i] = gyronew[i];
-#endif	
+		  gyro[i] = gyronew[i];
+#endif
+	  }
+
+
+	gyro[0] = -gyro[0];
+	gyro[2] = -gyro[2];
+
+
 }
 
 
-gyro[0] = - gyro[0];
-gyro[2] = - gyro[2];
 
-
-}
-
-
-
-void gyro_read( void)
+void gyro_read(void)
 {
-int data[6];
-	
- i2c_readdata( 67 , data, 6 );
-	
-float gyronew[3];
-	
-gyronew[1] = (int16_t) ((data[0]<<8) + data[1]);
-gyronew[0] = (int16_t) ((data[2]<<8) + data[3]);
-gyronew[2] = (int16_t) ((data[4]<<8) + data[5]);
+	int data[6];
+
+	i2c_readdata(67, data, 6);
+
+	float gyronew[3];
+
+	gyronew[1] = (int16_t) ((data[0] << 8) + data[1]);
+	gyronew[0] = (int16_t) ((data[2] << 8) + data[3]);
+	gyronew[2] = (int16_t) ((data[4] << 8) + data[5]);
 
 
-gyronew[0] = gyronew[0] - gyrocal[0];
-gyronew[1] = gyronew[1] - gyrocal[1];
-gyronew[2] = gyronew[2] - gyrocal[2];
+	gyronew[0] = gyronew[0] - gyrocal[0];
+	gyronew[1] = gyronew[1] - gyrocal[1];
+	gyronew[2] = gyronew[2] - gyrocal[2];
 
-gyronew[0] = - gyronew[0];
-gyronew[2] = - gyronew[2];
+	gyronew[0] = -gyronew[0];
+	gyronew[2] = -gyronew[2];
 
 
-for ( int i = 0 ; i < 3; i++)
-{
-	gyronew[i] = gyronew[i] *  0.061035156f * 0.017453292f ;
-#ifndef SOFT_LPF_NONE	
-	gyro[i]= lpffilter(  gyronew[i], i );
+	for (int i = 0; i < 3; i++)
+	  {
+		  gyronew[i] = gyronew[i] * 0.061035156f * 0.017453292f;
+#ifndef SOFT_LPF_NONE
+		  gyro[i] = lpffilter(gyronew[i], i);
 #else
-	gyro[i] = gyronew[i];
-#endif		
-}
+		  gyro[i] = gyronew[i];
+#endif
+	  }
 
 }
 
@@ -176,119 +177,117 @@ void loadcal(void);
 
 void gyro_cal(void)
 {
-int data[6];
-	
-unsigned long time = gettime();
-unsigned long timestart = time;
-unsigned long timemax = time;
-unsigned long lastlooptime = time;
+	int data[6];
 
-float gyro[3];	
-float limit[3];
-	
- for ( int i = 0 ; i < 3 ; i++)
-			{
-			limit[i] = gyrocal[i];
-			}
+	unsigned long time = gettime();
+	unsigned long timestart = time;
+	unsigned long timemax = time;
+	unsigned long lastlooptime = time;
+
+	float gyro[3];
+	float limit[3];
+
+	for (int i = 0; i < 3; i++)
+	  {
+		  limit[i] = gyrocal[i];
+	  }
 
 // 2 and 15 seconds
-while ( time - timestart < CAL_TIME  &&  time - timemax < 15e6 )
-	{	
-		
-		unsigned long looptime; 
-		looptime = time - lastlooptime;
-		lastlooptime = time;
-		if ( looptime == 0 ) looptime = 1;
+	while (time - timestart < CAL_TIME && time - timemax < 15e6)
+	  {
 
-	i2c_readdata( 67 , data, 6 );
-		
-		gyro[0] = (int16_t) ((data[2]<<8) + data[3]);
-		gyro[1] = (int16_t) ((data[0]<<8) + data[1]);
-		gyro[2] = (int16_t) ((data[4]<<8) + data[5]);	
-	
-		
-if ( (time - timestart)%200000 > 100000) 
-{
-	ledon(B00000101);
-	ledoff(B00001010);
-}
-else 
-{
-	ledon(B00001010);
-	ledoff(B00000101);
-}
-		
-		 for ( int i = 0 ; i < 3 ; i++)
-			{
+		  unsigned long looptime;
+		  looptime = time - lastlooptime;
+		  lastlooptime = time;
+		  if (looptime == 0)
+			  looptime = 1;
 
-					if ( gyro[i] > limit[i] )  limit[i] += 0.1f; // 100 gyro bias / second change
-					if ( gyro[i] < limit[i] )  limit[i] -= 0.1f;
-				
-					limitf( &limit[i] , 800);
-				
-					if ( fabs(gyro[i]) > 100+ fabs(limit[i]) ) 
-					{										
-						timestart = gettime();
-					}
-					else
-					{						
-					lpf( &gyrocal[i] , gyro[i], lpfcalc( (float) looptime , 0.5 * 1e6) );
-				
-					}
+		  i2c_readdata(67, data, 6);
 
-			}
+		  gyro[0] = (int16_t) ((data[2] << 8) + data[3]);
+		  gyro[1] = (int16_t) ((data[0] << 8) + data[1]);
+		  gyro[2] = (int16_t) ((data[4] << 8) + data[5]);
 
-while ( (gettime() - time) < 1000 ) delay(10); 				
-time = gettime();
 
-	}
+		  if ((time - timestart) % 200000 > 100000)
+		    {
+			    ledon(B00000101);
+			    ledoff(B00001010);
+		    }
+		  else
+		    {
+			    ledon(B00001010);
+			    ledoff(B00000101);
+		    }
 
-	
+		  for (int i = 0; i < 3; i++)
+		    {
 
-if ( time - timestart < CAL_TIME )
-{
-	for ( int i = 0 ; i < 3; i++)
-	{
-	gyrocal[i] = 0;
+			    if (gyro[i] > limit[i])
+				    limit[i] += 0.1f;	// 100 gyro bias / second change
+			    if (gyro[i] < limit[i])
+				    limit[i] -= 0.1f;
 
-	}
-	
-	loadcal();
-}
-	
-	
-#ifdef SERIAL	
-printf("gyro calibration  %f %f %f \n "   , gyrocal[0] , gyrocal[1] , gyrocal[2]);
+			    limitf(&limit[i], 800);
+
+			    if (fabs(gyro[i]) > 100 + fabs(limit[i]))
+			      {
+				      timestart = gettime();
+			      }
+			    else
+			      {
+				      lpf(&gyrocal[i], gyro[i], lpfcalc((float)looptime, 0.5 * 1e6));
+
+			      }
+
+		    }
+
+		  while ((gettime() - time) < 1000)
+			  delay(10);
+		  time = gettime();
+
+	  }
+
+
+
+	if (time - timestart < CAL_TIME)
+	  {
+		  for (int i = 0; i < 3; i++)
+		    {
+			    gyrocal[i] = 0;
+
+		    }
+
+		  loadcal();
+	  }
+
+
+#ifdef SERIAL
+	printf("gyro calibration  %f %f %f \n ", gyrocal[0], gyrocal[1], gyrocal[2]);
 #endif
-	
-}
-
-
-void acc_cal( void)
-{  
-	 accelcal[2] = 2048;
-	 for ( int y = 0 ; y < 500 ; y++)
-			{
-				 sixaxis_read();
-				 for ( int x = 0 ; x < 3 ; x++)
-				{
-					lpf( &accelcal[x] , accel[x] , 0.92 );				
-				}
-				gettime(); // if it takes too long time will overflow so we call it here
-				
-			}
-	accelcal[2] -= 2048; 
-			
-	
-	 for ( int x = 0 ; x < 3 ; x++)
-				{			
-					limitf(&accelcal[x] , 500);
-				}
 
 }
 
 
+void acc_cal(void)
+{
+	accelcal[2] = 2048;
+	for (int y = 0; y < 500; y++)
+	  {
+		  sixaxis_read();
+		  for (int x = 0; x < 3; x++)
+		    {
+			    lpf(&accelcal[x], accel[x], 0.92);
+		    }
+		  gettime();	// if it takes too long time will overflow so we call it here
+
+	  }
+	accelcal[2] -= 2048;
 
 
+	for (int x = 0; x < 3; x++)
+	  {
+		  limitf(&accelcal[x], 500);
+	  }
 
-
+}

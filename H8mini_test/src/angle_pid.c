@@ -8,80 +8,75 @@
 
 #define APIDNUMBER 3
 
-// 										ANGLE PIDS	
+//                             ANGLE PIDS      
 // yaw is done by the rate yaw pid
-// Kp													ROLL     PITCH    YAW
-float apidkp[APIDNUMBER] = { 2.2e-2 , 2.2e-2  , 0e-1 }; //
-
+// Kp                       ROLL     PITCH    YAW
+float apidkp[APIDNUMBER] = { 2.2e-2, 2.2e-2, 0e-1 };
 // angle feedforward
-float apidff[APIDNUMBER] = { 0.0e-2 , 0.0e-2  , 0e-1 }; 
-// Ki													ROLL     PITCH    YAW
+float apidff[APIDNUMBER] = { 0.0e-2, 0.0e-2, 0e-1 };
+// Ki                        ROLL     PITCH    YAW
+float apidki[APIDNUMBER] = { 1.0e-2, 1.0e-2, 0e-1 };   
+// Kd                        ROLL     PITCH    YAW
+float apidkd[APIDNUMBER] = { 0.0e-2, 0.0e-2, 0e-2 };
 
-float apidki[APIDNUMBER] = { 1.0e-2  , 1.0e-2 , 0e-1 };	//
-//   													ROLL     PITCH    YAW
-// Kd 
-float apidkd[APIDNUMBER] = { 0.0e-2 ,	 0.0e-2 , 0e-2 };	// 
-	
 
 // limit of integral term (abs)
-#define ITERMLIMIT_FLOAT 1.0f	
-				
+#define ITERMLIMIT_FLOAT 1.0f
+
 #define OUTLIMIT_FLOAT 1.0f
 
-float aierror[APIDNUMBER] = { 0 , 0 , 0};	
-float apidoutput[APIDNUMBER];
-
+extern float attitude[3];
 extern int onground;
 extern float looptime;
 extern float gyro[3];
 
-extern float angleerror[3];
-extern float attitude[3];
+float aierror[APIDNUMBER] = { 0, 0, 0 };
+float apidoutput[APIDNUMBER];
+float angleerror[3];
 
-float apid(int x )
-{ 
-#if ( APIDNUMBER > 3)	
-int index = x%3;
+float apid(int x)
+{
+#if ( APIDNUMBER > 2)
+	int index = x % 3;
 #else
-int index = x;	
+	int index = x;
 #endif
-	
-        if (onground ) 
-				{
-           aierror[x] *= 0.8f;
-				}
-				// anti windup
-				// prevent integral increase if output is at max
-				int iwindup = 0;
-				if (( apidoutput[x] == OUTLIMIT_FLOAT)&& (gyro[index] > 0) )
-				{
-					iwindup = 1;		
-				}
-				if (( apidoutput[x] == -OUTLIMIT_FLOAT)&& (gyro[index] < 0) )
-				{
-					iwindup = 1;				
-				}
-        if ( !iwindup)
-				{
-				aierror[x] = aierror[x] + angleerror[index] *  apidki[x] * looptime; 
-				}	
-     
-				limitf(  &aierror[x] , ITERMLIMIT_FLOAT); 
- 
-				// P term
-          apidoutput[x] = angleerror[index] * apidkp[x] ;
-				// FF term
-          apidoutput[x] += attitude[index] * apidff[x] ;
-			
-				// I term	
-					apidoutput[x] += aierror[x];
-				
-				// D term
-					apidoutput[x] = apidoutput[x] - (gyro[index]) * apidkd[x] ; 
-				
-				 limitf(  &apidoutput[x] , OUTLIMIT_FLOAT);
-						
 
-return apidoutput[x];		 		
+	if (onground)
+	  {
+		  aierror[x] *= 0.8f;
+	  }
+	// anti windup
+	// prevent integral increase if output is at max
+	int iwindup = 0;
+	if ((apidoutput[x] == OUTLIMIT_FLOAT) && (gyro[index] > 0))
+	  {
+		  iwindup = 1;
+	  }
+	if ((apidoutput[x] == -OUTLIMIT_FLOAT) && (gyro[index] < 0))
+	  {
+		  iwindup = 1;
+	  }
+	if (!iwindup)
+	  {
+		  aierror[x] = aierror[x] + angleerror[index] * apidki[x] * looptime;
+	  }
+
+	limitf(&aierror[x], ITERMLIMIT_FLOAT);
+
+	// P term
+	apidoutput[x] = angleerror[index] * apidkp[x];
+	// FF term
+	apidoutput[x] += attitude[index] * apidff[x];
+
+	// I term       
+	apidoutput[x] += aierror[x];
+
+	// D term
+	apidoutput[x] = apidoutput[x] - (gyro[index]) * apidkd[x];
+
+	limitf(&apidoutput[x], OUTLIMIT_FLOAT);
+
+
+	return apidoutput[x];
 }
-

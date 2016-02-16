@@ -29,66 +29,70 @@ THE SOFTWARE.
 
 #define LEDALL 15
 
-void ledon( uint8_t val )
+void ledon(uint8_t val)
 {
-#ifndef SERIAL	
-	if ( val&8) 	GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_SET);
+#ifndef SERIAL
+	if (val & 8)
+		GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_SET);
 #endif
-	if ( val&1) GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_SET);
-	if ( val&2) GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_SET);
-			
-	if (val&4) GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_SET);
-			
+	if (val & 1)
+		GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_SET);
+	if (val & 2)
+		GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_SET);
+
+	if (val & 4)
+		GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_SET);
+
 }
 
-void ledoff( uint8_t val )
+void ledoff(uint8_t val)
 {
-#ifndef SERIAL	
-	if ( val&8) 	GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_RESET);
+#ifndef SERIAL
+	if (val & 8)
+		GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_RESET);
 #endif
-	if ( val&1) GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_RESET);
-	if ( val&2) GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_RESET);	
-			
-  if (val&4) GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_RESET);			
+	if (val & 1)
+		GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_RESET);
+	if (val & 2)
+		GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_RESET);
+
+	if (val & 4)
+		GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_RESET);
 }
 
-void ledset( int val )
+void ledset(int val)
 {
-#ifndef SERIAL	
-	if ( val&8) GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_SET);
-	else GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_SET);
-#endif
-	if ( val&1) GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_SET);
-	else GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_RESET);
-	if ( val&2) GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_SET);	
-	else GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_RESET);	 
-			
-  if (val&4) GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_SET);		
-	else GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_RESET);			
-}
-
-void ledflash( uint32_t period , int duty )
-{
-	if ( gettime() % period > (period*duty)/16 )
-	{
-		ledon(LEDALL);
-	}
+#ifndef SERIAL
+	if (val & 8)
+		GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_SET);
 	else
-	{
-		ledoff(LEDALL);
-	}
-	
-	
+		GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_SET);
+#endif
+	if (val & 1)
+		GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_SET);
+	else
+		GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_RESET);
+	if (val & 2)
+		GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_SET);
+	else
+		GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_RESET);
+
+	if (val & 4)
+		GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_SET);
+	else
+		GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_RESET);
 }
 
+void ledflash(uint32_t period, int duty)
+{
+	if (gettime() % period > (period * duty) / 16)
+	  {
+		  ledon(LEDALL);
+	  }
+	else
+	  {
+		  ledoff(LEDALL);
+	  }
 
 
-
-
-
-
-
-
-
-
-
+}

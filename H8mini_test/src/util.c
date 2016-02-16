@@ -28,12 +28,15 @@ THE SOFTWARE.
 #include "drv_time.h"
 
 // calculates the coefficient for lpf filter, times in the same units
-float lpfcalc( float sampleperiod , float filtertime)
+float lpfcalc(float sampleperiod, float filtertime)
 {
-	if ( sampleperiod <= 0 ) return 0;
-  if ( filtertime <= 0 ) return 1;
-   float ga = expf(-1.0f/( (1.0/ sampleperiod) * (filtertime) ));
-	if (ga > 1) ga = 1;
+	if (sampleperiod <= 0)
+		return 0;
+	if (filtertime <= 0)
+		return 1;
+	float ga = expf(-1.0f / ((1.0 / sampleperiod) * (filtertime)));
+	if (ga > 1)
+		ga = 1;
 	return ga;
 }
 
@@ -41,29 +44,33 @@ float lpfcalc( float sampleperiod , float filtertime)
 float mapf(float x, float in_min, float in_max, float out_min, float out_max)
 {
 
-return ((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+	return ((x - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
 
 }
 
 // simple lpf
-void lpf( float *out, float in , float coeff)
+void lpf(float *out, float in, float coeff)
 {
-	*out = ( *out )* coeff + in * ( 1-coeff); 
+	*out = (*out) * coeff + in * (1 - coeff);
 }
 
 
-void limitf ( float *input , const float limit)
+void limitf(float *input, const float limit)
 {
-	if (*input > limit) *input = limit;
-	if (*input < - limit) *input = - limit;		
+	if (*input > limit)
+		*input = limit;
+	if (*input < -limit)
+		*input = -limit;
 }
 
-float rcexpo ( float in , float exp )
+float rcexpo(float in, float exp)
 {
-	if ( exp > 1 ) exp = 1;
-	if ( exp < -1 ) exp = -1;
-	float ans = in*in*in * exp + in * ( 1 - exp );
-	limitf( &ans , 1.0);
+	if (exp > 1)
+		exp = 1;
+	if (exp < -1)
+		exp = -1;
+	float ans = in * in * in * exp + in * (1 - exp);
+	limitf(&ans, 1.0);
 	return ans;
 }
 
@@ -73,43 +80,43 @@ static unsigned long timestart;
 unsigned long timeend;
 
 // timestart
-void TS( void)
+void TS(void)
 {
-	timestart = gettime(); 
+	timestart = gettime();
 }
+
 // timeend
-void TE( void)
+void TE(void)
 {
-	timeend =( gettime() - timestart );	
+	timeend = (gettime() - timestart);
 }
 
 
 
-float fastsin( float x )
+float fastsin(float x)
 {
- //always wrap input angle to -PI..PI
-while (x < -3.14159265)
-    x += 6.28318531;
+	//always wrap input angle to -PI..PI
+	while (x < -3.14159265)
+		x += 6.28318531;
 
-while (x >  3.14159265)
-    x -= 6.28318531;
-float sin1;
+	while (x > 3.14159265)
+		x -= 6.28318531;
+	float sin1;
 
 //compute sine
-if (x < 0)
-   sin1 = (1.27323954 + .405284735 * x) *x;
-else
-   sin1 = (1.27323954 - .405284735 * x) *x;
+	if (x < 0)
+		sin1 = (1.27323954 + .405284735 * x) * x;
+	else
+		sin1 = (1.27323954 - .405284735 * x) * x;
 
 
-return sin1; 
-    
-} 
+	return sin1;
 
-
-float fastcos( float x )
-{
- x += 1.57079632;
-	return fastsin(x);
 }
 
+
+float fastcos(float x)
+{
+	x += 1.57079632;
+	return fastsin(x);
+}
