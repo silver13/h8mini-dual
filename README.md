@@ -16,14 +16,20 @@ Do not switch into level mode while upside down.
 
 #####Stock tx:
 On the stock tx only the rate (expert) button works, and level/ acro mode is changed by gestures (default) as described above.
-To start in acro mode by default with CH_AUX1 enabled comment out "#define AUX1_START_ON" in config.h.
+To start in acro mode by default with CH_AUX1 enabled comment out *#define AUX1_START_ON* in config.h.
 
-Trims are currently not functional on the stock tx.
+Trim buttons can be used as extra channels, with trimup = on, trimdown = off, if set appropriately in config.h. *#define USE_STOCK_TX* should be uncommented also, to enable trims. Please note, enabling trims is not compatible with devo tx.
+
+Some stock tx have bad centering, and can be 5% or more offset in one direction. They also have deadzone.
 
 #####Devo tx:
 Channels work as intended except the rate/expert channel which is always on. Dynamic trims are not used. If gestures are to be used make sure the tx can reach at least 80% of max rates ( high rates on).
 
 Assign the extra channels to desired functions in config.h, mainly the level / acro mode change function should be set to a switch rather than gestures which is default.
+
+Please note, using trims as a channel is only intended for the stock tx, and will produce erroneous results if used with Devo tx. For this reason, *#define USE_STOCK_TX* is commented out, and disables incompatible options.
+ 
+Devo tx support is ok by default. 
 
 #####Gyro calibration
 Gyro calibration runs automatically after power up, and usually completes within 2-4 seconds. If for some reason the calibration fails to complete, such as if there is movement, it will eventually time out in 15 seconds.

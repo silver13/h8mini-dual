@@ -69,8 +69,11 @@ float thrsum;
 float rxcopy[4];
 float yawangle;
 float overthrottlefilt;
-
-
+#ifdef STOCK_TX_AUTOCENTER
+float autocenter[3];
+float lastrx[3];
+unsigned int consecutive[3];
+#endif
 
 
 void control(void)
@@ -100,7 +103,11 @@ void control(void)
 
 	for (int i = 0; i < 3; i++)
 	  {
-		  rxcopy[i] = rx[i];
+		#ifdef STOCK_TX_AUTOCENTER
+		rxcopy[i] = rx[i] - autocenter[i];
+		#else
+		rxcopy[i] = rx[i];
+		#endif
 	  }
 
 
@@ -226,10 +233,26 @@ void control(void)
 		  throttlehpf(0);
 #endif
 
+#ifdef STOCK_TX_AUTOCENTER
+      for( int i = 0 ; i <3;i++)
+				{
+					if ( rx[i] == lastrx[i] )
+						{
+						  consecutive[i]++;
+							
+						}
+					else consecutive[i] = 0;
+					lastrx[i] = rx[i];
+					if ( consecutive[i] > 1000 && fabsf( rx[i]) < 0.1f )
+						{
+							autocenter[i] = rx[i];
+						}
+				}
+#endif				
 	  }
 	else
 	  {
-
+	  // motors are on - normal operation
 
 #ifdef 	THROTTLE_TRANSIENT_COMPENSATION
 		  throttle += 7.0f * throttlehpf(throttle);

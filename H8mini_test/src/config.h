@@ -141,6 +141,8 @@
 // comment out if not using ( disables trim as channels, will still work with stock tx except that feature )
 //#define USE_STOCK_TX
 
+// automatically remove center bias ( needs throttle off for 1 second )
+//#define STOCK_TX_AUTOCENTER
 
 // throttle angle compensation in level mode
 // comment out to disable
