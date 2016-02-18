@@ -20,7 +20,14 @@ To start in acro mode by default with CH_AUX1 enabled comment out *#define AUX1_
 
 Trim buttons can be used as extra channels, with trimup = on, trimdown = off, if set appropriately in config.h. *#define USE_STOCK_TX* should be uncommented also, to enable trims. Please note, enabling trims is not compatible with devo tx.
 
-Some stock tx have bad centering, and can be 5% or more offset in one direction. They also have deadzone.
+Some stock tx have bad centering, and can be 5% or more offset in one direction. They also have deadzone ( it does not remove the bad centering). For this , *STOCK_TX_AUTOCENTER* should be enabled, and will remove the center biases when the quad throttle is zero for more then 1 second. (after the lights go solid)
+
+Quick settings: 
+* enable *STOCK_TX_AUTOCENTER*
+* enable *USE_STOCK_TX* if use of trim buttons is required
+* enable expo if you wish by commenting out *DISABLE_EXPO*
+
+
 
 #####Devo tx:
 Channels work as intended except the rate/expert channel which is always on. Dynamic trims are not used. If gestures are to be used make sure the tx can reach at least 80% of max rates ( high rates on).
@@ -64,6 +71,9 @@ Overriding all this patterns except gyro calibration, is the low battery flash w
 See post by balrog-kun:
 http://www.rcgroups.com/forums/showpost.php?p=33971694&postcount=743
 
+###19.02.16
+* added "STOCK_TX_AUTOCENTER", recommended to enable for stock tx
+* added use of trim buttons as extra channels ( by balrog-kun )
 
 ###09.02.16
 * fixed "gyro not found" in debug mode / after flashing (hopefully)
