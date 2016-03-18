@@ -68,8 +68,8 @@ Overriding all this patterns except gyro calibration, is the low battery flash w
 
 
 ####Linux support
-See post by balrog-kun:
-http://www.rcgroups.com/forums/showpost.php?p=33971694&postcount=743
+See this post:
+http://www.rcgroups.com/forums/showpost.php?p=34293596&postcount=1248
 
 ###19.02.16
 * added "STOCK_TX_AUTOCENTER", recommended to enable for stock tx
