@@ -72,11 +72,11 @@ See this post:
 http://www.rcgroups.com/forums/showpost.php?p=34293596&postcount=1248
 
 ###16.04.16
-*added auto flips
-*Headless mode now works in both level and acro mode.
-*Fixed an issue with powering up on a non horizontal surface in level mode (drift)
-*Manual trim values can now be entered in config.h for level mode
-*Fixed an bug in "auto lower throttle" which would have caused a corner dip
+* added auto flips
+* Headless mode now works in both level and acro mode.
+* Fixed an issue with powering up on a non horizontal surface in level mode (drift)
+* Manual trim values can now be entered in config.h for level mode
+* Fixed an bug in "auto lower throttle" which would have caused a corner dip
 
 ###19.02.16
 * added "STOCK_TX_AUTOCENTER", recommended to enable for stock tx
