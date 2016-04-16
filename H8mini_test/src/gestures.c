@@ -7,20 +7,20 @@
 
 #define GMACRO_LEFT (rx[2] < - STICKMAX)
 #define GMACRO_RIGHT (rx[2] >  STICKMAX)
-#define GMACRO_XCENTER (fabs(rx[2]) < STICKCENTER)
+#define GMACRO_XCENTER (fabsf(rx[2]) < STICKCENTER)
 
 #else
 
 #define GMACRO_LEFT (rx[0] < - STICKMAX)
 #define GMACRO_RIGHT (rx[0] >  STICKMAX)
-#define GMACRO_XCENTER (fabs(rx[0]) < STICKCENTER)
+#define GMACRO_XCENTER (fabsf(rx[0]) < STICKCENTER)
 
 #endif
 
 #define GMACRO_DOWN (rx[1] < - STICKMAX)
 #define GMACRO_UP (rx[1] >  STICKMAX)
 
-#define GMACRO_PITCHCENTER (fabs(rx[1]) < STICKCENTER)
+#define GMACRO_PITCHCENTER (fabsf(rx[1]) < STICKCENTER)
 
 
 #define GESTURE_CENTER 0

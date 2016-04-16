@@ -63,6 +63,7 @@ unsigned long maintime;
 unsigned long lastlooptime;
 
 extern void loadcal(void);
+extern void imu_init(void);
 
 // max loop time for debug 
 unsigned long maxlooptime;
@@ -172,7 +173,8 @@ int main(void)
 
 	gyro_cal();
 
-
+	imu_init();
+	
 	extern unsigned int liberror;
 	if (liberror)
 	  {

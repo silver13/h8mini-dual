@@ -32,11 +32,9 @@ THE SOFTWARE.
 #include "control.h"
 #include "defines.h"
 #include "drv_time.h"
-
 #include "sixaxis.h"
-
 #include "gestures.h"
-
+#include "flip_sequencer.h"
 
 
 extern float lpffilter(float in, int num);
@@ -47,9 +45,6 @@ extern void savecal(void);
 extern int gestures(void);
 extern void pid_precalc(void);
 
-float motorfilter(float motorin, int number);
-
-float motormap(float input);
 
 extern int ledcommand;
 extern float rx[4];
@@ -75,6 +70,11 @@ float lastrx[3];
 unsigned int consecutive[3];
 #endif
 
+
+extern int controls_override;
+extern float rx_override[];
+extern int acro_override;
+extern int level_override;
 
 void control(void)
 {
@@ -110,20 +110,34 @@ void control(void)
 		#endif
 	  }
 
+		
+  flip_sequencer();
+	
+
+
+	if ( (!aux[STARTFLIP])&&auxchange[STARTFLIP] )
+	{
+		start_flip();		
+	}	
 
 	if (auxchange[HEADLESSMODE])
 	  {
 		  yawangle = 0;
 	  }
 
-	if ((aux[HEADLESSMODE]) && !aux[LEVELMODE])
+	if ((aux[HEADLESSMODE]) )
 	  {
+		yawangle = yawangle + gyro[2] * looptime;
+			
+		while (yawangle < -3.14159265f)
+    yawangle += 6.28318531f;
 
-		  yawangle = yawangle + gyro[2] * looptime;
-
-		  float temp = rxcopy[0];
-		  rxcopy[0] = rxcopy[0] * cosf(yawangle) - rxcopy[1] * sinf(yawangle);
-		  rxcopy[1] = rxcopy[1] * cosf(yawangle) + temp * sinf(yawangle);
+    while (yawangle >  3.14159265f)
+    yawangle -= 6.28318531f;
+		
+		float temp = rxcopy[0];
+		rxcopy[0] = rxcopy[0] * fastcos( yawangle) - rxcopy[1] * fastsin(yawangle );
+		rxcopy[1] = rxcopy[1] * fastcos( yawangle) + temp * fastsin(yawangle ) ;
 	  }
 	else
 	  {
@@ -160,15 +174,26 @@ void control(void)
 		    }
 	  }
 
+	if ( controls_override)
+	{
+		for ( int i = 0 ; i < 3 ; i++)
+		{
+			rxcopy[i] = rx_override[i];
+		}
+		 ratemulti = 1.0f;
+		 maxangle = MAX_ANGLE_HI;
+		 anglerate = LEVEL_MAX_RATE_HI;
+	}
+		
 	imu_calc();
 
 	pid_precalc();
 
-	if (aux[LEVELMODE])
+	if ((aux[LEVELMODE]||level_override)&&!acro_override)
 	  {			// level mode
 
-		  angleerror[0] = rxcopy[0] * maxangle - attitude[0];
-		  angleerror[1] = rxcopy[1] * maxangle - attitude[1];
+		  angleerror[0] = rxcopy[0] * maxangle - attitude[0] + (float) TRIM_ROLL;
+		  angleerror[1] = rxcopy[1] * maxangle - attitude[1] + (float) TRIM_PITCH;
 
 		  error[0] = apid(0) * anglerate * DEGTORAD - gyro[0];
 		  error[1] = apid(1) * anglerate * DEGTORAD - gyro[1];
@@ -205,7 +230,7 @@ void control(void)
 
 
 // turn motors off if throttle is off and pitch / roll sticks are centered
-	if (failsafe || (throttle < 0.001f && (!ENABLESTIX || (fabs(rx[0]) < 0.5f && fabs(rx[1]) < 0.5f))))
+	if (failsafe || (throttle < 0.001f && (!ENABLESTIX || (fabsf(rx[0]) < 0.5f && fabsf(rx[1]) < 0.5f))))
 
 	  {			// motors off
 
@@ -286,6 +311,11 @@ void control(void)
 		  onground = 0;
 		  float mix[4];
 
+			if ( controls_override)
+			{// change throttle in flip mode
+				throttle = rx_override[3];
+			}
+				
 #ifdef INVERT_YAW_PID
 		  pidoutput[2] = -pidoutput[2];
 #endif
@@ -355,7 +385,7 @@ void control(void)
 			    // reduce by a percentage only, so we get an inbetween performance
 			    overthrottle *= ((float)MIX_THROTTLE_REDUCTION_PERCENT / 100.0f);
 
-			    for (int i = 0; i < 3; i++)
+			    for (int i = 0; i < 4; i++)
 			      {
 				      mix[i] -= overthrottle;
 			      }
@@ -365,7 +395,7 @@ void control(void)
 
 #ifdef MOTOR_FILTER
 
-		  for (int i = 0; i <= 3; i++)
+		  for (int i = 0; i < 4; i++)
 		    {
 			    mix[i] = motorfilter(mix[i], i);
 		    }
@@ -377,13 +407,13 @@ void control(void)
 #ifdef CLIP_FF
 		  float clip_ff(float motorin, int number);
 
-		  for (int i = 0; i <= 3; i++)
+		  for (int i = 0; i < 4; i++)
 		    {
 			    mix[i] = clip_ff(mix[i], i);
 		    }
 #endif
 
-		  for (int i = 0; i <= 3; i++)
+		  for (int i = 0; i < 4; i++)
 		    {
 			    float test = motormap(mix[i]);
 #ifndef NOMOTORS
@@ -394,7 +424,7 @@ void control(void)
 		    }
 
 		  thrsum = 0;
-		  for (int i = 0; i <= 3; i++)
+		  for (int i = 0; i < 4; i++)
 		    {
 			    if (mix[i] < 0)
 				    mix[i] = 0;

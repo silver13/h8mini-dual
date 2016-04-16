@@ -44,6 +44,7 @@ void sixaxis_init(void)
 	i2c_writereg(107, 128);
 
 	delay(40000);
+	
 // clear sleep bit on old type gyro
 	i2c_writereg(107, 0);
 
@@ -230,7 +231,7 @@ void gyro_cal(void)
 
 			    limitf(&limit[i], 800);
 
-			    if (fabs(gyro[i]) > 100 + fabs(limit[i]))
+			    if (fabsf(gyro[i]) > 100 + fabsf(limit[i]))
 			      {
 				      timestart = gettime();
 			      }

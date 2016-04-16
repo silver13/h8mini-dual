@@ -82,9 +82,8 @@
 
 void limit180(float *);
 
-void lpf(float *out, float in, float coeff);
 
-static float GEstG[3] = { 0, 0, ACC_1G };
+float GEstG[3] = { 0, 0, ACC_1G };
 
 float attitude[3];
 
@@ -92,7 +91,6 @@ extern float gyro[3];
 extern float accel[3];
 extern float accelcal[3];
 
-#define RADTODEG 57.29577951
 
 void imu_init(void)
 {

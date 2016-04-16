@@ -12,12 +12,10 @@
 // yaw is done by the rate yaw pid
 // Kp                       ROLL     PITCH    YAW
 float apidkp[APIDNUMBER] = { 2.2e-2, 2.2e-2, 0e-1 };
-// angle feedforward
-float apidff[APIDNUMBER] = { 0.0e-2, 0.0e-2, 0e-1 };
+
 // Ki                        ROLL     PITCH    YAW
 float apidki[APIDNUMBER] = { 1.0e-2, 1.0e-2, 0e-1 };   
-// Kd                        ROLL     PITCH    YAW
-float apidkd[APIDNUMBER] = { 0.0e-2, 0.0e-2, 0e-2 };
+
 
 
 // limit of integral term (abs)
@@ -66,15 +64,11 @@ float apid(int x)
 
 	// P term
 	apidoutput[x] = angleerror[index] * apidkp[x];
-	// FF term
-	apidoutput[x] += attitude[index] * apidff[x];
 
 	// I term       
 	apidoutput[x] += aierror[x];
 
-	// D term
-	apidoutput[x] = apidoutput[x] - (gyro[index]) * apidkd[x];
-
+		
 	limitf(&apidoutput[x], OUTLIMIT_FLOAT);
 
 

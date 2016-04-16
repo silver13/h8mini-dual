@@ -130,6 +130,9 @@
 // CH_PIT_TRIM, CH_RLL_TRIM
 #define LEVELMODE CH_AUX1
 
+// channel to initiate automatic flip
+#define STARTFLIP CH_FLIP
+
 
 
 // aux1 channel starts on if this is defined, otherwise off.
@@ -222,6 +225,14 @@
 
 // failsafe time in uS
 #define FAILSAFETIME 1000000  // one second
+
+
+// level mode "manual" trims ( in degrees)
+// pitch positive forward
+// roll positive right
+#define TRIM_PITCH 0.0
+#define TRIM_ROLL 0.0
+
 
 
 
