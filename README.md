@@ -71,6 +71,14 @@ Overriding all this patterns except gyro calibration, is the low battery flash w
 See this post:
 http://www.rcgroups.com/forums/showpost.php?p=34293596&postcount=1248
 
+
+###1.05.16
+* ENABLESTIX feature now works correctly, wait 1 second on ground for it to deactivate
+* gyro pll set to a different setting
+* 8.5 mm motor curve redone ( ond curve renamed _OLD)
+* other changes
+
+
 ###16.04.16
 * added auto flips
 * headless mode now works in both level and acro mode.
