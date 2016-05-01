@@ -46,7 +46,7 @@ void sixaxis_init(void)
 	delay(40000);
 	
 // clear sleep bit on old type gyro
-	i2c_writereg(107, 0);
+	i2c_writereg(107, 1);
 
 
 	int newboard = !(0x68 == i2c_readreg(117));
@@ -280,6 +280,7 @@ void acc_cal(void)
 		    {
 			    lpf(&accelcal[x], accel[x], 0.92);
 		    }
+			delay(1000);
 		  gettime();	// if it takes too long time will overflow so we call it here
 
 	  }

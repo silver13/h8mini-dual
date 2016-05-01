@@ -210,9 +210,11 @@
 
 // motor curve to use
 // the pwm frequency has to be set independently
+// 720 motors use curve none and pwm 8K
 #define MOTOR_CURVE_NONE
 //#define MOTOR_CURVE_6MM_490HZ
 //#define MOTOR_CURVE_85MM_8KHZ
+//#define MOTOR_CURVE_85MM_8KHZ_OLD
 //#define MOTOR_CURVE_85MM_32KHZ
 
 // pwm frequency for motor control
@@ -256,6 +258,7 @@
 // enable motors if pitch / roll controls off center (at zero throttle)
 // possible values: 0 / 1
 #define ENABLESTIX 0
+#define ENABLESTIX_TRESHOLD 0.3
 
 // only for compilers other than gcc
 #ifndef __GNUC__

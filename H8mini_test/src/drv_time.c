@@ -33,9 +33,9 @@ static __INLINE uint32_t SysTick_Config2(uint32_t ticks)
 void time_init()
 {
 
-	// if (SysTick_Config(SystemCoreClock / (9) )) //1sec interrupts
 	if (SysTick_Config2(48000000 / 8))
-	  {			// not able to set divider
+	  {			
+			// not able to set divider
 		  failloop(5);
 		  while (1) ;
 	  }
@@ -52,12 +52,13 @@ unsigned long time_update(void)
 	if (ticks < lastticks)
 		elapsedticks = lastticks - ticks;
 	else
-	  {			// overflow ( underflow really)
+	  {	// overflow ( underflow really)
 		  elapsedticks = lastticks + (maxticks - ticks);
 	  }
 
 	lastticks = ticks;
-	globalticks = globalticks + elapsedticks / 6;
+	// added +3 to center truncation losses around zero
+	globalticks = globalticks + 3 + elapsedticks / 6;
 	return globalticks;
 }
 
@@ -66,7 +67,6 @@ unsigned long time_update(void)
 unsigned long gettime()
 {
 	unsigned long time = time_update();
-//time = time/1;
 	return time;
 }
 

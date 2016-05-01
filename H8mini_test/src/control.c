@@ -59,6 +59,7 @@ extern float angleerror[3];
 extern float error[PIDNUMBER];
 
 int onground = 1;
+int onground_long = 1;
 
 float thrsum;
 float rxcopy[4];
@@ -117,7 +118,8 @@ void control(void)
 
 	if ( (!aux[STARTFLIP])&&auxchange[STARTFLIP] )
 	{
-		start_flip();		
+		start_flip();
+		auxchange[STARTFLIP]= 0;		
 	}	
 
 	if (auxchange[HEADLESSMODE])
@@ -230,11 +232,19 @@ void control(void)
 
 
 // turn motors off if throttle is off and pitch / roll sticks are centered
-	if (failsafe || (throttle < 0.001f && (!ENABLESTIX || (fabsf(rx[0]) < 0.5f && fabsf(rx[1]) < 0.5f))))
-
+	if (failsafe || (throttle < 0.001f && ( !ENABLESTIX || !onground_long || aux[LEVELMODE] || level_override || (fabsf(rx[0]) < (float) ENABLESTIX_TRESHOLD && fabsf(rx[1]) < (float) ENABLESTIX_TRESHOLD))))
 	  {			// motors off
-
-		  onground = 1;
+		
+		onground = 1;
+			
+		if ( onground_long )
+		{
+			if ( gettime() - onground_long > 1000000)
+			{
+				onground_long = 0;
+			}
+		}	
+			
 		  thrsum = 0;
 		  for (int i = 0; i <= 3; i++)
 		    {
@@ -279,6 +289,8 @@ void control(void)
 	  {
 	  // motors are on - normal operation
 
+		onground_long = gettime();
+			
 #ifdef 	THROTTLE_TRANSIENT_COMPENSATION
 		  throttle += 7.0f * throttlehpf(throttle);
 		  if (throttle < 0)
@@ -470,7 +482,29 @@ float motormap(float input)
 }
 #endif
 
+
 #ifdef MOTOR_CURVE_85MM_8KHZ
+// Hubsan 8.5mm 8khz pwm motor map
+// new curve
+float motormap(float input)
+{
+//      Hubsan 8.5mm motors and props 
+
+	if (input > 1)
+		input = 1;
+	if (input < 0)
+		input = 0;
+
+	input = input * input * 0.683f + input * (0.262f);
+	input += 0.06f;
+
+	return input;
+}
+#endif
+
+
+
+#ifdef MOTOR_CURVE_85MM_8KHZ_OLD
 // Hubsan 8.5mm 8khz pwm motor map
 float motormap(float input)
 {

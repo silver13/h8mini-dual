@@ -52,7 +52,7 @@ float rx_override[4];
 void start_flip()
 {
 
-	if ( isflipping == 0 || !onground)
+	if ( isflipping == 0 && !onground)
 	{
 		isflipping = 1;
 		fliptime = gettime();
@@ -79,7 +79,7 @@ void flip_sequencer()
 	
 	if ( isflipping && gettime() - fliptime > FLIP_TIMEOUT_TOTAL )
 			{
-				// abort after 1 second
+				// abort after timeout second
 				flipstage = STAGE_FLIP_EXIT;
 			}
 	
