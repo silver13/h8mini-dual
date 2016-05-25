@@ -186,7 +186,7 @@
 // increase if battery low comes on at max throttle
 // decrease if battery low warning goes away at high throttle
 // in volts
-#define VDROP_FACTOR 0.60f
+#define VDROP_FACTOR 0.70f
 
 // voltage hysteresys
 // in volts

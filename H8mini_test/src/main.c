@@ -226,23 +226,25 @@ int main(void)
 		  control();
 
 // battery low logic
+		static int lowbatt = 0;
+		float hyst;
+		float battadc = adc_read(1);
 
-		  float battadc = adc_read(1);
+		// average of all 4 motor thrusts
+		// should be proportional with battery current			
+		extern float thrsum; // from control.c
+		// filter motorpwm so it has the same delay as the filtered voltage
+		// ( or they can use a single filter)		
+		lpf ( &thrfilt , thrsum , 0.9968f);	// 0.5 sec at 1.6ms loop time	
+		
+		lpf ( &vbattfilt , battadc , 0.9968f);		
 
-		  // average of all 4 motor thrusts
-		  // should be proportional with battery current                  
-		  extern float thrsum;	// from control.c
-		  // filter motorpwm so it has the same delay as the filtered voltage
-		  // ( or they can use a single filter)           
-		  lpf(&thrfilt, thrsum, 0.9968);	// 0.5 sec at 1.6ms loop time   
-
-
-		  lpf(&vbattfilt, battadc, 0.9968);
-
-		  if (vbattfilt + VDROP_FACTOR * thrfilt < VBATTLOW)
-			  lowbatt = 1;
-		  else
-			  lowbatt = 0;
+		if ( lowbatt ) hyst = HYST;
+		else hyst = 0.0f;
+		
+		if ( vbattfilt + (float) VDROP_FACTOR * thrfilt <(float) VBATTLOW + hyst ) lowbatt = 1;
+		else lowbatt = 0;
+		
 
 // led flash logic              
 
