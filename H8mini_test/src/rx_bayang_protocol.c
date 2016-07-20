@@ -62,7 +62,10 @@ void rx_init()
 	spi_cson();
 	spi_sendbyte(0x3e);
 	spi_sendbyte(0xc9);
-	spi_sendbyte(0x9a);
+	
+//	spi_sendbyte(0x9a);
+		spi_sendbyte(220); // h101 channel fix
+	
 	spi_sendbyte(0x80);
 	spi_sendbyte(0x61);
 	spi_sendbyte(0xbb);
