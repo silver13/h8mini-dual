@@ -354,7 +354,7 @@ void control(void)
 
 		  float overthrottle = 0;
 
-		  for (int i = 0; i < 3; i++)
+		  for (int i = 0; i < 4; i++)
 		    {
 			    if (mix[i] > overthrottle)
 				    overthrottle = mix[i];
