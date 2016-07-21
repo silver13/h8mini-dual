@@ -1,7 +1,12 @@
 
-
+// stick limits
 #define STICKMAX 0.7f
 #define STICKCENTER 0.2f
+
+// times in microseconds
+#define GESTURETIME_MIN 100e3
+#define GESTURETIME_MAX 500e3
+#define GESTURETIME_IDLE 1000e3
 
 #ifdef GESTURES_USE_YAW
 
@@ -32,9 +37,6 @@
 #define GESTURE_OTHER 127
 #define GESTURE_LONG 255
 
-#define GESTURETIME_MIN 100e3
-#define GESTURETIME_MAX 500e3
-#define GESTURETIME_IDLE 1000e3
 
 #include <inttypes.h>
 #include <math.h>
@@ -122,8 +124,8 @@ int gestures2()
 	return 0;
 }
 
+// gestures memory size
 #define GSIZE 7
-
 
 uint8_t gbuffer[GSIZE];
 
@@ -142,13 +144,18 @@ const uint8_t command3[GSIZE] = {
 	GESTURE_CENTER_IDLE, GESTURE_DOWN, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER
 };
 
+// U U U
+const uint8_t command4[GSIZE] = {
+	GESTURE_CENTER_IDLE, GESTURE_UP, GESTURE_CENTER, GESTURE_UP, GESTURE_CENTER, GESTURE_UP, GESTURE_CENTER
+};
+
 
 int gesture_sequence(int currentgesture)
 {
 
 	if (currentgesture != gbuffer[0])
 	  {			// add to queue
-		  int ok;
+		  
 
 		  for (int i = GSIZE; i >= 1; i--)
 		    {
@@ -159,16 +166,16 @@ int gesture_sequence(int currentgesture)
 
 
 // check commands
-		  ok = 1;
+			int gesture_found = 1;
 
 		  for (int i = 0; i < GSIZE; i++)
 		    {
 			    if (gbuffer[i] != command1[GSIZE - i - 1])
 			      {
-				      ok = 0;
+				      gesture_found = 0;
 			      }
 		    }
-		  if (ok)
+		  if (gesture_found)
 		    {
 			    // command 1
 
@@ -177,16 +184,16 @@ int gesture_sequence(int currentgesture)
 			    return 1;
 		    }
 
-		  ok = 1;
+		  gesture_found = 1;
 
 		  for (int i = 0; i < GSIZE; i++)
 		    {
 			    if (gbuffer[i] != command2[GSIZE - i - 1])
 			      {
-				      ok = 0;
+				      gesture_found = 0;
 			      }
 		    }
-		  if (ok)
+		  if (gesture_found)
 		    {
 			    // command 2
 
@@ -195,16 +202,16 @@ int gesture_sequence(int currentgesture)
 			    return 2;
 		    }
 
-		  ok = 1;
+		  gesture_found = 1;
 
 		  for (int i = 0; i < GSIZE; i++)
 		    {
 			    if (gbuffer[i] != command3[GSIZE - i - 1])
 			      {
-				      ok = 0;
+				      gesture_found = 0;
 			      }
 		    }
-		  if (ok)
+		  if (gesture_found)
 		    {
 			    // command 3
 
@@ -213,6 +220,25 @@ int gesture_sequence(int currentgesture)
 			    return 3;
 		    }
 
+			 gesture_found = 1;
+
+		  for (int i = 0; i < GSIZE; i++)
+		    {
+			    if (gbuffer[i] != command4[GSIZE - i - 1])
+			      {
+				      gesture_found = 0;
+			      }
+		    }
+		  if (gesture_found)
+		    {
+			    // command 4
+
+			    //change buffer so it does not trigger again
+			    gbuffer[1] = GESTURE_OTHER;
+			    return 4;
+		    }
+
+				
 	  }
 
 	return 0;

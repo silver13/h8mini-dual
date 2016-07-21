@@ -244,7 +244,12 @@ void control(void)
 				onground_long = 0;
 			}
 		}	
-			
+
+		#ifdef MOTOR_BEEPS
+		extern void motorbeep( void);
+		motorbeep();
+		#endif
+		
 		  thrsum = 0;
 		  for (int i = 0; i <= 3; i++)
 		    {
@@ -287,7 +292,7 @@ void control(void)
 	  }
 	else
 	  {
-	  // motors are on - normal operation
+// motors on - normal flight
 
 		onground_long = gettime();
 			
@@ -302,7 +307,7 @@ void control(void)
 
 		  // throttle angle compensation
 #ifdef AUTO_THROTTLE
-		  if (aux[LEVELMODE] || AUTO_THROTTLE_ACRO_MODE)
+		  if (aux[LEVELMODE])
 		    {
 
 			    float autothrottle = fastcos(attitude[0] * DEGTORAD) * fastcos(attitude[1] * DEGTORAD);
@@ -319,6 +324,11 @@ void control(void)
 				    throttle = 1.0f;
 
 		    }
+#endif
+
+#ifdef LVC_PREVENT_RESET
+extern float vbatt;
+if (vbatt < (float) LVC_PREVENT_RESET_VOLTAGE) throttle = 0;
 #endif
 		  onground = 0;
 		  float mix[4];
@@ -449,6 +459,13 @@ void control(void)
 	  }			// end motors on
 
 }
+
+/////////////////////////////
+/////////////////////////////
+
+
+
+
 
 #ifdef MOTOR_CURVE_6MM_490HZ
 // the old map for 490Hz

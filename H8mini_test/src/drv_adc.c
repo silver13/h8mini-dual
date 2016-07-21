@@ -15,8 +15,6 @@ void adc_init(void)
 
 	RCC_AHBPeriphClock_Enable(RCC_AHBPERIPH_DMA1, ENABLE);
 
-	//  DMA_DeInit(DMA1_CHANNEL1); 
-
 	DMA_InitStructure.DMA_PeripheralBaseAddr = 0x4001244C;
 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) adcarray;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PERIPHERALSRC;

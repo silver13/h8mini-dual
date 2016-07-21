@@ -58,6 +58,7 @@ void rx_init()
 	spi_csoff();
 
 	delay(1000);
+	
 	// RF_CAL registers
 	spi_cson();
 	spi_sendbyte(0x3e);
@@ -187,7 +188,14 @@ char trims[4];
 					      aux[CH_PIT_TRIM + i] = trims[i] > lasttrim[i];
 					      lasttrim[i] = trims[i];
 				      }
+#else
+					aux[CH_INV] = (rxdata[3] & 0x80)?1:0; // inverted flag
+						
+					aux[CH_VID] = (rxdata[2] & 0x10) ? 1 : 0;
+												
+					aux[CH_PIC] = (rxdata[2] & 0x20) ? 1 : 0;						
 #endif
+							
 			    aux[CH_FLIP] = (rxdata[2] & 0x08) ? 1 : 0;
 
 			    aux[CH_EXPERT] = (rxdata[1] == 0xfa) ? 1 : 0;
@@ -196,6 +204,8 @@ char trims[4];
 
 			    aux[CH_RTH] = (rxdata[2] & 0x01) ? 1 : 0;	// rth channel
 
+
+							
 			    for (int i = 0; i < AUXNUMBER - 2; i++)
 			      {
 				      auxchange[i] = 0;
@@ -219,8 +229,9 @@ int chan = 0;
 void nextchannel()
 {
 	chan++;
-	if (chan > 3)
-		chan = 0;
+//	if (chan > 3)
+//		chan = 0;
+	chan%=4;
 	xn_writereg(0x25, rfchannel[chan]);
 }
 

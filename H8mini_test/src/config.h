@@ -46,11 +46,11 @@
 
 
 // Hardware gyro LPF filter frequency
-// gyro filter 0 = 260hz
-// gyro filter 1 = 184hz
-// gyro filter 2 = 94hz
-// gyro filter 3 = 42hz
-// 4 , 5, 6
+// gyro filter 0 = 250hz delay 0.97mS
+// gyro filter 1 = 184hz delay 2.9mS
+// gyro filter 2 = 92hz delay 3.9mS
+// gyro filter 3 = 41hz delay 5.9mS (Default)
+// gyro filter 4 = 20hz
 #define GYRO_LOW_PASS_FILTER 3
 
 // software gyro lpf ( iir )
@@ -71,67 +71,37 @@
 
 
 
+// Channel assignments
+//
+
+
+// CH_FLIP - 0 - flip 
+// CH_EXPERT - 1 - expert
+// CH_HEADFREE - 2 - headfree
+// CH_RTH - 3 - headingreturn
+// CH_AUX1 - 4 - AUX1 ( gestures <<v and >>v)
+// CH_AUX2 - 5 - AUX2+ (  up - up - up    )
+// CH_PIT_TRIM - 6 - Pitch trims
+// CH_RLL_TRIM - 7 - Roll trims
+// CH_THR_TRIM - 8 - Throttle trims
+// CH_YAW_TRIM - 9 - Yaw trims
+// CH_ON - 10 - on always
+// CH_OFF - 11 - off always
+//
+// devo can use DEVO_CHAN_5 - DEVO_CHAN_10
 
 // Headless mode
-// Only in acro mode
-// 0 - flip 
-// 1 - expert
-// 2 - headfree
-// 3 - headingreturn
-// 4 - AUX1 ( gestures <<v and >>v)
-// 5 - AUX2+ (  none    )
-// 6 - Pitch trims
-// 7 - Roll trims
-// 8 - Throttle trims
-// 9 - Yaw trims
-// 10 - on always
-// 11 - off always
-// CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
-// CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
-// CH_PIT_TRIM, CH_RLL_TRIM, CH_THR_TRIM, CH_YAW_TRIM
 #define HEADLESSMODE CH_OFF
 
-
 // rates / expert mode
-// 0 - flip 
-// 1 - expert
-// 2 - headfree
-// 3 - headingreturn
-// 4 - AUX1 ( gestures <<v and >>v)
-// 5 - AUX2+ (  none    )
-// 6 - Pitch trims
-// 7 - Roll trims
-// 8 - Throttle trims
-// 9 - Yaw trims
-// 10 - on always
-// 11 - off always
-// CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
-// CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
-// CH_PIT_TRIM, CH_RLL_TRIM
-#define RATES 1
-
+#define RATES CH_EXPERT
 
 // level / acro mode switch
-// CH_AUX1 = gestures
-// 0 - flip 
-// 1 - expert
-// 2 - headfree
-// 3 - headingreturn
-// 4 - AUX1 ( gestures <<v and >>v)
-// 5 - AUX2+ (  none    )
-// 6 - Pitch trims
-// 7 - Roll trims
-// 8 - Throttle trims
-// 9 - Yaw trims
-// 10 - on always
-// 11 - off always
-// CH_ON , CH_OFF , CH_FLIP , CH_EXPERT
-// CH_HEADFREE , CH_RTH , CH_AUX1 , CH_AUX2 , CH_AUX3 , CH_AUX4
-// CH_PIT_TRIM, CH_RLL_TRIM
 #define LEVELMODE CH_AUX1
 
 // channel to initiate automatic flip
 #define STARTFLIP CH_FLIP
+
 
 
 
@@ -142,30 +112,21 @@
 //#define GESTURES_USE_YAW
 
 // comment out if not using ( disables trim as channels, will still work with stock tx except that feature )
+// devo/tx module incompatible
 //#define USE_STOCK_TX
 
 // automatically remove center bias ( needs throttle off for 1 second )
 //#define STOCK_TX_AUTOCENTER
 
+
 // throttle angle compensation in level mode
 // comment out to disable
 //#define AUTO_THROTTLE
-
-// enable auto throttle  in acro mode if enabled above
-// should be used if no flipping is performed
-// 0 / 1 ( off / on )
-#define AUTO_THROTTLE_ACRO_MODE 0
 
 
 // enable auto lower throttle near max throttle to keep control
 // comment out to disable
 //#define MIX_LOWER_THROTTLE
-
-// options for mix throttle lowering if enabled
-// 0 - 100 range ( 100 = full reduction / 0 = no reduction )
-#define MIX_THROTTLE_REDUCTION_PERCENT 100
-// lpf (exponential) shape if on, othewise linear
-//#define MIX_THROTTLE_FILTER_LPF
 
 
 
@@ -192,13 +153,17 @@
 // in volts
 #define HYST 0.10f
 
-
+// lower throttle to keep voltage above set treshold
+//#define LVC_PREVENT_RESET
+#define LVC_PREVENT_RESET_VOLTAGE 2.85
 
 
 // enable motor filter
 // hanning 3 sample fir filter
 #define MOTOR_FILTER
 
+// lost quad beeps using motors
+//#define MOTOR_BEEPS
 
 // clip feedforward attempts to resolve issues that occur near full throttle
 //#define CLIP_FF
@@ -238,11 +203,14 @@
 
 
 
+
+
+
 // ########################################
 // things that are experimental / old / etc
 // do not change things below
 
-// invert yaw pid for hubsan motors
+// invert yaw pid
 //#define INVERT_YAW_PID
 
 //some debug stuff
@@ -260,6 +228,20 @@
 #define ENABLESTIX 0
 #define ENABLESTIX_TRESHOLD 0.3
 
+// old calibration flash
+#define OLD_LED_FLASH
+
+
+// options for mix throttle lowering if enabled
+// 0 - 100 range ( 100 = full reduction / 0 = no reduction )
+#define MIX_THROTTLE_REDUCTION_PERCENT 100
+// lpf (exponential) shape if on, othewise linear
+//#define MIX_THROTTLE_FILTER_LPF
+
+
+
+
+// do not change
 // only for compilers other than gcc
 #ifndef __GNUC__
 

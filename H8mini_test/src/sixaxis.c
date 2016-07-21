@@ -137,39 +137,6 @@ void sixaxis_read(void)
 
 
 
-void gyro_read(void)
-{
-	int data[6];
-
-	i2c_readdata(67, data, 6);
-
-	float gyronew[3];
-
-	gyronew[1] = (int16_t) ((data[0] << 8) + data[1]);
-	gyronew[0] = (int16_t) ((data[2] << 8) + data[3]);
-	gyronew[2] = (int16_t) ((data[4] << 8) + data[5]);
-
-
-	gyronew[0] = gyronew[0] - gyrocal[0];
-	gyronew[1] = gyronew[1] - gyrocal[1];
-	gyronew[2] = gyronew[2] - gyrocal[2];
-
-	gyronew[0] = -gyronew[0];
-	gyronew[2] = -gyronew[2];
-
-
-	for (int i = 0; i < 3; i++)
-	  {
-		  gyronew[i] = gyronew[i] * 0.061035156f * 0.017453292f;
-#ifndef SOFT_LPF_NONE
-		  gyro[i] = lpffilter(gyronew[i], i);
-#else
-		  gyro[i] = gyronew[i];
-#endif
-	  }
-
-}
-
 
 
 void loadcal(void);
@@ -209,7 +176,7 @@ void gyro_cal(void)
 		  gyro[1] = (int16_t) ((data[0] << 8) + data[1]);
 		  gyro[2] = (int16_t) ((data[4] << 8) + data[5]);
 
-
+#ifdef OLD_LED_FLASH
 		  if ((time - timestart) % 200000 > 100000)
 		    {
 			    ledon(B00000101);
@@ -220,7 +187,28 @@ void gyro_cal(void)
 			    ledon(B00001010);
 			    ledoff(B00000101);
 		    }
+#else
+static int ledlevel = 0;
+static int loopcount = 0;
 
+loopcount++;
+if ( loopcount>>5 )
+{
+	loopcount = 0;
+	ledlevel = ledlevel + 1;
+	ledlevel &=15;
+}
+
+if ( ledlevel > (loopcount&0xF) ) 
+{
+	ledon( 255);
+}
+else 
+{
+	ledoff( 255);
+}
+#endif
+				
 		  for (int i = 0; i < 3; i++)
 		    {
 
@@ -234,6 +222,9 @@ void gyro_cal(void)
 			    if (fabsf(gyro[i]) > 100 + fabsf(limit[i]))
 			      {
 				      timestart = gettime();
+							#ifndef OLD_LED_FLASH
+							ledlevel = 1;
+							#endif
 			      }
 			    else
 			      {

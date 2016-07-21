@@ -126,6 +126,68 @@ void pwm_init(void)
 }
 
 
+
+extern int failsafe;
+extern float rx[];
+unsigned long motorbeeptime = 0;
+
+#include "drv_time.h"
+
+#ifndef MOTOR_BEEPS_TIMEOUT
+// default value if not defined elsewhere
+#define MOTOR_BEEPS_TIMEOUT 30e6
+#endif
+
+#define MOTOR_BEEPS_PWM_ON 0.2
+#define MOTOR_BEEPS_PWM_OFF 0.0
+
+#include  "drv_pwm.h"
+#include <stdlib.h>
+void motorbeep( void)
+{
+	if (failsafe)
+	{
+		unsigned long time = gettime();
+		if (!motorbeeptime)
+				motorbeeptime = time;
+		else
+			if ( time - motorbeeptime > MOTOR_BEEPS_TIMEOUT)
+			{
+				if ((time%2000000 < 125000))
+				{
+					
+					for ( int i = 0 ; i <= 3 ; i++)
+						{
+						pwm_set( i , MOTOR_BEEPS_PWM_ON);
+							delay(50);
+						pwm_set( i , MOTOR_BEEPS_PWM_OFF);
+							delay(50);
+						pwm_set( i , MOTOR_BEEPS_PWM_ON);
+							delay(50);
+						pwm_set( i , MOTOR_BEEPS_PWM_OFF);
+							delay(50);
+						pwm_set( i , MOTOR_BEEPS_PWM_ON);
+							delay(50);
+						pwm_set( i , MOTOR_BEEPS_PWM_OFF);
+											
+						}
+				
+				}
+				else
+				{
+				for ( int i = 0 ; i <= 3 ; i++)
+					{
+					pwm_set( i , MOTOR_BEEPS_PWM_OFF);
+					}
+					
+				}
+				
+			}
+	}
+	else
+		motorbeeptime = 0;
+}
+
 #include  <math.h>
 
 void pwm_set(uint8_t number, float pwm)

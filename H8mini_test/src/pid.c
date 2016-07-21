@@ -32,7 +32,7 @@ THE SOFTWARE.
 //#define SECOND_ORDER_DTERM
 #define NEW_DTERM
 
-#include <stdbool.h>
+
 #include "pid.h"
 #include "util.h"
 #include "config.h"
@@ -55,22 +55,22 @@ const float outlimit[PIDNUMBER] = { 0.8, 0.8, 0.4 };
 const float integrallimit[PIDNUMBER] = { 0.8, 0.8, 0.4 };
 
 
-extern float looptime;
-extern float gyro[3];
-extern int onground;
-extern float looptime;
-
-float ierror[PIDNUMBER] = { 0, 0, 0 };
 
 
 #ifdef NORMAL_DTERM
 static float lastrate[PIDNUMBER];
 #endif
 float pidoutput[PIDNUMBER];
-static float lasterror[PIDNUMBER];
-float error[3];
-float timefactor;
 
+float error[PIDNUMBER];
+extern float looptime;
+extern float gyro[3];
+extern int onground;
+extern float looptime;
+
+static float lasterror[PIDNUMBER];
+float ierror[PIDNUMBER] = { 0, 0, 0 };
+float timefactor;
 
 #ifdef NORMAL_DTERM
 static float lastrate[PIDNUMBER];
@@ -93,6 +93,7 @@ void pid_precalc()
 {
 	timefactor = 0.0032f / looptime;
 }
+
 
 float pid(int x)
 {
@@ -164,10 +165,6 @@ float pid(int x)
 #endif
 
 	limitf(&pidoutput[x], outlimit[x]);
-
-
-
-
 
 	return pidoutput[x];
 }
