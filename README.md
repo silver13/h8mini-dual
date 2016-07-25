@@ -32,6 +32,8 @@ Quick settings:
 #####Devo tx:
 Channels work as intended except the rate/expert channel which is always on. Dynamic trims are not used. If gestures are to be used make sure the tx can reach at least 80% of max rates ( high rates on).
 
+In config.h channel names DEVO_CHAN_5 - DEVO_CHAN_10 can also be used , and correspond to internal devo numbers.
+
 Assign the extra channels to desired functions in config.h, mainly the level / acro mode change function should be set to a switch rather than gestures which is default.
 
 Please note, using trims as a channel is only intended for the stock tx, and will produce erroneous results if used with Devo tx. For this reason, *#define USE_STOCK_TX* is commented out, and disables incompatible options.
@@ -67,13 +69,22 @@ If binding is completed the leds should light up continuously, while if tx conne
 Overriding all this patterns except gyro calibration, is the low battery flash which is a slow, equally spaced on and off flash. 
 
 
+###Linux support
+See post by :
+http://www.rcgroups.com/forums/showpost.php?p=34293596&postcount=1248
+
+Read [INSTALL.md](INSTALL.md) for more information.
+
+
 ###Wiki
 http://sirdomsen.diskstation.me/dokuwiki/doku.php?id=start
 
-###Linux support
-See this post:
-http://www.rcgroups.com/forums/showpost.php?p=34293596&postcount=1248
-
+###21.07.16
+* updates from h101 fork
+* added extra devo channels
+* "prevent_reset" option which lowers throttle to kkep voltage up
+* "motor_beeps"
+* other changes to make fork differences smaller
 
 ###1.05.16
 * ENABLESTIX feature now works correctly, wait 1 second on ground for it to deactivate
