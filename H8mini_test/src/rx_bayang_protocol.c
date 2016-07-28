@@ -45,46 +45,31 @@ char auxchange[AUXNUMBER];
 int rxdata[15];
 char lasttrim[4];
 
+void writeregs ( uint8_t data[] , uint8_t size )
+{
+spi_cson();
+for ( uint8_t i = 0 ; i < size ; i++)
+{
+	spi_sendbyte( data[i]);
+}
+spi_csoff();
+delay(1000);
+}
+
+
 void rx_init()
 {
-	// baseband BB_CAL registers
-	spi_cson();
-	spi_sendbyte(0x3f);
-	spi_sendbyte(0x4c);
-	spi_sendbyte(0x84);
-	spi_sendbyte(0x6F);
-	spi_sendbyte(0x9c);
-	spi_sendbyte(0x20);
-	spi_csoff();
 
-	delay(1000);
-	
-	// RF_CAL registers
-	spi_cson();
-	spi_sendbyte(0x3e);
-	spi_sendbyte(0xc9);
-	
-//	spi_sendbyte(0x9a);
-		spi_sendbyte(220); // h101 channel fix
-	
-	spi_sendbyte(0x80);
-	spi_sendbyte(0x61);
-	spi_sendbyte(0xbb);
-	spi_sendbyte(0xab);
-	spi_sendbyte(0x9c);
-	spi_csoff();
+static uint8_t bbcal[6] = { 0x3f , 0x4c , 0x84 , 0x6F , 0x9c , 0x20  };
+writeregs( bbcal , sizeof(bbcal) );
 
-	delay(1000);
-	// DEMOD_CAL registers
-	spi_cson();
-	spi_sendbyte(0x39);
-	spi_sendbyte(0x0b);
-	spi_sendbyte(0xdf);
-	spi_sendbyte(0xc4);
-	spi_sendbyte(0xa7);
-	spi_sendbyte(0x03);
-	spi_csoff();
-	delay(1000);
+static uint8_t rfcal[8] = { 0x3e , 0xc9 , 0x9a , 0xA0 , 0x61 , 0xbb , 0xab , 0x9c  };
+writeregs( rfcal , sizeof(rfcal) );
+
+static uint8_t demodcal[6] = { 0x39 , 0x0b , 0xdf , 0xc4 , 0xa7 , 0x03};
+writeregs( demodcal , sizeof(demodcal) );
+
+
 
 	int rxaddress[5] = { 0, 0, 0, 0, 0 };
 	xn_writerxaddress(rxaddress);
@@ -229,8 +214,6 @@ int chan = 0;
 void nextchannel()
 {
 	chan++;
-//	if (chan > 3)
-//		chan = 0;
 	chan%=4;
 	xn_writereg(0x25, rfchannel[chan]);
 }
@@ -243,7 +226,7 @@ unsigned long secondtimer;
 int failsafe = 0;
 
 
-//#define RXDEBUG
+#define RXDEBUG
 
 #ifdef RXDEBUG
 unsigned long packettime;
@@ -251,9 +234,30 @@ int channelcount[4];
 int failcount;
 int packetrx;
 int packetpersecond;
+
+
+int skipstats[12];
+int afterskip[12];
 #warning "RX debug enabled"
 #endif
 
+unsigned int skipchannel = 0;
+int lastrxchan;
+int timingfail = 0;
+
+// packet period in uS
+#define PACKET_PERIOD 3000
+
+// was 250 ( uS )
+#define PACKET_OFFSET 250
+
+#ifdef USE_STOCK_TX
+#undef PACKET_OFFSET
+#define PACKET_OFFSET -250
+#endif
+
+// how many times to hop ahead if no reception
+#define HOPPING_NUMBER 4
 
 void checkrx(void)
 {
@@ -293,13 +297,16 @@ void checkrx(void)
 #ifdef RXDEBUG
 			    channelcount[chan]++;
 			    packettime = gettime() - lastrxtime;
+					
+					if ( skipchannel&& !timingfail ) afterskip[skipchannel]++;
+					if ( timingfail ) afterskip[0]++;
+
 #endif
 
-			    //chan++;
-			    //if (chan > 3 ) chan = 0;
+unsigned long temptime = gettime();
+	
 			    nextchannel();
 
-			    lastrxtime = gettime();
 			    xn_readpayload(rxdata, 15);
 			    pass = decodepacket();
 
@@ -308,7 +315,11 @@ void checkrx(void)
 #ifdef RXDEBUG
 				      packetrx++;
 #endif
-				      failsafetime = lastrxtime;
+							skipchannel = 0;
+							timingfail = 0;
+							lastrxchan = chan;
+							lastrxtime = temptime;
+				      failsafetime = temptime;
 				      failsafe = 0;
 			      }
 			    else
@@ -324,14 +335,37 @@ void checkrx(void)
 
 	unsigned long time = gettime();
 
+		
+
 	// sequence period 12000
-	if (time - lastrxtime > 13000 && rxmode != RX_MODE_BIND)
-	  {			//  channel with no reception   
+	if (time - lastrxtime > (HOPPING_NUMBER*PACKET_PERIOD + 1000) && rxmode != RX_MODE_BIND)
+	  {			
+			//  channel with no reception   
 		  lastrxtime = time;
+			// set channel to last with reception
+			if (!timingfail) chan = lastrxchan;
+			// advance to next channel
 		  nextchannel();
+			// set flag to discard packet timing
+			timingfail = 1;
 	  }
+		
+	if ( !timingfail && skipchannel < HOPPING_NUMBER+1 && rxmode != RX_MODE_BIND)
+		{
+			unsigned int temp = time - lastrxtime ;
+
+			if ( temp > 1000 && ( temp - (PACKET_OFFSET) )/((int) PACKET_PERIOD) >= (skipchannel + 1) ) 
+			{
+				nextchannel();
+#ifdef RXDEBUG				
+				skipstats[skipchannel]++;
+#endif				
+				skipchannel++;
+			}
+		}	
+	
 	if (time - failsafetime > FAILSAFETIME)
-	  {			//  failsafe
+	  {	//  failsafe
 		  failsafe = 1;
 		  rx[0] = 0;
 		  rx[1] = 0;

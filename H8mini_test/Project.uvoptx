@@ -190,7 +190,7 @@
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>rx_override</ItemText>
+          <ItemText>vbattfilt</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -218,6 +218,21 @@
           <count>4</count>
           <WinNumber>2</WinNumber>
           <ItemText>packetpersecond,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>skipstats</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>afterskip</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>rfchannel,0x0A</ItemText>
         </Ww>
       </WatchWindow2>
       <Tracepoint>
