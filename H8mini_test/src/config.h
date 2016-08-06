@@ -201,8 +201,8 @@
 #define TRIM_ROLL 0.0
 
 
-
-
+// enable "bluetooth low energy" beacon
+//#define BLUETOOTH_ENABLE
 
 
 
