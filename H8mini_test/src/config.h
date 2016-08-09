@@ -203,7 +203,7 @@
 
 // enable "bluetooth low energy" beacon
 //#define BLUETOOTH_ENABLE
-
+//#define USE_IBEACON
 
 
 // ########################################

@@ -477,15 +477,61 @@ xn_writereg(RF_CH, chRf[ch]);
 uint8_t L=0;
 
 
-extern float vbattfilt;
 
+#ifdef USE_IBEACON
+L=0;
+// ibeacon packet structure
+buf[L++] = B00100010; //PDU type, given address is random; 0x42 for Android and 0x40 for iPhone
+buf[L++] = 36; // length of payload
+buf[L++] = MY_MAC_0;
+buf[L++] = MY_MAC_1;
+buf[L++] = MY_MAC_2;
+buf[L++] = MY_MAC_3;
+buf[L++] = MY_MAC_4;
+buf[L++] = MY_MAC_5;
+
+// packet data unit
+buf[L++] = 2; //flags (LE-only, limited discovery mode)
+buf[L++] = 0x01;
+buf[L++] = 0x06;
+buf[L++] = 0x1A; // length of the name, including type byte
+buf[L++] = 0xff;
+buf[L++] = 0x4c;
+buf[L++] = 0x00;
+buf[L++] = 0x02;
+buf[L++] = 0x15;
+buf[L++] = 0x58;
+buf[L++] = 0x5c;
+buf[L++] = 0xde;
+buf[L++] = 0x93;
+buf[L++] = 0x1b;
+buf[L++] = 0x01;
+buf[L++] = 0x42;
+buf[L++] = 0xcc;
+buf[L++] = 0x9a;
+buf[L++] = 0x13;
+buf[L++] = 0x25;
+buf[L++] = 0x00;
+buf[L++] = 0x9b;
+buf[L++] = 0xed;
+buf[L++] = 0xc6;
+buf[L++] = 0xe5;
+buf[L++] = 0x00;
+buf[L++] = 0x00;
+buf[L++] = 0x00;
+buf[L++] = 0x00;
+buf[L++] = 0xCA; // tx power
+#else
+
+
+extern float vbattfilt;
 int vbatt = vbattfilt *1000.0f;
 
 unsigned int time = gettime();
 
 time = time>>20; // divide by 1024*1024, no time for accuracy here
 time = time * 10;
- 
+
 L=0;
 buf[L++] = B00100010; //PDU type, given address is random; 0x42 for Android and 0x40 for iPhone
 //buf[L++] = 0x42; //PDU type, given address is random; 0x42 for Android and 0x40 for iPhone
@@ -525,7 +571,7 @@ buf[L++] =  time>>24;  // powerup time 0
 buf[L++] =  time>>16;  // powerup time 1
 buf[L++] =  time>>8;  // powerup time 2
 buf[L++] =  time;  // powerup time 3 in seconds times 10.
-
+#endif
 L=L+3; //crc
 
 
