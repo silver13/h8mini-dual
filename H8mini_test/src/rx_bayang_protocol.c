@@ -22,6 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+/*
+
+// original bluetooth LE idea by Dmitry Grinberg
+// http://dmitry.gr/index.php?r=05.Projects&proj=11.%20Bluetooth%20LE%20fakery
+
+// some bluetooth LE functions adapted from nrf24 code by Lijun 
+// http://doc.lijun.li/misc-nrf24-ble.html
+// https://github.com/lijunhw/nRF24_BLE/blob/master/Arduino/nRF24_BLE_advertizer_demo/nRF24_BLE_advertizer_demo.ino
+
+*/
+
 #include "binary.h"
 #include "drv_spi.h"
 
@@ -36,22 +47,24 @@ THE SOFTWARE.
 
 #include "util.h"
 
-#define RX_BAYANG_PROTOCOL_BLE_BEACON
 
-#ifdef RX_BAYANG_PROTOCOL_BLE_BEACON
+// ble settings
 
-
-// compatibility with older version hardware.h
-#if ( !defined RADIO_XN297 && !defined RADIO_XN297L)
-#define RADIO_XN297
-#endif
-
-
+// beacon interval
 #define BLE_INTERVAL 30000
 
 // this allows different quads to show up at the same time.
 // 0 - 255 select a different number for each quad if you need several simultaneous
 #define BLE_QUAD_NUMBER 17
+
+
+// optimized one channel only (bluetooth)
+// uses precalculated whitening data
+// possible values: 0 / 1
+#define ONE_CHANNEL 1
+
+
+// radio settings
 
 // packet period in uS
 #define PACKET_PERIOD 3000
@@ -67,6 +80,8 @@ THE SOFTWARE.
 // how many times to hop ahead if no reception
 #define HOPPING_NUMBER 4
 
+// because it's from the cg023 port
+#define RADIO_XN297
 
 float rx[4];
 char aux[AUXNUMBER];
@@ -97,6 +112,16 @@ delay(1000);
 void rx_init()
 {
 
+	
+// always on (CH_ON) channel set 1
+aux[AUXNUMBER - 2] = 1;
+// always off (CH_OFF) channel set 0
+aux[AUXNUMBER - 1] = 0;
+#ifdef AUX1_START_ON
+aux[CH_AUX1] = 1;
+#endif
+
+	
 #ifdef RADIO_XN297L
 	
 #define XN_TO_RX B10001111
@@ -104,6 +129,7 @@ void rx_init()
 #define XN_POWER B00111111
 	
 #endif
+
 
 	
 #ifdef RADIO_XN297
@@ -122,8 +148,7 @@ writeregs( demodcal , sizeof(demodcal) );
 #define XN_POWER B00000111
 #endif
 
-// dummy write	
-//xn_writereg( RF_CH , 1 );  // bind on channel 0
+
 
 bleinit();
 
@@ -175,30 +200,38 @@ int	rxcheck = xn_readreg( 0x0f); // rx address pipe 5
 	if ( rxcheck != 0xc6) failloop(3);
 }
 
-///////////////////
-// BLE FUNCTIONS
-//  https://github.com/lijunhw/nRF24_BLE/blob/master/Arduino/nRF24_BLE_advertizer_demo/nRF24_BLE_advertizer_demo.ino
 
+void btLeCrc( uint8_t* buf ,uint8_t len, uint8_t* dst ) {
 
-void btLeCrc(const uint8_t* data, uint8_t len, uint8_t* dst){
-// implementing CRC with LFSR
-uint8_t v, t, d;
-while(len--){
-d = *data++;
-for(v = 0; v < 8; v++, d >>= 1){
-t = dst[0] >> 7;
-dst[0] <<= 1;
-if(dst[1] & 0x80) dst[0] |= 1;
-dst[1] <<= 1;
-if(dst[2] & 0x80) dst[1] |= 1;
-dst[2] <<= 1;
-if(t != (d & 1)){
-dst[2] ^= 0x5B;
-dst[1] ^= 0x06;
+union
+{
+  unsigned int int32;
+  uint8_t u8[4];
+} myint;
+
+myint.int32 = 0x00aaaaaa;
+
+while (len--) 
+	{
+	uint8_t d = *(buf++);
+	for ( int i=8 ; i>0 ; i--) 
+		{
+		uint8_t t = myint.int32&1;			
+		myint.int32>>=1;
+		if (t != (d & 1)) 
+			{
+			myint.u8[2] ^= 0xDA;
+			myint.u8[1] ^= 0x60;
+			}
+		 d >>=1;
+		}
+	}
+
+for ( int i = 0 ; i < 3 ; i++ )
+		dst[i] = (myint.u8[i]);
+
 }
-}
-}
-}
+
 
 
 
@@ -289,10 +322,10 @@ packet[len - 1] = 0x55;
 
 btLeCrc(packet, dataLen, packet + dataLen);
 
-for(i = 0; i < 3; i++, dataLen++)
-	packet[dataLen] = swapbits(packet[dataLen]);
+//for(i = 0; i < 3; i++, dataLen++)
+//	packet[dataLen] = swapbits(packet[dataLen]);
 
-if (1)
+if (ONE_CHANNEL)
 {	
 // faster array based whitening
 for(i = 0; i < len; i++) 
@@ -469,7 +502,7 @@ if (ch>2 )
   ch = 0;
 }
 // sending on channel 37 only to use whitening array
-ch = 0;
+if (ONE_CHANNEL) ch = 0;
 
 
 xn_writereg(RF_CH, chRf[ch]);
@@ -858,8 +891,6 @@ unsigned long temptime = gettime();
 #endif
 
 }
-
-#endif
 
 
 
