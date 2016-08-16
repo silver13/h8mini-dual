@@ -87,11 +87,12 @@ float rx[4];
 char aux[AUXNUMBER];
 char lastaux[AUXNUMBER];
 char auxchange[AUXNUMBER];
+char lasttrim[4];
 
-  char rfchannel[4];
-	int rxaddress[5];
-	int rxmode = 0;
-	int rf_chan = 0;
+char rfchannel[4];
+int rxaddress[5];
+int rxmode = 0;
+int rf_chan = 0;
 
 	
 void bleinit( void);
