@@ -30,6 +30,17 @@
 #define CH_THR_TRIM 8
 #define CH_YAW_TRIM 9
 
+#define CH_INV 6
+#define CH_VID 7
+#define CH_PIC 8
+
+#define DEVO_CHAN_5 CH_INV
+#define DEVO_CHAN_6 CH_FLIP
+#define DEVO_CHAN_7 CH_PIC
+#define DEVO_CHAN_8 CH_VID
+#define DEVO_CHAN_9 CH_HEADFREE
+#define DEVO_CHAN_10 CH_RTH
+
 #define CH_AUX3 CH_OFF
 #define CH_AUX4 CH_OFF
 
@@ -38,6 +49,22 @@
 
 
 
+#define BRIDGE_FORWARD 0
+#define BRIDGE_WAIT 1
+#define BRIDGE_REVERSE 5
+
+#define FORWARD DIR2
+#define REVERSE DIR1
+
+
+#define FREE 2
+#define BRAKE 3
+#define DIR1 1
+#define DIR2 0
+
+#define ROLL 0
+#define PITCH 1
+#define YAW 2
 
 
 

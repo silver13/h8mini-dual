@@ -244,7 +244,12 @@ void control(void)
 				onground_long = 0;
 			}
 		}	
-			
+
+		#ifdef MOTOR_BEEPS
+		extern void motorbeep( void);
+		motorbeep();
+		#endif
+		
 		  thrsum = 0;
 		  for (int i = 0; i <= 3; i++)
 		    {
@@ -287,7 +292,7 @@ void control(void)
 	  }
 	else
 	  {
-	  // motors are on - normal operation
+// motors on - normal flight
 
 		onground_long = gettime();
 			
@@ -302,7 +307,7 @@ void control(void)
 
 		  // throttle angle compensation
 #ifdef AUTO_THROTTLE
-		  if (aux[LEVELMODE] || AUTO_THROTTLE_ACRO_MODE)
+		  if (aux[LEVELMODE])
 		    {
 
 			    float autothrottle = fastcos(attitude[0] * DEGTORAD) * fastcos(attitude[1] * DEGTORAD);
@@ -319,6 +324,11 @@ void control(void)
 				    throttle = 1.0f;
 
 		    }
+#endif
+
+#ifdef LVC_PREVENT_RESET
+extern float vbatt;
+if (vbatt < (float) LVC_PREVENT_RESET_VOLTAGE) throttle = 0;
 #endif
 		  onground = 0;
 		  float mix[4];
@@ -428,11 +438,35 @@ void control(void)
 		  for (int i = 0; i < 4; i++)
 		    {
 			    float test = motormap(mix[i]);
-#ifndef NOMOTORS
-			    pwm_set(i, (test));
-#else
-#warning "NO MOTORS"
-#endif
+					#ifdef MOTORS_TO_THROTTLE
+					test = throttle;
+					// flash leds in valid throttle range
+					ledcommand = 1;
+					// for battery estimation
+					mix[i] = throttle;
+					#warning "MOTORS TEST MODE"
+					#endif
+					
+					#ifdef MOTOR_MIN_ENABLE
+					if (test < (float) MOTOR_MIN_VALUE)
+					{
+						test = (float) MOTOR_MIN_VALUE;
+					}
+					#endif
+					
+					#ifdef MOTOR_MAX_ENABLE
+					if (test > (float) MOTOR_MAX_VALUE)
+					{
+						test = (float) MOTOR_MAX_VALUE;
+					}
+					#endif
+					
+					#ifndef NOMOTORS
+					//normal mode
+					pwm_set( i , test );				
+					#else
+					#warning "NO MOTORS"
+					#endif
 		    }
 
 		  thrsum = 0;
@@ -449,6 +483,13 @@ void control(void)
 	  }			// end motors on
 
 }
+
+/////////////////////////////
+/////////////////////////////
+
+
+
+
 
 #ifdef MOTOR_CURVE_6MM_490HZ
 // the old map for 490Hz

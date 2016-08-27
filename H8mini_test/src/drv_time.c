@@ -11,7 +11,7 @@ volatile unsigned long systickcount = 0;
 // systick interrupt routine
 void SysTick_Handler(void)
 {
-	systickcount++;
+//    systickcount++;
 }
 
 
@@ -34,12 +34,11 @@ void time_init()
 {
 
 	if (SysTick_Config2(48000000 / 8))
-	  {			
-			// not able to set divider
+	  {			// not able to set divider
 		  failloop(5);
 		  while (1) ;
 	  }
-	NVIC_SetPriority(SysTick_IRQn, 0x00);
+	// NVIC_SetPriority(SysTick_IRQn, 0x00);     
 }
 
 // called at least once per second or time will overflow

@@ -28,6 +28,7 @@ AFLAGS = $(MCFLAGS)
 LDFLAGS = -nostdlib -lm -lnosys -Wl,-T,flash.ld,-Map,$(TARGET).map,--gc-sections,-Os
 
 SRC = $(wildcard $(topdir)/H8mini_*/src/*.c) \
+	$(wildcard $(topdir)/H8mini_*/src/config.h) \
 	$(wildcard $(topdir)/H8mini_*/src/*.cpp) \
 	$(wildcard $(topdir)/CMSIS/*.c) \
 	$(wildcard $(topdir)/Peripherals/src/*.c)

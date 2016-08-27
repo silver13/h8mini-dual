@@ -15,8 +15,8 @@
         <TargetCommonOption>
           <Device>GD32F130G6</Device>
           <Vendor>GigaDevice</Vendor>
-          <PackID>Keil.GD32F1xx_DFP.1.1.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
+          <PackID>GigaDevice.GD32F1x0_DFP.2.0.1</PackID>
+          <PackURL>http://gd32mcu.21ic.com/data/documents/yingyongruanjian/</PackURL>
           <Cpu>IROM(0x08000000,0x00008000) IRAM(0x20000000,0x00001000) CPUTYPE("Cortex-M3") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>

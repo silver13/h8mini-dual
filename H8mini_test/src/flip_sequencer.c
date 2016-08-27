@@ -2,21 +2,24 @@
 #include "config.h"
 
 #define THROTTLE_UP 0.9
-#define THROTTLE_HOVER 0.5
+#define THROTTLE_HOVER 0.7
 #define THROTTLE_EXIT 0.8
 
-#define FLIP_RATE 1200
+#define FLIP_RATE 1500
 //time to up throttle in beggining stage
 // 200ms
 #define THROTTLE_UP_TIME 200e3
 // end time in level mode
-#define LEVEL_MODE_TIME 500e3
-#define LEVEL_MODE_ANGLE -10
+#define LEVEL_MODE_TIME 100e3
+#define LEVEL_MODE_ANGLE 0
 
 #define FLIP_TIMEOUT_TOTAL 1500e3
 #define FLIP_TIMEOUT_STAGE1 500e3
 
 
+
+
+// don't change below
 
 #define STAGE_FLIP_NONE 0
 #define STAGE_FLIP_START 1
@@ -93,7 +96,7 @@ void flip_sequencer()
 		// 		
 			acro_override = 1;
 			controls_override = 1;
-			
+			rx_override[0] = 0;
 			rx_override[1] = 0;
 			rx_override[2] = 0;
 		  rx_override[3] = THROTTLE_UP;
