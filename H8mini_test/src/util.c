@@ -26,6 +26,9 @@ THE SOFTWARE.
 #include <math.h>
 #include "util.h"
 #include "drv_time.h"
+#include "gd32f1x0.h"
+
+#include "config.h"
 
 // calculates the coefficient for lpf filter, times in the same units
 float lpfcalc(float sampleperiod, float filtertime)
@@ -34,7 +37,7 @@ float lpfcalc(float sampleperiod, float filtertime)
 		return 0;
 	if (filtertime <= 0)
 		return 1;
-	float ga = expf(-1.0f / ((1.0 / sampleperiod) * (filtertime)));
+	float ga = expf(-1.0f / ((1.0f / sampleperiod) * (filtertime)));
 	if (ga > 1)
 		ga = 1;
 	return ga;
@@ -96,18 +99,18 @@ void TE(void)
 float fastsin(float x)
 {
 	//always wrap input angle to -PI..PI
-	while (x < -3.14159265)
-		x += 6.28318531;
+	while (x < -3.14159265f)
+		x += 6.28318531f;
 
-	while (x > 3.14159265)
-		x -= 6.28318531;
+	while (x > 3.14159265f)
+		x -= 6.28318531f;
 	float sin1;
 
 //compute sine
 	if (x < 0)
-		sin1 = (1.27323954 + .405284735 * x) * x;
+		sin1 = (1.27323954f + .405284735f * x) * x;
 	else
-		sin1 = (1.27323954 - .405284735 * x) * x;
+		sin1 = (1.27323954f - .405284735f * x) * x;
 
 
 	return sin1;
@@ -117,6 +120,83 @@ float fastsin(float x)
 
 float fastcos(float x)
 {
-	x += 1.57079632;
+	x += 1.57079632f;
 	return fastsin(x);
 }
+
+
+#ifdef BUZZER_ENABLE
+
+
+// output polarity
+// BIT_SET = HIGH
+#define BUZZERON Bit_SET
+#define BUZZEROFF Bit_RESET
+
+void buzzer()
+{
+	extern int failsafe;
+	extern int onground;
+	extern int lowbatt;
+	//extern float rx[];
+	static int toggle;
+	static uint32_t pulse_rate;
+	static unsigned int buzzertime;
+	
+	if ( lowbatt || failsafe) // || rx[3] < 0.1f )
+	{
+		unsigned time = gettime();
+		if ( buzzertime == 0)
+			buzzertime = time;
+		else
+		{
+			// rank lowbatt > failsafe > throttle
+			if (lowbatt)
+				pulse_rate = 200000; // 1/5th second
+			else if (failsafe)
+				pulse_rate = 400000; // 2/5ths second
+			else
+				pulse_rate = 600000; // 3/5ths second
+
+			if ( time - buzzertime > BUZZER_DELAY || lowbatt) // 10 seconds
+			{
+				// set buzzer to on
+				
+				if (time%pulse_rate>pulse_rate/2)
+				{
+					if ( toggle  ) // cycle the buzzer
+					{
+					GPIO_WriteBit(BUZZER_PIN_PORT, BUZZER_PIN, BUZZERON); // on
+					}
+					else 
+					{
+						GPIO_WriteBit(BUZZER_PIN_PORT, BUZZER_PIN, BUZZEROFF); // off
+					}
+					toggle = !toggle;
+				}
+				else
+				{
+					GPIO_WriteBit(BUZZER_PIN_PORT, BUZZER_PIN, BUZZEROFF );
+				}
+			}
+		}
+		
+	}
+	else 
+	{
+		buzzertime = 0;
+		// set buzzer to off
+		GPIO_WriteBit(BUZZER_PIN_PORT, BUZZER_PIN, BUZZEROFF );
+		
+	}
+	
+}
+
+#endif
+
+
+
+
+
+
+

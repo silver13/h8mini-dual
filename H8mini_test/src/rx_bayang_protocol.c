@@ -89,10 +89,10 @@ char lastaux[AUXNUMBER];
 char auxchange[AUXNUMBER];
 char lasttrim[4];
 
-char rfchannel[4];
-int rxaddress[5];
-int rxmode = 0;
-int rf_chan = 0;
+  char rfchannel[4];
+	int rxaddress[5];
+	int rxmode = 0;
+	int rf_chan = 0;
 
 	
 void bleinit( void);
@@ -264,6 +264,12 @@ const uint8_t ble_whiten_37[] = {
 	0x5D , 0x4C
 }; // whitening sequence channel 37 ( 0 - index ; 2 - rf channel; 37 - ble spec)
 
+
+uint8_t chRf[3] = {2, 26,80};
+uint8_t chLe[3] = {37,38,39};
+uint8_t whitenstart[] = { 0xa6 , 0x66 , 0xe6};
+
+/*
 uint8_t swapbits_old(uint8_t a){
 // reverse the bit order in a single byte
 uint8_t v = 0;
@@ -286,6 +292,13 @@ b = ((b * 0x0802LU & 0x22110LU) | (b * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
 return b;
 }
 
+// cortex m3 intrinsic bitswap
+uint8_t swapbits_m3(uint8_t a)
+{
+return (unsigned int) __rbit( (unsigned int) a); 
+}
+*/
+
 void btLeWhiten(uint8_t* data, uint8_t len, uint8_t whitenCoeff)
 {
 	// Implementing whitening with LFSR
@@ -304,11 +317,12 @@ void btLeWhiten(uint8_t* data, uint8_t len, uint8_t whitenCoeff)
 		data++;
 	}
 }
+/*
 static inline uint8_t btLeWhitenStart(uint8_t chan){
 //the value we actually use is what BT'd use left shifted one...makes our life easier
-return swapbits(chan) | 2;
+return swapbits(chLe[chan]) | 2;
 }
-
+*/
 
 
 void btLePacketEncode(uint8_t* packet, uint8_t len, uint8_t chan){
@@ -333,8 +347,7 @@ for(i = 0; i < len; i++)
 	packet[i] ^=ble_whiten_37[i];
 }
 else // lfsr based
-btLeWhiten(packet, len, btLeWhitenStart(chan));
-	
+btLeWhiten(packet, len, whitenstart[chan]);	
 }
 
 #define RXDEBUG
@@ -364,10 +377,10 @@ int afterskip[12];
 #define MY_MAC_4	0x55
 #define MY_MAC_5	0xF6
 
+
 uint8_t buf[48];
 int buffint[48];
-static const uint8_t chRf[] = {2, 26,80};
-static const uint8_t chLe[] = {37,38,39};
+
 uint8_t ch = 0; // RF channel for frequency hopping
 
 int payloadsize;
@@ -609,7 +622,7 @@ buf[L++] =  time;  // powerup time 3 in seconds times 10.
 L=L+3; //crc
 
 
-btLePacketEncode(buf, L, chLe[ch]);
+btLePacketEncode(buf, L, ch );
 
 // undo xn297 data whitening
 for (uint8_t i = 0; i < L; ++i) 

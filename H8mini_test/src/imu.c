@@ -1,22 +1,3 @@
-/*
-    IMU file of H8 mini firmware
-    Copyright (C) 2015  silverx
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-// this file is licenced GPL as it contains a cut and paste rotation matrix routine from a gpl source
 
 // library headers
 #include <stdbool.h>
@@ -38,7 +19,7 @@
 //#include <arm_math.h>
 
 
-#define ACC_1G 2048.0
+#define ACC_1G 2048.0f
 
 // disable drift correction ( for testing)
 #define DISABLE_ACC 0
@@ -81,7 +62,6 @@
 #define ssin(val) (val)
 #define scos(val) 1.0f
 
-void limit180(float *);
 
 
 float GEstG[3] = { 0, 0, ACC_1G };
@@ -96,7 +76,7 @@ extern float accelcal[3];
 void imu_init(void)
 {
 	// init the gravity vector with accel values
-	for (int xx = 0; xx < 100; xx++)
+	for (int y = 0; y < 100; y++)
 	  {
 		  sixaxis_read();
 
@@ -110,14 +90,33 @@ void imu_init(void)
 	  }
 }
 
+// from http://en.wikipedia.org/wiki/Fast_inverse_square_root
+// originally from quake3 code
 
+float Q_rsqrt( float number )
+{
+
+	long i;
+	float x2, y;
+	const float threehalfs = 1.5F;
+
+	x2 = number * 0.5F;
+	y  = number;
+	i  = * ( long * ) &y;                       
+	i  = 0x5f3759df - ( i >> 1 );               
+	y  = * ( float * ) &i;
+	y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
+	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
+//	y  = y * ( threehalfs - ( x2 * y * y ) );   // 3nd iteration, this can be removed
+	
+	return y;
+}
 
 
 void vectorcopy(float *vector1, float *vector2);
-
-static unsigned long gptimer;
-
 float atan2approx(float y, float x);
+
+
 
 float calcmagnitude(float vector[3])
 {
@@ -126,7 +125,7 @@ float calcmagnitude(float vector[3])
 	  {
 		  accmag += vector[axis] * vector[axis];
 	  }
-	accmag = sqrtf(accmag);
+	accmag = 1.0f/Q_rsqrt(accmag);
 	return accmag;
 }
 
@@ -139,8 +138,7 @@ void vectorcopy(float *vector1, float *vector2)
 	  }
 }
 
-float normal = ACC_1G;
-
+static unsigned long imu_time;
 
 void imu_calc(void)
 {
@@ -154,8 +152,8 @@ void imu_calc(void)
 
 
 	unsigned long time = gettime();
-	deltatime = time - gptimer;
-	gptimer = time;
+	deltatime = time - imu_time;
+	imu_time = time;
 	if (deltatime < 1)
 		deltatime = 1;
 	if (deltatime > 20000)
@@ -163,11 +161,11 @@ void imu_calc(void)
 	deltatime = deltatime * 1e-6f;	// uS to seconds
 
 
-
-	for (int x = 0; x < 3; ++x)
-	  {			// was 3
+	for (int x = 0; x < 3; x++)
+	  {	
 		  accel[x] = accel[x] - accelcal[x];
 	  }
+		
 
 #ifndef SMALL_ANGLE_APPROX
 	float gyros[3];
@@ -180,13 +178,12 @@ void imu_calc(void)
 	float mat[3][3];
 	float cosx, sinx, cosy, siny, cosz, sinz;
 	float coszcosx, coszcosy, sinzcosx, coszsinx, sinzsinx;
-// the signs are differnt due to different conventions
-// for positive/negative angles in various multiwii forks this is based on
+
 	cosx = _cosf(gyros[1]);
 	sinx = _sinf(gyros[1]);
-	cosy = _cosf(-gyros[0]);
+	cosy = _cosf(gyros[0]);
 	siny = _sinf(-gyros[0]);
-	cosz = _cosf(-gyros[2]);
+	cosz = _cosf(gyros[2]);
 	sinz = _sinf(-gyros[2]);
 
 	coszcosx = cosz * cosx;
@@ -213,17 +210,14 @@ void imu_calc(void)
 
 #ifdef SMALL_ANGLE_APPROX
 
-	// Rotate Estimated vector(s), ROLL
 	float deltaGyroAngle = (gyro[0]) * deltatime;
 	EstG[2] = scos(deltaGyroAngle) * EstG[2] - ssin(deltaGyroAngle) * EstG[0];
 	EstG[0] = ssin(deltaGyroAngle) * EstG[2] + scos(deltaGyroAngle) * EstG[0];
 
-	// Rotate Estimated vector(s), PITCH
 	deltaGyroAngle = (gyro[1]) * deltatime;
 	EstG[1] = scos(deltaGyroAngle) * EstG[1] + ssin(deltaGyroAngle) * EstG[2];
 	EstG[2] = -ssin(deltaGyroAngle) * EstG[1] + scos(deltaGyroAngle) * EstG[2];
 
-	// Rotate Estimated vector(s), YAW
 	deltaGyroAngle = (gyro[2]) * deltatime;
 	EstG[0] = scos(deltaGyroAngle) * EstG[0] - ssin(deltaGyroAngle) * EstG[1];
 	EstG[1] = ssin(deltaGyroAngle) * EstG[0] + scos(deltaGyroAngle) * EstG[1];
@@ -232,61 +226,45 @@ void imu_calc(void)
 
 #ifdef DEBUG
 	attitude[2] += RADTODEG * gyro[2] * deltatime;
-
-	limit180(&attitude[2]);
 #endif
 // orientation vector magnitude
 
 
 // calc acc mag
-	float accmag = 0;
+	float accmag;
 
 	accmag = calcmagnitude(&accel[0]);
-
-	// normalize acc
-	for (int axis = 0; axis < 3; axis++)
-	  {
-		  accel[axis] = accel[axis] / (accmag / normal);
-	  }
-
-
+		
 	static unsigned int count = 0;
 
-	if ((accmag > (float) ACC_MIN * (float) ACC_1G) && (accmag < (float) ACC_MAX * (float) ACC_1G) && !DISABLE_ACC)
-	  {
+	if ((accmag > ACC_MIN * ACC_1G) && (accmag < ACC_MAX * ACC_1G) && !DISABLE_ACC)
+	  {	
 		  if (count >= 3 || 1)	//
 		    {
+						// normalize acc
+					for (int axis = 0; axis < 3; axis++)
+					{
+						accel[axis] = accel[axis] * ( ACC_1G / accmag);
+					}
 			    float filtcoeff = lpfcalc(deltatime, FILTERTIME);
 			    for (int x = 0; x < 3; x++)
 			      {
-				      //lpf( &EstG[x] , accel[x] , GYR_CMPF_FACTOR );
 				      lpf(&EstG[x], accel[x], filtcoeff);
 			      }
 		    }
 		  count++;
 	  }
 	else
-	  {			// acc mag out of bounds
+	  {			
+			// acc mag out of bounds
 		  count = 0;
-		  if (rand() % 20 == 5)
-		    {
-			    float mag = 0;
-			    mag = calcmagnitude(&EstG[0]);
-
-			    // normalize orientation vector
-
-			    for (int x = 0; x < 3; x++)
-			      {
-				      EstG[x] = EstG[x] / (mag / normal);
-			      }
-		    }
 	  }
 
 	vectorcopy(&GEstG[0], &EstG[0]);
 
-	attitude[0] = atan2approx(EstG[0], EstG[2]);
+	attitude[0] = atan2approx(EstG[0], EstG[2]) ;
 
-	attitude[1] = atan2approx(EstG[1], EstG[2]);
+	attitude[1] = atan2approx(EstG[1], EstG[2])  ;
 
 }
 
@@ -317,9 +295,6 @@ float atan2approx(float y, float x)
 
 	t = (y / x);
 	// atan function for 0 - 1 interval
-	//dphi = M_PI / 4 * t - t * ((t) - 1) * (0.2447f + 0.0663f * (t));
-
-//	dphi = t*(M_PI / 4  -  ((t) - 1) * (0.2447f + 0.0663f * (t)));
 	dphi = t*( ( M_PI/4 + 0.2447f ) + t *( ( -0.2447f + 0.0663f ) + t*( - 0.0663f)) );
 	phi *= M_PI / 4;
 	dphi = phi + dphi;
@@ -328,10 +303,3 @@ float atan2approx(float y, float x)
 	return RADTODEG * dphi;
 }
 
-void limit180(float *x)
-{
-	while (*x < -180)
-		*x += 360;
-	while (*x > 180)
-		*x -= 360;
-}

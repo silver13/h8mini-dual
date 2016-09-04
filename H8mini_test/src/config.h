@@ -102,6 +102,9 @@
 // channel to initiate automatic flip
 #define STARTFLIP CH_FLIP
 
+// leds on / off channel
+#define LEDS_ON CH_ON
+
 
 
 
@@ -128,16 +131,15 @@
 // comment out to disable
 //#define MIX_LOWER_THROTTLE
 
+// options for mix throttle lowering if enabled
+// 0 - 100 range ( 100 = full reduction / 0 = no reduction )
+#define MIX_THROTTLE_REDUCTION_PERCENT 100
 
 
 // battery saver ( only at powerup )
 // does not start software if battery is too low
 // flashes 2 times repeatedly at startup
 #define STOP_LOWBATTERY
-
-// under this voltage the software will not start 
-// if STOP_LOWBATTERY is defined above
-#define STOP_LOWBATTERY_TRESH 3.3f
 
 // voltage too start warning
 // volts
@@ -194,6 +196,13 @@
 #define FAILSAFETIME 1000000  // one second
 
 
+// uncomment to enable buzzer
+//#define BUZZER_ENABLE
+
+#define BUZZER_PIN       GPIO_PIN_14 // SWCLK
+#define BUZZER_PIN_PORT  GPIOA
+#define BUZZER_DELAY     5000000 // 5 seconds after loss of tx or low bat before buzzer starts
+
 // level mode "manual" trims ( in degrees)
 // pitch positive forward
 // roll positive right
@@ -204,6 +213,16 @@
 // enable "bluetooth low energy" beacon
 //#define BLUETOOTH_ENABLE
 //#define USE_IBEACON
+
+
+
+
+
+
+
+
+
+
 
 
 // ########################################
@@ -232,14 +251,7 @@
 #define ENABLESTIX_TRESHOLD 0.3
 
 // old calibration flash
-#define OLD_LED_FLASH
-
-
-// options for mix throttle lowering if enabled
-// 0 - 100 range ( 100 = full reduction / 0 = no reduction )
-#define MIX_THROTTLE_REDUCTION_PERCENT 100
-// lpf (exponential) shape if on, othewise linear
-//#define MIX_THROTTLE_FILTER_LPF
+//#define OLD_LED_FLASH
 
 
 // limit minimum motor output to a value (0.0 - 1.0)
@@ -250,23 +262,34 @@
 //#define MOTOR_MAX_ENABLE
 #define MOTOR_MAX_VALUE 1.00
 
+// under this voltage the software will not start 
+// if STOP_LOWBATTERY is defined
+#define STOP_LOWBATTERY_TRESH 3.3f
+
+
+
+// define logic
+
+// don't stop software on low battery so buzzer will still sound
+#ifdef BUZZER_ENABLE
+#undef STOP_LOWBATTERY 
+#endif
+
+// disable startup battery check so beacon can work after a reset
+#ifdef BLUETOOTH_ENABLE
+#undef STOP_LOWBATTERY
+#endif
 
 // do not change
 // only for compilers other than gcc
+// some warnings, mainly double to float conversion
 #ifndef __GNUC__
 
 #pragma diag_warning 1035 , 177 , 4017
-
 #pragma diag_error 260 
 
 #endif
 // --fpmode=fast ON
-
-
-
-
-
-
 
 
 

@@ -77,6 +77,8 @@ int lowbatt = 0;
 float vbatt = 4.2;
 float vbattfilt = 4.2;
 
+extern char aux[AUXNUMBER];
+
 #ifdef DEBUG
 unsigned long elapsedtime;
 #endif
@@ -229,7 +231,6 @@ int main(void)
 
 // battery low logic
 				
-		static int lowbatt = 0;
 		float hyst;
 		float battadc = adc_read(1);
 vbatt = battadc;
@@ -253,6 +254,7 @@ vbatt = battadc;
 
 		  if (rxmode != RX_MODE_BIND)
 		    {		// non bind                    
+
 			    if (failsafe)
 			      {
 				      if (lowbatt)
@@ -278,7 +280,12 @@ vbatt = battadc;
 							  ledflash(100000, 8);
 						  }
 						else
-							ledon(255);
+						{
+							if ( aux[LEDS_ON] )
+							ledon( 255);
+							else 
+							ledoff( 255);
+						}
 					}
 			      }
 		    }
@@ -287,13 +294,32 @@ vbatt = battadc;
 			    ledflash(100000 + 500000 * (lowbatt), 12);
 		    }
 
+#ifdef BUZZER_ENABLE
+			static int buzzer_init = 0;
+			// wait 10 seconds (or 30 seconds if quad doesn't bind)
+			// before configuring the gpio buzzer pin to ensure
+			// there is time to program the chip (if using SWDAT or SWCLK)
+			uint32_t buzzer_delay = 10000000;
+			if (rxmode == RX_MODE_BIND)
+				buzzer_delay = 20000000;
+
+			if (!buzzer_init && maintime > buzzer_delay) 
+			{
+				if (gpio_init_buzzer())
+					buzzer_init = 1;
+			}
+			else if (buzzer_init && maintime > buzzer_delay)
+			{
+				buzzer();
+			}
+#endif
 
 		  checkrx();
 #ifdef DEBUG
 		  elapsedtime = gettime() - maintime;
 #endif
 // loop time 1ms                
-		  while ((gettime() - maintime) < 1000)
+		  while ((gettime() - maintime) < (1000 - 22) )
 			  delay(10);
 
 

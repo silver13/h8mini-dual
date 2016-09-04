@@ -16,8 +16,12 @@
 
 #define PI  3.14159265358979323846f 
 
-#define CH_ON 10
-#define CH_OFF 11
+
+#define AUXNUMBER 12
+
+
+#define CH_ON (AUXNUMBER - 2)
+#define CH_OFF (AUXNUMBER - 1)
 #define CH_FLIP 0
 #define CH_EXPERT 1
 #define CH_HEADFREE 2
@@ -33,6 +37,8 @@
 #define CH_INV 6
 #define CH_VID 7
 #define CH_PIC 8
+#define CH_AUX3 CH_OFF
+#define CH_AUX4 CH_OFF
 
 #define DEVO_CHAN_5 CH_INV
 #define DEVO_CHAN_6 CH_FLIP
@@ -41,8 +47,6 @@
 #define DEVO_CHAN_9 CH_HEADFREE
 #define DEVO_CHAN_10 CH_RTH
 
-#define CH_AUX3 CH_OFF
-#define CH_AUX4 CH_OFF
 
 #define RX_MODE_NORMAL 123
 #define RX_MODE_BIND 0

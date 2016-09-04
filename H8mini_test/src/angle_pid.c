@@ -8,7 +8,7 @@
 
 #define APIDNUMBER 3
 
-//                             ANGLE PIDS      
+//                   						 ANGLE PIDS      
 // yaw is done by the rate yaw pid
 // Kp                       ROLL     PITCH    YAW
 float apidkp[APIDNUMBER] = { 2.2e-2, 2.2e-2, 0e-1 };
@@ -34,11 +34,6 @@ float angleerror[3];
 
 float apid(int x)
 {
-#if ( APIDNUMBER > 2)
-	int index = x % 3;
-#else
-	int index = x;
-#endif
 
 	if (onground)
 	  {
@@ -47,23 +42,23 @@ float apid(int x)
 	// anti windup
 	// prevent integral increase if output is at max
 	int iwindup = 0;
-	if ((apidoutput[x] == OUTLIMIT_FLOAT) && (gyro[index] > 0))
+	if ((apidoutput[x] == OUTLIMIT_FLOAT) && (gyro[x] > 0))
 	  {
 		  iwindup = 1;
 	  }
-	if ((apidoutput[x] == -OUTLIMIT_FLOAT) && (gyro[index] < 0))
+	if ((apidoutput[x] == -OUTLIMIT_FLOAT) && (gyro[x] < 0))
 	  {
 		  iwindup = 1;
 	  }
 	if (!iwindup)
 	  {
-		  aierror[x] = aierror[x] + angleerror[index] * apidki[x] * looptime;
+		  aierror[x] = aierror[x] + angleerror[x] * apidki[x] * looptime;
 	  }
 
 	limitf(&aierror[x], ITERMLIMIT_FLOAT);
 
 	// P term
-	apidoutput[x] = angleerror[index] * apidkp[x];
+	apidoutput[x] = angleerror[x] * apidkp[x];
 
 	// I term       
 	apidoutput[x] += aierror[x];

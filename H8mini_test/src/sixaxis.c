@@ -40,7 +40,6 @@ THE SOFTWARE.
 #include <inttypes.h>
 
 
-
 // gyro orientation
 // the expected orientation is with the gyro dot in the front-left corner
 // use this to rotate to the correct orientation 
@@ -65,6 +64,10 @@ THE SOFTWARE.
 #ifndef GYRO_ID_4
 #define GYRO_ID_4 0x72
 #endif
+
+
+extern void loadcal(void);
+
 
 void sixaxis_init( void)
 {
@@ -413,7 +416,7 @@ else
 					if ( fabsf(gyro[i]) > 100+ fabsf(limit[i]) ) 
 					{										
 						timestart = gettime();
-								#ifndef OLD_LED_FLASH
+							#ifndef OLD_LED_FLASH
 							ledlevel = 1;
 							#endif
 					}
@@ -428,19 +431,21 @@ else
 while ( (gettime() - time) < 1000 ) delay(10); 				
 time = gettime();
 
+	
+if (time - timestart < CAL_TIME)
+	  {
+		  for (int i = 0; i < 3; i++)
+		    {
+			    gyrocal[i] = 0;
+
+		    }
+
+		  loadcal();
+	  }
+
+			
 	}
 
-	
-
-if ( time - timestart < CAL_TIME )
-{
-	for ( int i = 0 ; i < 3; i++)
-	{
-	gyrocal[i] = 0;
-
-	}
-	
-}
 
 	
 #ifdef SERIAL_INFO	
@@ -456,11 +461,12 @@ void acc_cal(void)
 	for (int y = 0; y < 500; y++)
 	  {
 		  sixaxis_read();
+			delay(800);
 		  for (int x = 0; x < 3; x++)
 		    {
 			    lpf(&accelcal[x], accel[x], 0.92);
 		    }
-		  gettime();	// if it takes too long time will overflow so we call it here
+		  gettime();	// if it takes too long time might overflow so we call it here
 
 	  }
 	accelcal[2] -= 2048;
@@ -468,7 +474,7 @@ void acc_cal(void)
 
 	for (int x = 0; x < 3; x++)
 	  {
-		 // limitf(&accelcal[x], 127);
+		  limitf(&accelcal[x], 500);
 	  }
 
 }

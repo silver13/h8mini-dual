@@ -56,8 +56,8 @@ unsigned long time_update(void)
 	  }
 
 	lastticks = ticks;
-	// added +3 to center truncation losses around zero
-	globalticks = globalticks + 3 + elapsedticks / 6;
+
+	globalticks = globalticks + elapsedticks / 6;
 	return globalticks;
 }
 
