@@ -420,9 +420,9 @@ if (vbatt < (float) LVC_PREVENT_RESET_VOLTAGE) throttle = 0;
 			  lpf(&underthrottlefilt, underthrottle, 0.72);	// 50hz 1khz sample rate
 #else
 		  if (underthrottle < underthrottlefilt)
-			  underthrottlefilt += 0.005f;
+			  underthrottlefilt -= 0.005f;
 		  else
-			  underthrottlefilt -= 0.01f;
+			  underthrottlefilt += 0.01f;
 #endif
 // under
 			if (underthrottlefilt < - (float)MIX_THROTTLE_REDUCTION_MAX)
