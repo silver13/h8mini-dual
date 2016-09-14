@@ -253,6 +253,8 @@
 // old calibration flash
 //#define OLD_LED_FLASH
 
+// old yaw routine
+//#define USE_OLD_YAW
 
 // limit minimum motor output to a value (0.0 - 1.0)
 //#define MOTOR_MIN_ENABLE

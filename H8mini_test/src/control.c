@@ -191,14 +191,29 @@ void control(void)
 	pid_precalc();
 
 	if ((aux[LEVELMODE]||level_override)&&!acro_override)
-	  {			// level mode
-
+	  {	// level mode
+			
+			float yawerror[3];
+		#ifdef USE_OLD_YAW
+			float GEstG[3] = { 0, 0 , 2048};
+		#else
+			extern float GEstG[3];
+		#endif
+		
+			float yawrate = rxcopy[2] * (float) MAX_RATEYAW * DEGTORAD * ratemultiyaw;
+			
+			yawerror[0] = GEstG[1] * ( 1/ 2048.0f) * yawrate;
+			yawerror[1] = - GEstG[0] * ( 1/ 2048.0f) * yawrate;
+			yawerror[2] = GEstG[2] * ( 1/ 2048.0f) * yawrate;
+			
 		  angleerror[0] = rxcopy[0] * maxangle - attitude[0] + (float) TRIM_ROLL;
 		  angleerror[1] = rxcopy[1] * maxangle - attitude[1] + (float) TRIM_PITCH;
+		for ( int i = 0 ; i <2; i++)
+			{
+			error[i] = apid(i) * anglerate * DEGTORAD + yawerror[i] - gyro[i];
+			}
 
-		  error[0] = apid(0) * anglerate * DEGTORAD - gyro[0];
-		  error[1] = apid(1) * anglerate * DEGTORAD - gyro[1];
-
+			error[2] = yawerror[2]  - gyro[2];
 
 	  }
 	else
@@ -206,7 +221,9 @@ void control(void)
 
 		  error[0] = rxcopy[0] * MAX_RATE * DEGTORAD * ratemulti - gyro[0];
 		  error[1] = rxcopy[1] * MAX_RATE * DEGTORAD * ratemulti - gyro[1];
-
+			
+			error[2] = rxcopy[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
+			
 		  // reduce angle Iterm towards zero
 		  extern float aierror[3];
 			
@@ -217,7 +234,6 @@ void control(void)
 	  }
 
 
-	error[2] = rxcopy[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
 
 	pid(0);
 	pid(1);
