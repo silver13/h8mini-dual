@@ -303,14 +303,19 @@ vbatt = battadc;
 			if (rxmode == RX_MODE_BIND)
 				buzzer_delay = 20000000;
 
-			if (!buzzer_init && maintime > buzzer_delay) 
+			if (maintime > buzzer_delay)
 			{
-				if (gpio_init_buzzer())
-					buzzer_init = 1;
-			}
-			else if (buzzer_init && maintime > buzzer_delay)
-			{
-				buzzer();
+				if (lowbatt || failsafe || buzzer_init)
+				{
+					if (!buzzer_init)
+					{
+						buzzer_init = gpio_init_buzzer();
+					}
+					else
+					{
+						buzzer();
+					}
+				}
 			}
 #endif
 
