@@ -79,6 +79,11 @@ Read [INSTALL.md](INSTALL.md) for more information.
 ###Wiki
 http://sirdomsen.diskstation.me/dokuwiki/doku.php?id=start
 
+
+###16.09.16
+* High angle in level mode - up to 90 
+* Yaw fix - level mode
+
 ###21.07.16
 * updates from h101 fork
 * added extra devo channels
