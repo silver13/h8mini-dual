@@ -193,6 +193,11 @@ void control(void)
 	if ((aux[LEVELMODE]||level_override)&&!acro_override)
 	  {	// level mode
 			
+		extern	void stick_vector( float );
+		extern float errorvect[];	
+			#ifndef USE_OLD_LEVEL
+			stick_vector( maxangle);
+			#endif
 			float yawerror[3];
 		#ifdef USE_OLD_YAW
 			float GEstG[3] = { 0, 0 , 2048};
@@ -205,9 +210,13 @@ void control(void)
 			yawerror[0] = GEstG[1] * ( 1/ 2048.0f) * yawrate;
 			yawerror[1] = - GEstG[0] * ( 1/ 2048.0f) * yawrate;
 			yawerror[2] = GEstG[2] * ( 1/ 2048.0f) * yawrate;
-			
+		#ifdef USE_OLD_LEVEL	
 		  angleerror[0] = rxcopy[0] * maxangle - attitude[0] + (float) TRIM_ROLL;
 		  angleerror[1] = rxcopy[1] * maxangle - attitude[1] + (float) TRIM_PITCH;
+		#else	
+		angleerror[0] = errorvect[0] * RADTODEG *1.1f;
+		angleerror[1] = errorvect[1] * RADTODEG *1.1f;
+		#endif	
 		for ( int i = 0 ; i <2; i++)
 			{
 			error[i] = apid(i) * anglerate * DEGTORAD + yawerror[i] - gyro[i];

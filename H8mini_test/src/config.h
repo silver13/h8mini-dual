@@ -256,6 +256,9 @@
 // old yaw routine
 //#define USE_OLD_YAW
 
+// use old level code 
+//#define USE_OLD_LEVEL
+
 // limit minimum motor output to a value (0.0 - 1.0)
 //#define MOTOR_MIN_ENABLE
 #define MOTOR_MIN_VALUE 0.05
