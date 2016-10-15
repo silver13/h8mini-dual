@@ -431,8 +431,9 @@ else
 while ( (gettime() - time) < 1000 ) delay(10); 				
 time = gettime();
 
-	
-if (time - timestart < CAL_TIME)
+}
+		
+if (time - timestart > 15e6 - 5000)
 	  {
 		  for (int i = 0; i < 3; i++)
 		    {
@@ -442,10 +443,6 @@ if (time - timestart < CAL_TIME)
 
 		  loadcal();
 	  }
-
-			
-	}
-
 
 	
 #ifdef SERIAL_INFO	
