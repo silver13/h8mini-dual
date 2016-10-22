@@ -79,6 +79,10 @@ Read [INSTALL.md](INSTALL.md) for more information.
 ###Wiki
 http://sirdomsen.diskstation.me/dokuwiki/doku.php?id=start
 
+### .10.16
+* level mode drift bug fix
+* buzzer functionality added, on programming pins
+* board rotations in file sixaxis.c
 
 ###16.09.16
 * High angle in level mode - up to 90 
