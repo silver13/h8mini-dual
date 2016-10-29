@@ -1,6 +1,6 @@
 #include "gd32f1x0.h"
-#include "config.h"
 #include "drv_gpio.h"
+#include "config.h"
 
 void gpio_init(void)
 {

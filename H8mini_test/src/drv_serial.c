@@ -1,4 +1,5 @@
 
+
 #include "gd32f1x0.h"
 #include <stdio.h>
 #include "drv_serial.h"
@@ -19,7 +20,6 @@ int fputc(int ch, FILE * f)
 	buffer_end++;
 	buffer_end = buffer_end % (SERIAL_BUFFER_SIZE);
 	NVIC_EnableIRQ(USART2_IRQn);
-
 	return ch;
 }
 
@@ -73,10 +73,10 @@ void serial_init(void)
 
 	USART_Enable(USART2, ENABLE);
 
+// enable interrupt
 	USART_INT_Set(USART2, USART_INT_TC, ENABLE);	// USART_INT_TBE
-
-
 
 }
 
 #endif
+

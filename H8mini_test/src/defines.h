@@ -12,12 +12,12 @@
 #define DEGTORAD 0.017453292f
 #define RADTODEG 57.29577951f
 
-#define AUXNUMBER 12
+#define FILTERCALC( sampleperiod, filtertime) (1.0f - ((float)sampleperiod) / ((float)filtertime))
 
 #define PI  3.14159265358979323846f 
 
 
-#define AUXNUMBER 12
+#define AUXNUMBER 16
 
 
 #define CH_ON (AUXNUMBER - 2)
@@ -34,7 +34,7 @@
 #define CH_THR_TRIM 8
 #define CH_YAW_TRIM 9
 
-#define CH_INV 6
+#define CH_INV 10
 #define CH_VID 7
 #define CH_PIC 8
 #define CH_AUX3 CH_OFF

@@ -130,6 +130,8 @@
 // enable auto lower throttle near max throttle to keep control
 // comment out to disable
 //#define MIX_LOWER_THROTTLE
+//#define MIX_INCREASE_THROTTLE
+
 
 // options for mix throttle lowering if enabled
 // 0 - 100 range ( 100 = full reduction / 0 = no reduction )
@@ -150,6 +152,9 @@
 // decrease if battery low warning goes away at high throttle
 // in volts
 #define VDROP_FACTOR 0.70f
+
+// determine VDROP_FACTOR automatically in-flight, set factor ignored
+#define AUTO_VDROP_FACTOR
 
 // voltage hysteresys
 // in volts
@@ -251,13 +256,7 @@
 #define ENABLESTIX_TRESHOLD 0.3
 
 // old calibration flash
-//#define OLD_LED_FLASH
-
-// old yaw routine
-//#define USE_OLD_YAW
-
-// use old level code 
-//#define USE_OLD_LEVEL
+#define OLD_LED_FLASH
 
 // limit minimum motor output to a value (0.0 - 1.0)
 //#define MOTOR_MIN_ENABLE
