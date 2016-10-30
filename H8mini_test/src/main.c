@@ -53,6 +53,13 @@ THE SOFTWARE.
 
 #include <inttypes.h>
 
+#ifdef __GNUC__
+// gcc warnings and fixes
+#undef AUTO_VDROP_FACTOR
+#warning #define AUTO_VDROP_FACTOR not working with gcc, using fixed factor
+#endif
+
+
 // hal
 void clk_init(void);
 
@@ -283,20 +290,16 @@ float min = score[0];
 		}
 }
 
-	if ( lowbatt ) hyst = HYST;
-		else hyst = 0.0f;
-		
-	if ( vbattfilt + (float) minindex * 0.1f * thrfilt <(float) VBATTLOW + hyst ) lowbatt = 1;
-		else lowbatt = 0;
+#undef VDROP_FACTOR
+#define VDROP_FACTOR  minindex * 0.1f
+#endif
 
-#else
-// fixed VDROP_FACTOR
 		if ( lowbatt ) hyst = HYST;
 		else hyst = 0.0f;
 		
 		if ( vbattfilt + (float) VDROP_FACTOR * thrfilt <(float) VBATTLOW + hyst ) lowbatt = 1;
 		else lowbatt = 0;
-#endif		
+		
 
 // led flash logic              
 
