@@ -283,16 +283,20 @@ float min = score[0];
 		}
 }
 
-#undef VDROP_FACTOR
-#define VDROP_FACTOR  minindex * 0.1f
-#endif
+	if ( lowbatt ) hyst = HYST;
+		else hyst = 0.0f;
+		
+	if ( vbattfilt + (float) minindex * 0.1f * thrfilt <(float) VBATTLOW + hyst ) lowbatt = 1;
+		else lowbatt = 0;
 
+#else
+// fixed VDROP_FACTOR
 		if ( lowbatt ) hyst = HYST;
 		else hyst = 0.0f;
 		
 		if ( vbattfilt + (float) VDROP_FACTOR * thrfilt <(float) VBATTLOW + hyst ) lowbatt = 1;
 		else lowbatt = 0;
-		
+#endif		
 
 // led flash logic              
 
