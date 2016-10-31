@@ -79,6 +79,10 @@ Read [INSTALL.md](INSTALL.md) for more information.
 ###Wiki
 http://sirdomsen.diskstation.me/dokuwiki/doku.php?id=start
 
+### 31.10.16
+* level code optimizations
+* added auto battery voltage drop calculation , enabled by default
+
 ### .10.16
 * level mode drift bug fix
 * buzzer functionality added, on programming pins
