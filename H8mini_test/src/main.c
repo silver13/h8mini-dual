@@ -41,6 +41,7 @@ THE SOFTWARE.
 #include "drv_pwm.h"
 #include "drv_adc.h"
 #include "drv_gpio.h"
+#include "drv_rgb.h"
 #include "drv_serial.h"
 #include "rx_bayang.h"
 #include "drv_spi.h"
@@ -50,14 +51,20 @@ THE SOFTWARE.
 #include "buzzer.h"
 #include "binary.h"
 #include <math.h>
+#include "hardware.h"
 
 #include <inttypes.h>
 
+
+
 #ifdef __GNUC__
 // gcc warnings and fixes
-#undef AUTO_VDROP_FACTOR
-#warning #define AUTO_VDROP_FACTOR not working with gcc, using fixed factor
+#ifdef AUTO_VDROP_FACTOR
+	#undef AUTO_VDROP_FACTOR
+	#warning #define AUTO_VDROP_FACTOR not working with gcc, using fixed factor
 #endif
+#endif
+
 
 
 // hal
@@ -185,6 +192,8 @@ int main(void)
 
 	gyro_cal();
 
+	rgb_init();
+	
 	imu_init();
 	
 	extern unsigned int liberror;
@@ -345,21 +354,29 @@ float min = score[0];
 			    ledflash(100000 + 500000 * (lowbatt), 12);
 		    }
 
+// rgb strip logic   
+#if (RGB_LED_NUMBER > 0)				
+	extern void rgb_led_lvc( void);
+	rgb_led_lvc( );
+#endif
+				
 #ifdef BUZZER_ENABLE
-				buzzer();
+	buzzer();
 #endif
 
-		  checkrx();
+	checkrx();
+				
 #ifdef DEBUG
 		  elapsedtime = gettime() - maintime;
 #endif
-// loop time 1ms                
-		  while ((gettime() - maintime) < (1000 - 22) )
-			  delay(10);
+					
+	// loop time 1ms                
+	while ((gettime() - maintime) < (1000 - 22) )
+			delay(10);
 
 
 
-	  }			// end loop
+	}			// end loop
 
 
 }
