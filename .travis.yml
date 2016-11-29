@@ -35,4 +35,4 @@ script:
     - make $TARGET 
     - make clean
     - make $TARGET
-    - arm-none-eabi-size h101.elf
+    - arm-none-eabi-size h8mini.elf
