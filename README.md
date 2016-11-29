@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/silver13/h8mini-testing.svg?branch=master)](https://travis-ci.org/silver13/h8mini-testing)
+
 # Eachine H8 mini level firmware
 
 This is a dual mode version of the firmware for Eachine H8 mini / JJRC H8 mini.
