@@ -550,6 +550,11 @@
               <FilePath>.\src\rx_bayang_protocol.c</FilePath>
             </File>
             <File>
+              <FileName>rx_bayang_ble.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\rx_bayang_ble.c</FilePath>
+            </File>
+            <File>
               <FileName>sixaxis.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\sixaxis.c</FilePath>

@@ -220,6 +220,12 @@
 //#define USE_IBEACON
 
 
+// 0 - 3 transmit power
+#define TX_POWER_TELEMETRY 3
+
+// rx protocol selection
+#define RX_BAYANG_TELEMETRY
+//#define RX_BAYANG_BLE
 
 
 

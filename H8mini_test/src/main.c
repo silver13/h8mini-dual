@@ -91,6 +91,7 @@ unsigned long ledcommandtime = 0;
 int lowbatt = 0;
 float vbatt = 4.2;
 float vbattfilt = 4.2;
+float vbatt_comp = 4.2;
 
 extern char aux[AUXNUMBER];
 
@@ -305,8 +306,10 @@ float min = score[0];
 
 		if ( lowbatt ) hyst = HYST;
 		else hyst = 0.0f;
-		
-		if ( vbattfilt + (float) VDROP_FACTOR * thrfilt <(float) VBATTLOW + hyst ) lowbatt = 1;
+
+		vbatt_comp = vbattfilt + (float) VDROP_FACTOR * thrfilt;
+
+		if ( vbatt_comp <(float) VBATTLOW + hyst ) lowbatt = 1;
 		else lowbatt = 0;
 		
 
