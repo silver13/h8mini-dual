@@ -316,8 +316,8 @@ float min = score[0];
 // led flash logic              
 
 		  if (rxmode != RX_MODE_BIND)
-		    {		// non bind                    
-
+		    {
+					// non bind                    
 			    if (failsafe)
 			      {
 				      if (lowbatt)
@@ -365,6 +365,20 @@ float min = score[0];
 				
 #ifdef BUZZER_ENABLE
 	buzzer();
+#endif
+
+#ifdef FPV_ON
+			static int fpv_init = 0;
+			if ( rxmode == RX_MODE_NORMAL && ! fpv_init ) {
+				fpv_init = gpio_init_fpv();
+			}
+			if ( fpv_init ) {
+				if ( failsafe ) {
+					GPIO_WriteBit( FPV_PIN_PORT, FPV_PIN, Bit_RESET );
+				} else {
+					GPIO_WriteBit( FPV_PIN_PORT, FPV_PIN, aux[ FPV_ON ] ? Bit_SET : Bit_RESET );
+				}
+			}
 #endif
 
 	checkrx();

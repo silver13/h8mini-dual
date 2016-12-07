@@ -85,10 +85,14 @@
 // CH_RLL_TRIM - 7 - Roll trims
 // CH_THR_TRIM - 8 - Throttle trims
 // CH_YAW_TRIM - 9 - Yaw trims
+// CH_INV  - Inverted mode
+// CH_VID  -
+// CH_PIC  -
 // CH_ON - 10 - on always
 // CH_OFF - 11 - off always
 //
 // devo can use DEVO_CHAN_5 - DEVO_CHAN_10
+// Multiprotocol can use MULTI_CHAN_5 - MULTI_CHAN_10
 
 // Headless mode
 #define HEADLESSMODE CH_OFF
@@ -106,10 +110,23 @@
 #define LEDS_ON CH_ON
 
 
+// toggle is a block with an input and an output
+// uncomment input to enable ( aux 2 is gesture up - up - up )
+//#define TOGGLE_IN CH_AUX2
+#define TOGGLE_OUT CH_AUX4
+
+// Channel to turn a GPIO pin on/off. Can be used to switch
+// a FPV camera on/off . Select the FPV_PIN in hardware.h
+//#define FPV_ON CH_VID // DEVO_CHAN_8
+
+// Airmode keeps the PID loop stabilizing the quads orientation even at zero throttle.
+// To stop the motors on ground a switch on the remote control is necessary.
+//#define AIRMODE_HOLD_SWITCH CH_INV // DEVO_CHAN_5
 
 
 // aux1 channel starts on if this is defined, otherwise off.
 #define AUX1_START_ON
+//#define AUX4_START_ON
 
 // use yaw/pitch instead of roll/pitch for gestures
 //#define GESTURES_USE_YAW
@@ -164,6 +181,7 @@
 //#define LVC_PREVENT_RESET
 #define LVC_PREVENT_RESET_VOLTAGE 2.85
 
+//#define PID_VOLTAGE_COMPENSATION
 
 // enable motor filter
 // hanning 3 sample fir filter
@@ -204,9 +222,6 @@
 // uncomment to enable buzzer
 //#define BUZZER_ENABLE
 
-#define BUZZER_PIN       GPIO_PIN_14 // SWCLK
-#define BUZZER_PIN_PORT  GPIOA
-#define BUZZER_DELAY     5e6 // 5 seconds after loss of tx or low bat before buzzer starts
 
 // level mode "manual" trims ( in degrees)
 // pitch positive forward
@@ -272,7 +287,7 @@
 //#define MOTOR_MAX_ENABLE
 #define MOTOR_MAX_VALUE 1.00
 
-// under this voltage the software will not start 
+// under this voltage the software will not start
 // if STOP_LOWBATTERY is defined
 #define STOP_LOWBATTERY_TRESH 3.3f
 
@@ -282,7 +297,7 @@
 
 // don't stop software on low battery so buzzer will still sound
 #ifdef BUZZER_ENABLE
-#undef STOP_LOWBATTERY 
+#undef STOP_LOWBATTERY
 #endif
 
 // disable startup battery check so beacon can work after a reset
@@ -296,7 +311,7 @@
 #ifndef __GNUC__
 
 #pragma diag_warning 1035 , 177 , 4017
-#pragma diag_error 260 
+#pragma diag_error 260
 
 #endif
 // --fpmode=fast ON

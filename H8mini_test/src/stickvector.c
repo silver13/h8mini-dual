@@ -24,7 +24,6 @@ stickvector[0] = fastsin( roll );
 stickvector[1] = fastsin( pitch );
 stickvector[2] = fastcos( roll ) * fastcos( pitch );
 
-		
 	
 float	mag2 = (stickvector[0] * stickvector[0] + stickvector[1] * stickvector[1]);
 

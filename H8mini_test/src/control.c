@@ -86,6 +86,14 @@ void control(void)
 	float maxangle;
 	float anglerate;
 
+
+#ifdef TOGGLE_IN
+if ( auxchange[TOGGLE_IN] && !aux[TOGGLE_IN] )
+{
+   ledcommand = 1;
+aux[TOGGLE_OUT]=!aux[TOGGLE_OUT];    
+}
+#endif
 	if (aux[RATES])
 	  {
 		  ratemulti = HIRATEMULTI;
@@ -248,10 +256,16 @@ void control(void)
 		throttle = 1.0f;
 
 
+#ifdef AIRMODE_HOLD_SWITCH
+	if (failsafe || aux[AIRMODE_HOLD_SWITCH] || throttle < 0.001f && !onground_long)
+	{
+		onground_long = 0;
+#else
 // turn motors off if throttle is off and pitch / roll sticks are centered
 	if (failsafe || (throttle < 0.001f && ( !ENABLESTIX || !onground_long || aux[LEVELMODE] || level_override || (fabsf(rx[0]) < (float) ENABLESTIX_TRESHOLD && fabsf(rx[1]) < (float) ENABLESTIX_TRESHOLD))))
 	  {			// motors off
-		
+#endif
+
 		onground = 1;
 			
 		if ( onground_long )

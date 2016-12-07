@@ -37,8 +37,8 @@
 #define CH_INV 10
 #define CH_VID 7
 #define CH_PIC 8
-#define CH_AUX3 CH_OFF
-#define CH_AUX4 CH_OFF
+#define CH_AUX3 11
+#define CH_AUX4 12
 
 #define DEVO_CHAN_5 CH_INV
 #define DEVO_CHAN_6 CH_FLIP
@@ -47,6 +47,12 @@
 #define DEVO_CHAN_9 CH_HEADFREE
 #define DEVO_CHAN_10 CH_RTH
 
+#define MULTI_CHAN_5 CH_FLIP
+#define MULTI_CHAN_6 CH_RTH
+#define MULTI_CHAN_7 CH_PIC
+#define MULTI_CHAN_8 CH_VID
+#define MULTI_CHAN_9 CH_HEADFREE
+#define MULTI_CHAN_10 CH_INV
 
 #define RX_MODE_NORMAL 123
 #define RX_MODE_BIND 0

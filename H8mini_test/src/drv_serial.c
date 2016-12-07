@@ -24,6 +24,13 @@ int fputc(int ch, FILE * f)
 }
 
 
+void buffer_add(int val )
+{
+	buffer[buffer_end] = (char)val;
+	buffer_end++;
+	buffer_end = buffer_end % (SERIAL_BUFFER_SIZE);
+	NVIC_EnableIRQ(USART2_IRQn);
+}
 
 void USART2_IRQHandler(void)
 {
