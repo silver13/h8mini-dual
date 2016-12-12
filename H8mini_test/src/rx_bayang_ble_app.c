@@ -49,10 +49,84 @@ THE SOFTWARE.
 
 
 // ble settings
+// SilverVISE app coded by SilverAG
+
+// -----------------------------------------------
+// Configuration for SilverVISE telemetry  - start
+// -----------------------------------------------
+// Following set of options will be used only if you enabled #define RX_BAYANG_BLE_APP
+//
+// For telemetry with SilverVISE application, you must define unique name of each quad you flash.
+// Names between quadcopters must not be the same if you plan to fly more than one in the same time.
+// Name must be entered inside quotation marks ("") - just replace H101 with desired quad name.
+// Be original and keep up to 6 characters (any longer name will be cut to first 6 characters).
+// You can use letters A to Z, numbers 0 to 9 and some special characters like # / \ - _ etc.
+// Please use only caps lock letters because name is not case sensitive. Avoid using blanks in name!
+
+#define MY_QUAD_NAME "H8"
+
+// MY_QUAD_ID defines unique ID for MAC address. Leave 123 or replace it with any other value between 1 and 255.
+// Use ONLY values between 1 and 255!
+// This is actually one byte of MAC address used for bluetooth communication between quad and SilverVISE application.
+// Unique MY_QUAD_ID can be the same for all your quads as long as you won't have powered on more than one in the same time (or you are sure that nobody else uses the same number
+// for their quad and don't have it powered on in the same time with yours inisde bluetooth range), otherwise TLM data WILL BE MIXED BETWEEN QUADS!
+// If this option is not enabled and set, different random number will be assigned to quad's MAC after EACH power-up - BUT THEN BE AWARE THAT ON SOME ANDROID DEVICES (NEXUS 5, 6 etc.)
+// THERE IS A BUG THAT, ACCORDING TO SOME INFORMATION AROUND INTERNET, MIGHT CAUSE BLUETOOTH TO STOP WORKING IF TOO MUCH DIFFERENT BLE DEVICES ARE SCANNED!
+// CHECK HERE: 
+//    https://code.google.com/p/android/issues/detail?id=191831
+//    http://www.androidpolice.com/2014/05/20/bug-watch-bluetooth-will-begin-crashing-after-encountering-too-many-ble-devices-affects-kitkat-4-4-and-jelly-bean-4-3/
+//    https://play.google.com/store/apps/details?id=com.radiusnetworks.bluetoothcrashresolver
+// BECAUSE THERE IS NO CONCRETE EXPLANATION WHAT ACTUALLY CAUSES BLUETOOTH PROBLEMS IN SOME CASES, I CAN'T GUARANTEE THAT THIS OPTION MIGHT PREVENT THAT,
+// BUT YOU CAN TRY IT (WITH FIXED MAC YOUR QUADCOPTER WILL BE ALWAYS RECOGNIZED AS THE SAME DEVICE WHICH MIGHT PREVENT BLUETOOTH CRASHES)
+// 0 - 255
+#define MY_QUAD_ID 123
+
+//you can keep the same value for all your quads if you like, but be aware: if you fly them all in the same time or somebody else uses
+// the same MAC ID in their quadcopter firmware, SilverVISE application will have TLM data mixed!
+
+// If you want to have different image in SilverAPP assigned to your quadcopter, you can override default value that represents quadcopter model you flash.
+// Do it here by uncommenting and setting "#define MY_QUAD_MODEL".
+// If disabled, value is set by firmware itself (based on what quad model firmware is made for).
+// But in case you have, for example "Eachine H8S 3D mini" which is practically H101 in another frame, you can set your quad model here to H8S
+// and get propper image in SilverVISE application.
+// For this firmware and H101 board, values are:
+//
+// 0x20 - Floureon H101 - original quadcopter (default)
+// 0x21 - X9 frame with H101 board
+// 0x22 - Custom frame with H101 board
+//
+// 0x33 - Eachine H8S 3D mini blue frame - H101 board
+// 0x34 - Eachine H8S 3D mini green frame - H101 board
+//
+// 0x43 - Eachine E010 red frame - H101 board
+// 0x44 - Eachine E010 green frame - H101 board
+//
+// Values 01 to 19 are reserved for H8 firmwares. 00 represents unknown quad (generic image)
+
+//#define MY_QUAD_MODEL 0x01
+
+// *** THE FOLLOWING THREE SETTINGS USE ONLY IF YOU HAVE PROBLEMS WITH VERY OFTEN "TLM DISCONNECTING" ALARMS, ESPECIALLY ON FULL THROTTLE ***
+// If you do not experience these problems and have stable telemetry connection, do not enable and set TX_POWER_GENERAL, TX_POWER_ON_TLM nor USE_ALL_BLE_CHANNELS
+// BECAUSE ENABLING THESE SETTINGS IN CASE OF STABLE CONNECTION BETWEEN SILVERVISE APPLICATION AND QUADCOPTER MIGHT ACTUALLY CAUSE PROBLEMS
+// IN RECEIVING TELEMETRY DATA!
+// So, only if you experience problems with constant TLM DISCONNECTED error in SilverVISE application (especially during full throttle),
+// enable and set TX_POWER_GENERAL and/or TX_POWER_ON_TLM and experiment with values until you get stable TLM connection and decent bluetooth and controller reception
+// WARNING !!!!!!!!!! USE ONLY VALUES FROM 0 TO 7 !!! DO NOT GO OVER 7 AND BELOW 0 !!!
+
+//#define TX_POWER_GENERAL 3 // general value for quadcopter power (use odd numbers, but try with even also - smaller value is better for telemetry signal)
+
+//#define TX_POWER_ON_TLM 0 //quadcopter power during transmitting telemetry data (use even numbers but try odd also - smaller value is better for telemetry signal)
+//usually TX_POWER_ON_TLM need to be lower than TX_POWER_GENERAL, but experiment if that combination does not help...
+// If TX_POWER_GENERAL/TX_POWER_ON_TLM still produces constant TLM DISCONNECTED errors when motors are on and on high throttle, try also enabling USE_ALL_BLE_CHANNELS.
+// You can use all three settings in the same time or experiment with one or two of them until you get better and stable bluetooth signal.
+
+//#define USE_ALL_BLE_CHANNELS
+
+// ----------------------------------------------
+// Configuration for SilverVISE telemetry - end
+// ----------------------------------------------
 
 
-// use ibeacon instead of eddystone
-//#define USE_IBEACON
 
 // beacon interval
 #define BLE_INTERVAL 30000
@@ -65,8 +139,14 @@ THE SOFTWARE.
 // optimized one channel only (bluetooth)
 // uses precalculated whitening data
 // possible values: 0 / 1
-#define ONE_CHANNEL 1
-
+//#define ONE_CHANNEL 1 //commented by silverAG for SilverVISE - not used for now
+//SilverVISE - start:
+#ifdef USE_ALL_BLE_CHANNELS
+	#define ONE_CHANNEL 0
+#else
+	#define ONE_CHANNEL 1
+#endif
+//SilverVISE - end
 
 // radio settings
 
@@ -88,7 +168,7 @@ THE SOFTWARE.
 #define RADIO_XN297
 
 
-#ifdef RX_BAYANG_BLE
+#ifdef RX_BAYANG_BLE_APP
 
 float rx[4];
 char aux[AUXNUMBER];
@@ -96,11 +176,15 @@ char lastaux[AUXNUMBER];
 char auxchange[AUXNUMBER];
 char lasttrim[4];
 
-  char rfchannel[4];
-	int rxaddress[5];
-	int rxmode = 0;
-	int rf_chan = 0;
+char rfchannel[4];
+int rxaddress[5];
+int rxmode = 0;
+int rf_chan = 0;
 
+unsigned int total_time_in_air = 0;
+unsigned int time_throttle_on = 0;
+int bound_for_BLE_packet;
+extern int random_seed;
 	
 void bleinit( void);
 
@@ -129,6 +213,11 @@ aux[AUXNUMBER - 1] = 0;
 aux[CH_AUX1] = 1;
 #endif
 
+
+#ifdef AUX4_START_ON
+    aux[CH_AUX4] = 1;
+#endif
+
 	
 #ifdef RADIO_XN297L
 	
@@ -148,12 +237,22 @@ static uint8_t rfcal[8] = { 0x3e , 0xc9 , 0x9a , 0xA0 , 0x61 , 0xbb , 0xab , 0x9
 writeregs( rfcal , sizeof(rfcal) );
 
 static uint8_t demodcal[6] = { 0x39 , 0x0b , 0xdf , 0xc4 , 0xa7 , 0x03};
+//static uint8_t demodcal[6] = { 0x39 , 0x0b , 0xdf , 0xc4 , B00100111 , B00000000};
 writeregs( demodcal , sizeof(demodcal) );
 
 
 #define XN_TO_RX B00001111
 #define XN_TO_TX B00000010
+//#define XN_POWER B00000111 // disabled by silverAG for SilverVISE - value is added from config.h
+// SilverVISE - start:
+#ifdef TX_POWER_GENERAL
+// use value from config.h
+#define XN_POWER TX_POWER_GENERAL
+#else
 #define XN_POWER B00000111
+#endif
+// SilverVISE - end
+
 #endif
 
 
@@ -175,8 +274,6 @@ xn_writerxaddress( rxaddress);
 	xn_command( FLUSH_RX);
   xn_writereg( RF_CH , 0 );  // bind on channel 0
 
-// set above
-//	xn_writereg( 29 , 32); // feture reg , CE mode (software controlled)
 
 #ifdef RADIO_XN297L
 xn_writereg( 0x1d, B00111000 ); // 64 bit payload , software ce
@@ -194,19 +291,14 @@ spi_csoff();
 
 
 #ifdef RADIO_CHECK
-void check_radio(void);
- check_radio();
-#endif	
-}
-
-
-void check_radio()
-{	
 int	rxcheck = xn_readreg( 0x0f); // rx address pipe 5	
 	// should be 0xc6
 	extern void failloop( int);
 	if ( rxcheck != 0xc6) failloop(3);
+#endif	
 }
+
+
 
 
 void btLeCrc( uint8_t* buf ,uint8_t len, uint8_t* dst ) {
@@ -372,12 +464,9 @@ int afterskip[12];
 //#warning "RX debug enabled"
 #endif
 
-// works with 4 and 5 addresses byte
-#define XN297_ADDRESS_SIZE_BLE 5
 
 
-// The MAC address of BLE advertizer -- just make one up
-#define MY_MAC_0	BLE_QUAD_NUMBER
+
 #define MY_MAC_1	0x22
 #define MY_MAC_2	0x33
 #define MY_MAC_3	0x44
@@ -430,6 +519,15 @@ txaddr[4] = 0xaa^0xe3;	// preamble
 xn_writetxaddress( txaddr );	
 
 
+
+//	xn_writereg( EN_AA , 0 );	// aa disabled -- duplicated
+//	xn_writereg( RF_SETUP , B00111011);  // high power xn297L only
+//	xn_writereg( SETUP_RETR , 0 ); // no retransmissions  -- duplicated
+// -- duplicated
+//	xn_writereg( SETUP_AW , XN297_ADDRESS_SIZE_BLE - 2 ); // address size (4 bytes for ble)
+
+//  xn_writereg( 0x1d, B00111000 ); // 64 bit payload , software ce
+
 }
 
 void send_beacon(void);
@@ -453,7 +551,15 @@ static int beacon_seq_state = 0;
 		 {
 		 ble_send = 1;
 		 oldchan = rf_chan;
+			 
+			 //SilverVISE - start
+			 #ifdef TX_POWER_ON_TLM
+					xn_writereg( RF_SETUP , TX_POWER_ON_TLM);  // lna low current ( better BLE)
+			 #endif
+			 //SilverVISE - end
+			 
 		 send_beacon();
+		 
 	   beacon_seq_state++;
 		 }
 	 break;
@@ -471,7 +577,13 @@ static int beacon_seq_state = 0;
 			{// if it takes too long we get rid of it
 				if ( gettime() - ble_txtime > BLE_TX_TIMEOUT )
 				{
-				 xn_command( FLUSH_TX);
+					//SilverVISE - start
+					#ifdef TX_POWER_ON_TLM
+						xn_writereg( RF_SETUP , XN_POWER);  // lna high current on ( better performance )
+					#endif
+					//SilverVISE - end
+					
+					xn_command( FLUSH_TX);
 					xn_writereg( 0 , XN_TO_RX ); 
 				 beacon_seq_state++;
 				 ble_send = 0;
@@ -483,7 +595,14 @@ static int beacon_seq_state = 0;
 	 case 2:
 		 next:
 		 // restore radio settings to protocol compatible
-	   // mainly channel here if bind
+	   // mainly channel here
+		 
+		 //SilverVISE - start	
+		 #ifdef TX_POWER_ON_TLM
+		  	xn_writereg( RF_SETUP , XN_POWER);  // lna high current on ( better performance )
+		 #endif
+	   //SilverVISE - end
+	 
 		 ble_send = 0;	
 		if ( rxmode == 0 )
 		{
@@ -521,69 +640,73 @@ xn_writereg(RF_CH, chRf[ch]);
 
 uint8_t L=0;
 
+extern int random_seed;
 
-
-#ifdef USE_IBEACON
-L=0;
-// ibeacon packet structure
-buf[L++] = B00100010; //PDU type, given address is random; 0x42 for Android and 0x40 for iPhone
-buf[L++] = 36; // length of payload
-buf[L++] = MY_MAC_0;
-buf[L++] = MY_MAC_1;
-buf[L++] = MY_MAC_2;
-buf[L++] = MY_MAC_3;
-buf[L++] = MY_MAC_4;
-buf[L++] = MY_MAC_5;
-
-// packet data unit
-buf[L++] = 2; //flags (LE-only, limited discovery mode)
-buf[L++] = 0x01;
-buf[L++] = 0x06;
-buf[L++] = 0x1A; // length of the name, including type byte
-buf[L++] = 0xff;
-buf[L++] = 0x4c;
-buf[L++] = 0x00;
-buf[L++] = 0x02;
-buf[L++] = 0x15;
-buf[L++] = 0x58;
-buf[L++] = 0x5c;
-buf[L++] = 0xde;
-buf[L++] = 0x93;
-buf[L++] = 0x1b;
-buf[L++] = 0x01;
-buf[L++] = 0x42;
-buf[L++] = 0xcc;
-buf[L++] = 0x9a;
-buf[L++] = 0x13;
-buf[L++] = 0x25;
-buf[L++] = 0x00;
-buf[L++] = 0x9b;
-buf[L++] = 0xed;
-buf[L++] = 0xc6;
-buf[L++] = 0xe5;
-buf[L++] = 0x00;
-buf[L++] = 0x00;
-buf[L++] = 0x00;
-buf[L++] = 0x00;
-buf[L++] = 0xCA; // tx power
+//extern int random_seed; //SilverVISE
+//SilverVISE - start
+#ifdef MY_QUAD_ID
+random_seed = MY_QUAD_ID;
 #else
+#warning WARNING!!! USING RANDOM MAC ADDRESS! PLEASE READ COMMENT INSIDE rx_bayang_ble_app.c REGARDING POSSIBLE PROBLEMS WITH BLUETOOTH DUE TO ANDROID BUG!
+#endif
+// SilverVISE - end
 
 
-extern float vbattfilt;
-int vbatt = vbattfilt *1000.0f;
+
+extern float vbatt_comp;
+int vbatt_comp_int = vbatt_comp *1000.0f;
+extern int onground;
 
 unsigned int time = gettime();
 
 time = time>>20; // divide by 1024*1024, no time for accuracy here
 time = time * 10;
 
-L=0;
+
+//int acro_or_level_mode;
+	
+//if ( aux[LEVELMODE] ) acro_or_level_mode = 1;
+//else acro_or_level_mode = 0;
+
+extern unsigned int total_time_in_air;
+extern unsigned int time_throttle_on;
+unsigned int uptime = gettime();
+
+if (onground ==1)
+{
+	time_throttle_on = uptime;
+}
+else
+{
+	total_time_in_air += (uptime - time_throttle_on);
+	time_throttle_on = uptime;
+}
+unsigned int total_time_in_air_time = total_time_in_air>>20;
+total_time_in_air_time = total_time_in_air_time *10;
+
+int rate_and_mode_value = (aux[RATES]<<1) + !!(aux[LEVELMODE]);
+
+extern int bound_for_BLE_packet;
+extern int failsafe;
+int onground_and_bind = (failsafe<<2)+(onground<<1)+(bound_for_BLE_packet);
+
+#ifdef USE_STOCK_TX
+	//nothing to do - already prepared (4. bit flag is 0 for stock TX)
+#else
+	onground_and_bind = 8+onground_and_bind;
+#endif
+
+
+int packetpersecond_short = packetpersecond/2;
+if (packetpersecond_short>0xff) packetpersecond=0xff;
+
+
 buf[L++] = B00100010; //PDU type, given address is random; 0x42 for Android and 0x40 for iPhone
 //buf[L++] = 0x42; //PDU type, given address is random; 0x42 for Android and 0x40 for iPhone
 
 // max len 27 with 5 byte address = 37 total payload bytes
 buf[L++] = 10+ 21; // length of payload
-buf[L++] = MY_MAC_0;
+buf[L++] = random_seed; //SilverVISE
 buf[L++] = MY_MAC_1;
 buf[L++] = MY_MAC_2;
 buf[L++] = MY_MAC_3;
@@ -594,30 +717,54 @@ buf[L++] = MY_MAC_5;
 buf[L++] = 2; //flags lenght(LE-only, limited discovery mode)
 buf[L++] = 0x01; // compulsory flags
 buf[L++] = 0x06; // flag value
-buf[L++] =  0x03;  // Length of next block
-buf[L++] =  0x03;  // Param: Service List
-buf[L++] =  0xAA;  // Eddystone ID - 16 bit 0xFEAA
-buf[L++] =  0xFE;  // Eddystone ID
-buf[L++] =  0x11;  // Length of next block
+buf[L++] =  0x15;  // Length of next block
 buf[L++] =  0x16;  // Service Data
-buf[L++] =  0xAA;  // Eddystone ID
-buf[L++] =  0xFE;  // Eddystone ID
-buf[L++] =  0x20;  // TLM flag
-buf[L++] =  0x00;  // TLM version
-buf[L++] =  vbatt>>8;  // Battery voltage
-buf[L++] =  vbatt;  // Battery voltage
-buf[L++] =  0x80;  // temperature 8.8 fixed point
-buf[L++] =  0x00;  // temperature 8.8 fixed point
-buf[L++] =  0x00;  // advertisment count 0
-buf[L++] =  0x00;  // advertisment count 1
-buf[L++] =  packetpersecond>>8&0xff;  // advertisment count 2
-buf[L++] =  packetpersecond&0xff;  // advertisment count 3
-buf[L++] =  time>>24;  // powerup time 0 
-buf[L++] =  time>>16;  // powerup time 1
-buf[L++] =  time>>8;  // powerup time 2
-buf[L++] =  time;  // powerup time 3 in seconds times 10.
+buf[L++] =  0x1F; //datatype_and_packetID;  // xxxxyyyy -> yyyy = 1111 packet type ID (custom BLE type), xxxx = type of data in packet: 0001 -> telemetry
+
+#ifdef MY_QUAD_MODEL
+	buf[L++] =  MY_QUAD_MODEL;
+#else
+	buf[L++] =  0x01;  // quad model (00 - unknown, 01- H8 mini green board, 20 - H101... check config.h for details)
 #endif
+
+buf[L++] = random_seed; //already custom entry - need to be randomized
+#ifdef MY_QUAD_NAME
+//fill with characters from MY_QUAD_NAME (just first 6 chars)
+int string_len = 0;
+while (string_len< 6)
+	  {
+			if (MY_QUAD_NAME[string_len]=='\0') break;
+			buf[L++] = (char) MY_QUAD_NAME[string_len];
+			string_len++;
+		}
+
+//fill the rest (up to 6 bytes) with blanks
+for ( int i = string_len ; i < 6; i++)
+	{
+	buf[L++] = ' '; //blank
+	}
+#else
+buf[L++]=(char)'N';
+buf[L++]=(char)'O';
+buf[L++]=(char)'N';
+buf[L++]=(char)'A';
+buf[L++]=(char)'M';
+buf[L++]=(char)'E';
+#endif
+buf[L++] =  0x00; //reserved for future use
+buf[L++] = packetpersecond_short;
+buf[L++] =  onground_and_bind; //binary xxxxabcd - xxxx = error code or warning, a -> 0 = stock TX, 1= other TX, b -> 0 = not failsafe, 1 = failsafe, c = 0 -> not bound, 1 -> bound, d = 0 -> in the air, 1 = on the ground;
+buf[L++] =  vbatt_comp_int>>8;  // Battery voltage compensated
+buf[L++] =  vbatt_comp_int;  // Battery voltage compensated
+buf[L++] =  total_time_in_air_time>>8;  // Battery voltage raw
+buf[L++] =  total_time_in_air_time;  // Battery voltage raw
+buf[L++] =  time>>8;
+buf[L++] =  time;
+buf[L++] =  rate_and_mode_value; //xxxxxxRM //rate + mode R = rate (0 - normal, 1 - fast) , M = mode (1 - level, 0 - acro)
+buf[L++] =  0x00; //reserved for future use
+
 L=L+3; //crc
+
 
 
 btLePacketEncode(buf, L, ch );
@@ -625,7 +772,7 @@ btLePacketEncode(buf, L, ch );
 // undo xn297 data whitening
 for (uint8_t i = 0; i < L; ++i) 
 {
-buf[i] = buf[i] ^ xn297_scramble_rev[i+ XN297_ADDRESS_SIZE_BLE] ;
+buf[i] = buf[i] ^ xn297_scramble_rev[i+ 5] ; // address size 5
 }
  
 
@@ -729,7 +876,7 @@ char trims[4];
 					aux[CH_PIC] = (rxdata[2] & 0x20) ? 1 : 0;						
 #endif
 							
-					aux[CH_INV] = (rxdata[3] & 0x80)?1:0; // inverted flag
+				aux[CH_INV] = (rxdata[3] & 0x80)?1:0; // inverted flag
 							
 			    aux[CH_FLIP] = (rxdata[2] & 0x08) ? 1 : 0;
 
@@ -776,7 +923,7 @@ int failsafe = 0;
 unsigned int skipchannel = 0;
 int lastrxchan;
 int timingfail = 0;
-
+extern int bound_for_BLE_packet; //SilverVISE
 
 
 void checkrx(void)
@@ -806,6 +953,7 @@ void checkrx(void)
 				      xn_writerxaddress(rxaddress);
 				      xn_writereg(0x25, rfchannel[rf_chan]);	// Set channel frequency 
 							rxmode = RX_MODE_NORMAL;
+							bound_for_BLE_packet=1; //SilverVISE
 
 #ifdef SERIAL
 				      printf(" BIND \n");

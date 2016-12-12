@@ -441,6 +441,9 @@ int lastrxchan;
 int timingfail = 0;
 int telemetry_enabled = 0;
 int packet_period = PACKET_PERIOD;
+int first_received = 0;
+uint8_t rxindex = 0;
+uint8_t rxarray[4];
 
 void checkrx(void)
 {
@@ -511,6 +514,12 @@ void checkrx(void)
                       lastrxtime = temptime;
                       failsafetime = temptime;
                       failsafe = 0;
+                      if ( !first_received)
+                      {
+                        first_received = 1;
+                        rxarray[0]= rxarray[1]= rxarray[2]= rxarray[3]= 50;
+                        secondtimer = gettime();
+                      }
                       if (!telemetry_send)
                           nextchannel();
                   }
@@ -569,16 +578,15 @@ void checkrx(void)
           rx[3] = 0;
       }
 
-    static uint8_t index = 0;
-    static uint8_t rxarray[4];
+
 
     if (gettime() - secondtimer > 250000)
       {
           // calculate rate over 250 ms and add together to get 1 second
           // for faster update rate   
-          index++;
-          index &= 3;   // same as "index %=4"
-          rxarray[index] = packetrx;
+          rxindex++;
+          rxindex &= 3;   // same as "index %=4"
+          rxarray[rxindex] = packetrx;
 
           packetpersecond = rxarray[0] + rxarray[1] + rxarray[2] + rxarray[3];
 

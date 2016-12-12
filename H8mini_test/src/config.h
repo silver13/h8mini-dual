@@ -230,9 +230,6 @@
 #define TRIM_ROLL 0.0
 
 
-// enable "bluetooth low energy" beacon
-//#define BLUETOOTH_ENABLE
-//#define USE_IBEACON
 
 
 // 0 - 3 transmit power
@@ -241,7 +238,7 @@
 // rx protocol selection
 #define RX_BAYANG_TELEMETRY
 //#define RX_BAYANG_BLE
-
+//#define RX_BAYANG_BLE_APP
 
 
 
@@ -301,7 +298,12 @@
 #endif
 
 // disable startup battery check so beacon can work after a reset
-#ifdef BLUETOOTH_ENABLE
+#ifdef RX_BAYANG_BLE
+#undef STOP_LOWBATTERY
+#endif
+
+// disable startup battery check so app can work after a reset
+#ifdef RX_BAYANG_BLE_APP
 #undef STOP_LOWBATTERY
 #endif
 

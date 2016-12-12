@@ -77,13 +77,6 @@ void failloop(int val);
 unsigned long maintime;
 unsigned long lastlooptime;
 
-extern void loadcal(void);
-extern void imu_init(void);
-
-// max loop time for debug 
-unsigned long maxlooptime;
-
-
 int ledcommand = 0;
 unsigned long ledcommandtime = 0;
 
@@ -92,12 +85,13 @@ int lowbatt = 0;
 float vbatt = 4.2;
 float vbattfilt = 4.2;
 float vbatt_comp = 4.2;
+int random_seed = 0;
 
 extern char aux[AUXNUMBER];
 
-#ifdef DEBUG
-unsigned long elapsedtime;
-#endif
+extern void loadcal(void);
+extern void imu_init(void);
+
 
 int main(void)
 {
@@ -124,23 +118,12 @@ int main(void)
 	time_init();
 
 
-#ifdef SERIAL
-	printf("\n clock source:");
-#endif
 	if (RCC_GetCK_SYSSource() == 8)
 	  {
-#ifdef SERIAL
-		  printf(" PLL \n");
-#endif
+          
 	  }
 	else
 	  {
-#ifdef SERIAL
-		  if (RCC_GetCK_SYSSource() == 0)
-			  printf(" HSI \n");
-		  else
-			  printf(" OTHER \n");
-#endif
 		  failloop(5);
 	  }
 
@@ -172,6 +155,10 @@ int main(void)
 		  vbattfilt += adc_read(1);
 		  count++;
 	  }
+       // for randomising MAC adddress of ble app - this will make the int = raw float value        
+		random_seed =  *(int *)&vbattfilt ; 
+		random_seed = random_seed&0xff;
+      
 	vbattfilt = vbattfilt / 64;
 
 #ifdef SERIAL
@@ -383,9 +370,6 @@ float min = score[0];
 
 	checkrx();
 				
-#ifdef DEBUG
-		  elapsedtime = gettime() - maintime;
-#endif
 					
 	// loop time 1ms                
 	while ((gettime() - maintime) < (1000 - 22) )
