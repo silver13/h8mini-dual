@@ -58,15 +58,15 @@ THE SOFTWARE.
 //
 // For telemetry with SilverVISE application, you must define unique name of each quad you flash.
 // Names between quadcopters must not be the same if you plan to fly more than one in the same time.
-// Name must be entered inside quotation marks ("") - just replace H101 with desired quad name.
+// Name must be entered inside quotation marks ("") - just replace H8 with desired quad name.
 // Be original and keep up to 6 characters (any longer name will be cut to first 6 characters).
 // You can use letters A to Z, numbers 0 to 9 and some special characters like # / \ - _ etc.
 // Please use only caps lock letters because name is not case sensitive. Avoid using blanks in name!
 
 #define MY_QUAD_NAME "H8"
 
-// MY_QUAD_ID defines unique ID for MAC address. Leave 123 or replace it with any other value between 1 and 255.
-// Use ONLY values between 1 and 255!
+// MY_QUAD_ID defines unique ID for MAC address. Leave 123 or replace it with any other value between 0 and 255.
+// Use ONLY values between 0 and 255!
 // This is actually one byte of MAC address used for bluetooth communication between quad and SilverVISE application.
 // Unique MY_QUAD_ID can be the same for all your quads as long as you won't have powered on more than one in the same time (or you are sure that nobody else uses the same number
 // for their quad and don't have it powered on in the same time with yours inisde bluetooth range), otherwise TLM data WILL BE MIXED BETWEEN QUADS!
@@ -84,24 +84,19 @@ THE SOFTWARE.
 //you can keep the same value for all your quads if you like, but be aware: if you fly them all in the same time or somebody else uses
 // the same MAC ID in their quadcopter firmware, SilverVISE application will have TLM data mixed!
 
-// If you want to have different image in SilverAPP assigned to your quadcopter, you can override default value that represents quadcopter model you flash.
+// If you want to have different image in SilverVISE assigned to your quadcopter, you can override default value that represents quadcopter model you flash.
 // Do it here by uncommenting and setting "#define MY_QUAD_MODEL".
 // If disabled, value is set by firmware itself (based on what quad model firmware is made for).
-// But in case you have, for example "Eachine H8S 3D mini" which is practically H101 in another frame, you can set your quad model here to H8S
+// But in case you have, for example H8 green board in Bayangtoys X9 frame, you can set your quad model here to X9 (value 0x02)
 // and get propper image in SilverVISE application.
-// For this firmware and H101 board, values are:
+// For this firmware and H8 green board, values are:
 //
-// 0x20 - Floureon H101 - original quadcopter (default)
-// 0x21 - X9 frame with H101 board
-// 0x22 - Custom frame with H101 board
+// 0x01 - H8 mini green board - original quadcopter (default)
+// 0x02 - X9 frame with green board
+// 0x03 - Custom frame with green board
 //
-// 0x33 - Eachine H8S 3D mini blue frame - H101 board
-// 0x34 - Eachine H8S 3D mini green frame - H101 board
-//
-// 0x43 - Eachine E010 red frame - H101 board
-// 0x44 - Eachine E010 green frame - H101 board
-//
-// Values 01 to 19 are reserved for H8 firmwares. 00 represents unknown quad (generic image)
+// Values 0x11, 0x12 and 0x13 are reserved for H8 blue board. Other values are reserved for H101/H8S firmware.
+// Value 0x00 represents unknown quad (generic image)
 
 //#define MY_QUAD_MODEL 0x01
 
