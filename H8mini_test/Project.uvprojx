@@ -645,6 +645,11 @@
               <FilePath>.\src\drv_gpio.c</FilePath>
             </File>
             <File>
+              <FileName>drv_esc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\drv_esc.c</FilePath>
+            </File>
+            <File>
               <FileName>drv_pwm.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\drv_pwm.c</FilePath>

@@ -2,6 +2,9 @@
 
 #include "drv_pwm.h"
 #include "config.h"
+#include "hardware.h"
+
+#ifdef USE_PWM_DRIVER
 
 TIMER_OCInitPara TIM_OCInitStructure;
 
@@ -227,3 +230,7 @@ void pwm_set(uint8_t number, float pwm)
 	  }
 
 }
+
+
+#endif
+
