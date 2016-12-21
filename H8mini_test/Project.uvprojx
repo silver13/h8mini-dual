@@ -655,6 +655,11 @@
               <FilePath>.\src\drv_pwm.c</FilePath>
             </File>
             <File>
+              <FileName>drv_dshot.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\drv_dshot.c</FilePath>
+            </File>
+            <File>
               <FileName>drv_serial.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\drv_serial.c</FilePath>
