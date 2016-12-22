@@ -28,3 +28,8 @@
 //#define USE_ESC_DRIVER
 //#define USE_DSHOT_DRIVER
 
+//#define SERVO_DRIVER
+
+// enable serial out on back-left LED
+//#define SERIAL
+

@@ -1,5 +1,4 @@
 
-#include "defines.h"
 
 // rate pids in pid.c
 // angle pids in apid.h ( they control the rate pids)
@@ -75,21 +74,21 @@
 //
 
 
-// CH_FLIP - 0 - flip 
-// CH_EXPERT - 1 - expert
-// CH_HEADFREE - 2 - headfree
-// CH_RTH - 3 - headingreturn
-// CH_AUX1 - 4 - AUX1 ( gestures <<v and >>v)
-// CH_AUX2 - 5 - AUX2+ (  up - up - up    )
-// CH_PIT_TRIM - 6 - Pitch trims
-// CH_RLL_TRIM - 7 - Roll trims
-// CH_THR_TRIM - 8 - Throttle trims
-// CH_YAW_TRIM - 9 - Yaw trims
+// CH_FLIP - flip 
+// CH_EXPERT - expert
+// CH_HEADFREE - headfree
+// CH_RTH - headingreturn
+// CH_AUX1 -AUX1 ( gestures <<v and >>v)
+// CH_AUX2 -AUX2+ (  up - up - up    )
+// CH_PIT_TRIM - Pitch trims
+// CH_RLL_TRIM - Roll trims
+// CH_THR_TRIM - Throttle trims
+// CH_YAW_TRIM - Yaw trims
 // CH_INV  - Inverted mode
 // CH_VID  -
 // CH_PIC  -
-// CH_ON - 10 - on always
-// CH_OFF - 11 - off always
+// CH_ON - on always
+// CH_OFF - off always
 //
 // devo can use DEVO_CHAN_5 - DEVO_CHAN_10
 // Multiprotocol can use MULTI_CHAN_5 - MULTI_CHAN_10
@@ -264,8 +263,6 @@
 // throttle direct to motors for thrust measure/ esc testing
 //#define MOTORS_TO_THROTTLE
 
-// enable serial out on back-left LED
-//#define SERIAL
 
 
 // enable motors if pitch / roll controls off center (at zero throttle)
@@ -289,6 +286,11 @@
 #define STOP_LOWBATTERY_TRESH 3.3f
 
 
+
+
+
+#include "defines.h"
+#include "hardware.h"
 
 // define logic
 
