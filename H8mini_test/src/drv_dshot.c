@@ -1,8 +1,8 @@
 // CHANGING THE H-BRIDGE CODE CAN RESULT IN CONNECTING THE FETs ACROSS THE
-// BATTERY AND AS SUCH BRAKING THE BOARD. ( h101 only )
+// BATTERY AND AS SUCH BREAKING THE BOARD. ( h101 only )
 
 // Dshot driver for H101_dual firmware. Written by Markus Gritsch.
-// No throttle jitter, not min/max calibration, just pure digital goodness :)
+// No throttle jitter, no min/max calibration, just pure digital goodness :)
 
 // Dshot150 would be fast enough for up to 8 kHz main loop frequency. But
 // since this implementation does simple bit banging, Dshot150 takes a lot of
@@ -247,7 +247,6 @@ static void bitbang_data()
 #if defined( DSHOT300 ) && ! defined( DSHOT150 )
 
 		__asm{NOP} __asm{NOP} __asm{NOP} __asm{NOP}
-		__asm{NOP} __asm{NOP} __asm{NOP}
 
 #elif defined( DSHOT150 ) && ! defined( DSHOT300 )
 
@@ -262,7 +261,6 @@ static void bitbang_data()
 		__asm{NOP} __asm{NOP} __asm{NOP} __asm{NOP}
 		__asm{NOP} __asm{NOP} __asm{NOP} __asm{NOP}
 		__asm{NOP} __asm{NOP} __asm{NOP} __asm{NOP}
-		__asm{NOP} __asm{NOP} __asm{NOP}
 
 #else
 #error "Either define DSHOT150 or DSHOT300"
