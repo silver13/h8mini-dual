@@ -220,15 +220,22 @@ static void bitbang_data()
 			gpioreset( DSHOT_PORT_1, DSHOT_PIN_1 );
 		}
 
-		if ( data & 0x02 ) {
+        if ( data & 0x02 ) {
 			__asm{NOP}
-			gpioset( DSHOT_PORT_2, DSHOT_PIN_2 ); // BL
+			gpioset( DSHOT_PORT_4, DSHOT_PIN_4 ); // BR
+		} else {
+			__asm{NOP} __asm{NOP}
+			gpioreset( DSHOT_PORT_4, DSHOT_PIN_4 );
+        
+		if ( data & 0x04 ) {
+			__asm{NOP}
+			gpioset( DSHOT_PORT_2, DSHOT_PIN_2 );  // BL
 		} else {
 			__asm{NOP} __asm{NOP}
 			gpioreset( DSHOT_PORT_2, DSHOT_PIN_2 );
 		}
 
-		if ( data & 0x04 ) {
+		if ( data & 0x08 ) {
 			__asm{NOP}
 			gpioset( DSHOT_PORT_3, DSHOT_PIN_3 ); // FR
 		} else {
@@ -236,12 +243,7 @@ static void bitbang_data()
 			gpioreset( DSHOT_PORT_3, DSHOT_PIN_3 );
 		}
 
-		if ( data & 0x08 ) {
-			__asm{NOP}
-			gpioset( DSHOT_PORT_4, DSHOT_PIN_4 ); // BR
-		} else {
-			__asm{NOP} __asm{NOP}
-			gpioreset( DSHOT_PORT_4, DSHOT_PIN_4 );
+
 		}
 
 #if defined( DSHOT300 ) && ! defined( DSHOT150 )
