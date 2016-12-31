@@ -251,5 +251,8 @@ if ( onground ) pwm = ((float)PWMTOP/PWMTOP_US) * ESC_THROTTLEOFF;
 	
 }
 
+void motorbeep()
+{
+}
 
 #endif
