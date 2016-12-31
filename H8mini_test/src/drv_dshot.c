@@ -66,7 +66,7 @@ static void bitbang_data( void );
 
 // PA8 - 9 - 10
 // PB1
-
+// the order affects timing due to the fact there are 3 gpioa and 1 gpiob
 // FL - PA8
 #define DSHOT_PIN_1 GPIO_PIN_8
 #define DSHOT_PORT_1 GPIOA
