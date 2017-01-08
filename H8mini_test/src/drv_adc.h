@@ -1,4 +1,4 @@
 
 void adc_init(void);
-float adc_read(int channel);
+float adc_read(int id);
 
