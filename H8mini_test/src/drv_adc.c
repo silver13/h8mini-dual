@@ -4,7 +4,7 @@
 #include "hardware.h"
 #include "stdio.h"
 
-uint16_t adcarray[10];
+uint16_t adcarray[4];
 
 struct ADC_SETTINGS
 {
@@ -54,8 +54,11 @@ struct ADC_SETTINGS adc_settings[] =
 void adc_init(void)
 {
 
-	int size = sizeof(adc_settings) / sizeof(adc_settings[0]);
-
+	const int size = sizeof(adc_settings) / sizeof(adc_settings[0]);
+    
+    extern void failloop( int val);
+    if ( size > 4 ) failloop(5); // this should be optimized away
+    
 	for (int i = 0; i < size; ++i)
 	{
 		GPIO_InitPara    GPIO_InitStructure;
@@ -91,7 +94,6 @@ void adc_init(void)
 
 	DMA_Enable(DMA1_CHANNEL1, ENABLE);
 
-	//  ADC_DeInit(&ADC_InitStructure);
 
 	ADC_InitStructure.ADC_Mode_Scan = ENABLE;
 	ADC_InitStructure.ADC_Mode_Continuous = ENABLE;
