@@ -240,7 +240,7 @@ int main(void)
 // battery low logic
 				
 		float hyst;
-		float battadc = adc_read(1);
+		float battadc = adc_read(ADC_ID_VOLTAGE);
 vbatt = battadc;
 		// average of all 4 motor thrusts
 		// should be proportional with battery current			
