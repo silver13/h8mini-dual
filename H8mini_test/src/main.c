@@ -155,7 +155,7 @@ int main(void)
 
 	while (count < 64)
 	  {
-		  vbattfilt += adc_read(1);
+		  vbattfilt += adc_read(ADC_ID_VOLTAGE);
 		  count++;
 	  }
        // for randomising MAC adddress of ble app - this will make the int = raw float value        
