@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/silver13/h8mini-testing.svg?branch=master)](https://travis-ci.org/silver13/h8mini-testing)
+[![Build Status](https://travis-ci.org/silver13/h8mini-dualg.svg?branch=master)](https://travis-ci.org/silver13/h8mini-dual)
 
 # Eachine H8 mini level firmware
 
