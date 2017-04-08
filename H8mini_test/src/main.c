@@ -87,6 +87,8 @@ float vbatt = 4.2;
 float vbattfilt = 4.2;
 float vbatt_comp = 4.2;
 int random_seed = 0;
+float vref = 1.0;
+float vreffilt = 1.0;
 
 extern char aux[AUXNUMBER];
 
@@ -237,11 +239,18 @@ int main(void)
 
 		  control();
 
-// battery low logic
-				
-		float hyst;
-		float battadc = adc_read(ADC_ID_VOLTAGE);
-vbatt = battadc;
+// battery low logic			
+        // read battery voltage
+        vbatt = adc_read(ADC_ID_VOLTAGE);
+#ifdef ADC_ID_REF  
+        // account for vcc differences
+        vbatt = vbatt/vreffilt;
+        // read reference to get vcc difference            
+        vref = adc_read(ADC_ID_REF);
+        // filter reference   
+        lpf ( &vreffilt , vref , 0.9968f);	
+#endif            
+
 		// average of all 4 motor thrusts
 		// should be proportional with battery current			
 		extern float thrsum; // from control.c
@@ -249,10 +258,10 @@ vbatt = battadc;
 		// ( or they can use a single filter)		
 		lpf ( &thrfilt , thrsum , 0.9968f);	// 0.5 sec at 1.6ms loop time	
 		
-		lpf ( &vbattfilt , battadc , 0.9968f);		
+		lpf ( &vbattfilt , vbatt , 0.9968f);		
 
 #ifdef AUTO_VDROP_FACTOR
-
+// automatic voltage drop detection
 static float lastout[12];
 static float lastin[12];
 static float vcomp[12];
@@ -293,7 +302,7 @@ float min = score[0];
 #undef VDROP_FACTOR
 #define VDROP_FACTOR  minindex * 0.1f
 #endif
-
+		float hyst;
 		if ( lowbatt ) hyst = HYST;
 		else hyst = 0.0f;
 

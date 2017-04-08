@@ -14,6 +14,7 @@ struct ADC_SETTINGS
 	uint8_t channel;
 	float adc_readout;
 	float adc_value;
+    float adc_ratio;
 
 };
 
@@ -49,6 +50,9 @@ struct ADC_SETTINGS adc_settings[] =
 #ifdef ADC_PB1
 	{ADC_PB1, GPIO_PIN_1, GPIOB,ADC_CHANNEL_9, ADC_PB1_READOUT, ADC_PB1_VALUE},
 #endif
+#ifdef ADC_VREF
+	{ADC_VREF, GPIO_PIN_1, GPIOC, ADC_CHANNEL_17, ADC_VREF_READOUT, ADC_VREF_VALUE},
+#endif
 };
 
 void adc_init(void)
@@ -67,6 +71,8 @@ void adc_init(void)
 		GPIO_InitStructure.GPIO_Mode = GPIO_MODE_AN;
 		GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_NOPULL ;
 		GPIO_Init(adc_settings[i].port, &GPIO_InitStructure);
+        
+        adc_settings[i].adc_ratio = ((float)(adc_settings[i].adc_value)/(float) (adc_settings[i].adc_readout));
 	}
 
 	DMA_InitPara DMA_InitStructure;
@@ -106,6 +112,7 @@ void adc_init(void)
 	{
 		ADC_RegularChannel_Config(adc_settings[i].channel, i+1, ADC_SAMPLETIME_239POINT5);
 	}
+    ADC_TempSensorVrefint_Enable(ENABLE);
 
 	ADC_DMA_Enable(ENABLE);
 
@@ -122,8 +129,9 @@ float adc_read(int id)
 	{
 		if (id == adc_settings[i].id)
 		{
-			return (float) adcarray[i] * ((float)(adc_settings[i].adc_value)/(float) (adc_settings[i].adc_readout)) ;
+			return (float) adcarray[i] * adc_settings[i].adc_ratio ;
 		}
 	}
 	return 0.f;
 }
+

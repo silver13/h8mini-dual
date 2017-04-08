@@ -31,10 +31,15 @@
 // the associated number is the id passed in to adc_read()
 
 #define ADC_ID_VOLTAGE 5
-#define ADC_PA5         ADC_ID_VOLTAGE
+#define ADC_ID_REF 6
+
+#define ADC_PA5 ADC_ID_VOLTAGE
 #define ADC_PA5_READOUT 2727
 #define ADC_PA5_VALUE   3.77f
 
+#define ADC_VREF ADC_ID_REF
+#define ADC_VREF_READOUT 1730
+#define ADC_VREF_VALUE   1.00f
 
 //*** DO NOT ENABLE ESC DRIVER WITH BRUSHED MOTORS CONNECTED ***
 // output driver type , esc settings in drv_esc.c file
