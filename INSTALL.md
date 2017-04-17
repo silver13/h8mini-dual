@@ -8,6 +8,8 @@ See [RC Groups Thread First Post](http://www.rcgroups.com/forums/showthread.php?
 
 # Linux
 
+Note: The newer gcc version 6.x had issues with telemetry and LVC, version 5.4.1 tested ok.
+
 For flashing on Linux, the [OpenOCD](http://openocd.org/) toolchain is used. The install instructions have been tested to work with OpenOCD 0.9.0 on Debian-based systems (Ubuntu 14.04).
 
 ## Install OpenOCD 0.9.0
