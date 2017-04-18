@@ -22,16 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-/*
 
-// original bluetooth LE idea by Dmitry Grinberg
-// http://dmitry.gr/index.php?r=05.Projects&proj=11.%20Bluetooth%20LE%20fakery
-
-// some bluetooth LE functions adapted from nrf24 code by Lijun 
-// http://doc.lijun.li/misc-nrf24-ble.html
-// https://github.com/lijunhw/nRF24_BLE/blob/master/Arduino/nRF24_BLE_advertizer_demo/nRF24_BLE_advertizer_demo.ino
-
-*/
 
 #include "binary.h"
 #include "drv_spi.h"
