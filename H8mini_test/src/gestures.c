@@ -2,6 +2,7 @@
 #include <math.h>
 #include "drv_time.h"
 #include "gestures.h"
+#include "config.h"
 
 #define STICKMAX 0.7f
 #define STICKCENTER 0.2f
@@ -139,6 +140,28 @@ const uint8_t command4[GSIZE] = {
 	GESTURE_CENTER_IDLE, GESTURE_UP, GESTURE_CENTER, GESTURE_UP, GESTURE_CENTER, GESTURE_UP, GESTURE_CENTER
 };
 
+#ifdef PID_GESTURE_TUNING
+// U D U - Next PID term
+const uint8_t command5[GSIZE] = {
+	GESTURE_CENTER_IDLE, GESTURE_UP, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER, GESTURE_UP, GESTURE_CENTER
+};
+
+// U D D - Next PID Axis
+const uint8_t command6[GSIZE] = {
+	GESTURE_CENTER_IDLE, GESTURE_UP, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER
+};
+
+// U D R - Increase value
+const uint8_t command7[GSIZE] = {
+	GESTURE_CENTER_IDLE, GESTURE_UP, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER, GESTURE_RIGHT, GESTURE_CENTER
+};
+
+// U D L - Descrease value
+const uint8_t command8[GSIZE] = {
+	GESTURE_CENTER_IDLE, GESTURE_UP, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER, GESTURE_LEFT, GESTURE_CENTER
+};
+#endif
+
 uint8_t check_command( uint8_t  buffer1[] , const uint8_t  command[]  )
 {
     for (int i = 0; i < GSIZE; i++)
@@ -198,12 +221,49 @@ int gesture_sequence(int currentgesture)
 		
 		  if (check_command ( &gbuffer[0] , &command4[0] ))
 		    {
-			    // command 3
+			    // command 4
 
 			    //change buffer so it does not trigger again
 			    gbuffer[1] = GESTURE_OTHER;
 			    return 4;
 		    }
+			#ifdef PID_GESTURE_TUNING
+			if (check_command ( &gbuffer[0] , &command5[0] ))
+		    {
+			    // command 5
+
+			    //change buffer so it does not trigger again
+			    gbuffer[1] = GESTURE_OTHER;
+			    return 5;
+		    }
+				
+			if (check_command ( &gbuffer[0] , &command6[0] ))
+		    {
+			    // command 6
+
+			    //change buffer so it does not trigger again
+			    gbuffer[1] = GESTURE_OTHER;
+			    return 6;
+		    }
+				
+			if (check_command ( &gbuffer[0] , &command7[0] ))
+		    {
+			    // command 7
+
+			    //change buffer so it does not trigger again
+			    gbuffer[1] = GESTURE_OTHER;
+			    return 7;
+		    }
+			if (check_command ( &gbuffer[0] , &command8[0] ))
+		    {
+			    // command 8
+
+			    //change buffer so it does not trigger again
+			    gbuffer[1] = GESTURE_OTHER;
+			    return 8;
+		    }
+			#endif
+
 
 
 				

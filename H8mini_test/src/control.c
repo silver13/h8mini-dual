@@ -71,6 +71,8 @@ float lastrx[3];
 unsigned int consecutive[3];
 #endif
 
+extern int ledblink;
+
 
 extern int controls_override;
 extern float rx_override[];
@@ -183,20 +185,50 @@ aux[TOGGLE_OUT]=!aux[TOGGLE_OUT];
 		    }
 		  else
 		    {
-			    ledcommand = 1;
 			    if (command == 2)
 			      {
+					  ledcommand = 1;
 				      aux[CH_AUX1] = 1;
 
 			      }
 			    if (command == 1)
 			      {
+					  ledcommand = 1;
 				      aux[CH_AUX1] = 0;
 			      }
-					if (command == 4)
+			     if (command == 4)
 			      {
+					  ledcommand = 1;
 				      aux[CH_AUX2] = !aux[CH_AUX2];
 			      }
+			#ifdef PID_GESTURE_TUNING
+			  int blink = 0;
+			    if (command == 5)
+			      {
+							// Cycle to next pid term (P I D)
+							blink = next_pid_term();
+			      }
+			    if (command == 6)
+			      {
+							// Cycle to next axis (Roll Pitch Yaw)
+							blink = next_pid_axis();
+			      }
+			    if (command == 7)
+			      {
+				      // Increase by 10%
+							blink = increase_pid();
+			      }
+			    if (command == 8)
+			      {
+					// Descrease by 10%
+				      			blink = decrease_pid();
+			      }
+					// U D U - Next PID term
+					// U D D - Next PID Axis
+					// U D R - Increase value
+					// U D L - Descrease value
+					ledblink = blink; //Will cause led logic to blink the number of times ledblink has stored in it.
+			  #endif
 		    }
 	  }
 
@@ -402,6 +434,33 @@ if (vbatt < (float) LVC_PREVENT_RESET_VOLTAGE) throttle = 0;
 		  pidoutput[2] = -pidoutput[2];
 #endif
 
+
+#ifdef MIX_LOWER_THROTTLE_3
+{
+float overthrottle = 0;
+
+for (int i = 0; i < 4; i++)
+		    {
+			    if (mix[i] > overthrottle)
+				    overthrottle = mix[i]; 
+            }                
+
+
+overthrottle -=1.0f;
+// limit to half throttle max reduction            
+if ( overthrottle > 0.5f)  overthrottle = 0.5f;     
+            
+if ( overthrottle > 0.0f)
+{    
+    for ( int i = 0 ; i < 4 ; i++)
+        mix[i] -= overthrottle;
+}
+#ifdef MIX_LOWER_THROTTLE_3_FLASHLED
+if ( overthrottle > 0.1f) ledcommand = 1;
+#endif
+}
+#endif
+        
 #if ( defined MIX_LOWER_THROTTLE || defined MIX_INCREASE_THROTTLE)
 
 //#define MIX_INCREASE_THROTTLE
@@ -599,9 +658,9 @@ if (vbatt < (float) LVC_PREVENT_RESET_VOLTAGE) throttle = 0;
 
 	  }			// end motors on
 
-		
+
 	imu_calc();
-	
+
 }
 
 /////////////////////////////
@@ -701,6 +760,28 @@ float motormap(float input)
 	return input;
 }
 #endif
+
+#ifdef CUSTOM_MOTOR_CURVE
+
+float motormap(float in)
+{
+    
+float exp = CUSTOM_MOTOR_CURVE;
+	if ( exp > 1 ) exp = 1;
+	if ( exp < -1 ) exp = -1;
+ 
+if (in > 1.0f) in = 1.0f;
+if (in < 0) in = 0;
+    
+	float ans = in * (in*in * exp +  ( 1 - exp ));
+
+if (ans > 1.0f) ans = 1.0f;
+if (ans < 0) ans = 0;
+    
+	return ans;
+}
+#endif
+
 
 float hann_lastsample[4];
 float hann_lastsample2[4];

@@ -148,6 +148,10 @@
 //#define MIX_LOWER_THROTTLE
 //#define MIX_INCREASE_THROTTLE
 
+// brushless lower throttle type 3 - use only 1 lower throttle method
+// fast acting
+//#define MIX_LOWER_THROTTLE_3
+
 
 // options for mix throttle lowering if enabled
 // 0 - 100 range ( 100 = full reduction / 0 = no reduction )
@@ -180,6 +184,12 @@
 //#define LVC_PREVENT_RESET
 #define LVC_PREVENT_RESET_VOLTAGE 2.85
 
+// lower throttle when battery below treshold
+//#define LVC_LOWER_THROTTLE
+#define LVC_LOWER_THROTTLE_VOLTAGE 3.30
+#define LVC_LOWER_THROTTLE_VOLTAGE_RAW 2.70
+#define LVC_LOWER_THROTTLE_KP 3.0
+
 //#define PID_VOLTAGE_COMPENSATION
 
 // enable motor filter
@@ -205,6 +215,7 @@
 //#define MOTOR_CURVE_85MM_8KHZ
 //#define MOTOR_CURVE_85MM_8KHZ_OLD
 //#define MOTOR_CURVE_85MM_32KHZ
+//#define CUSTOM_MOTOR_CURVE 0.3
 
 // pwm frequency for motor control
 // a higher frequency makes the motors more linear
@@ -240,7 +251,9 @@
 //#define RX_BAYANG_BLE_APP
 
 
-
+// Comment out to disable pid tuning gestures
+#define PID_GESTURE_TUNING
+#define COMBINE_PITCH_ROLL_PID_TUNING
 
 
 

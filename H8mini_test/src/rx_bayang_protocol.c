@@ -23,7 +23,6 @@ THE SOFTWARE.
 */
 
 
-
 #include "binary.h"
 #include "drv_spi.h"
 
