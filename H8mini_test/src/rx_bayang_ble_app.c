@@ -98,7 +98,7 @@ THE SOFTWARE.
 // Values 0x11, 0x12 and 0x13 are reserved for H8 blue board. Other values are reserved for H101/H8S firmware.
 // Value 0x00 represents unknown quad (generic image)
 
-//#define MY_QUAD_MODEL 0x01
+#define MY_QUAD_MODEL 0x01
 
 // *** THE FOLLOWING THREE SETTINGS USE ONLY IF YOU HAVE PROBLEMS WITH VERY OFTEN "TLM DISCONNECTING" ALARMS, ESPECIALLY ON FULL THROTTLE ***
 // If you do not experience these problems and have stable telemetry connection, do not enable and set TX_POWER_GENERAL, TX_POWER_ON_TLM nor USE_ALL_BLE_CHANNELS
