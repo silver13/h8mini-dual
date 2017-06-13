@@ -24,6 +24,7 @@
 #define MAX_ANGLE_LO 35.0f
 #define MAX_ANGLE_HI 55.0f
 
+
 // max rate for rate pid in level mode
 // this should usually not change unless faster / slower response is desired.
 #define LEVEL_MAX_RATE_LO 360.0f
@@ -37,7 +38,7 @@
 // use if your tx has no expo function
 // also comment out DISABLE_EXPO to use
 // -1 to 1 , 0 = no exp
-// positive = less sensitive near center 
+// positive = less sensitive near center
 #define EXPO_XY 0.3f
 #define EXPO_YAW 0.0f
 
@@ -139,18 +140,26 @@
 
 
 // throttle angle compensation in level mode
-// comment out to disable
 //#define AUTO_THROTTLE
 
 
 // enable auto lower throttle near max throttle to keep control
-// comment out to disable
+// comment out to disable 
 //#define MIX_LOWER_THROTTLE
 //#define MIX_INCREASE_THROTTLE
 
-// brushless lower throttle type 3 - use only 1 lower throttle method
+// brushless lower throttle type 3
 // fast acting
 //#define MIX_LOWER_THROTTLE_3
+//#define MIX_INCREASE_THROTTLE_3
+
+// mix throttle options for all types
+// flash led when function is active
+//#define MIX_THROTTLE_FLASHLED
+
+// limits of increase / decrase
+//#define MIX_THROTTLE_REDUCTION_MAX 0.5f
+//#define MIX_THROTTLE_INCREASE_MAX 0.2f
 
 
 // options for mix throttle lowering if enabled
@@ -228,8 +237,7 @@
 // failsafe time in uS
 #define FAILSAFETIME 1000000  // one second
 
-
-// uncomment to enable buzzer
+// uncomment to enable buzzer. Select the BUZZER_PIN in hardware.h
 //#define BUZZER_ENABLE
 
 
@@ -282,6 +290,7 @@
 // possible values: 0 / 1
 #define ENABLESTIX 0
 #define ENABLESTIX_TRESHOLD 0.3
+#define ENABLESTIX_TIMEOUT 1e6
 
 // A deadband can be used to eliminate stick center jitter and non-returning to exactly 0.
 //#define STICKS_DEADBAND 0.02f

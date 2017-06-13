@@ -70,7 +70,7 @@ int gestures2()
 		    }
 		  else
 		    {
-			    //      gesture_start = GESTURE_OTHER;  
+			    //      gesture_start = GESTURE_OTHER;
 		    }
 
 		  unsigned long time = gettime();
@@ -168,8 +168,8 @@ uint8_t check_command( uint8_t  buffer1[] , const uint8_t  command[]  )
             {
                 if( buffer1[i] != command[GSIZE - i - 1])
                 return 0;
-            }     
-return 1;            
+            }
+return 1;
 }
 
 int gesture_sequence(int currentgesture)
@@ -177,7 +177,7 @@ int gesture_sequence(int currentgesture)
 
 	if (currentgesture != gbuffer[0])
 	  {			// add to queue
-		  
+
 
 		  for (int i = GSIZE; i >= 1; i--)
 		    {
@@ -195,37 +195,37 @@ int gesture_sequence(int currentgesture)
 
 			    //change buffer so it does not trigger again
 			    gbuffer[1] = GESTURE_OTHER;
-			    return 1;
+			    return GESTURE_LLD;
 		    }
 
-		
+
 		  if (check_command ( &gbuffer[0] , &command2[0] ))
 		    {
 			    // command 2
 
 			    //change buffer so it does not trigger again
 			    gbuffer[1] = GESTURE_OTHER;
-			    return 2;
+			    return GESTURE_RRD;
 		    }
 
-		
+
 		  if (check_command ( &gbuffer[0] , &command3[0] ))
 		    {
 			    // command 3
 
 			    //change buffer so it does not trigger again
 			    gbuffer[1] = GESTURE_OTHER;
-			    return 3;
+			    return GESTURE_DDD;
 		    }
 
-		
+
 		  if (check_command ( &gbuffer[0] , &command4[0] ))
 		    {
 			    // command 4
 
 			    //change buffer so it does not trigger again
 			    gbuffer[1] = GESTURE_OTHER;
-			    return 4;
+			    return GESTURE_UUU;
 		    }
 			#ifdef PID_GESTURE_TUNING
 			if (check_command ( &gbuffer[0] , &command5[0] ))
@@ -234,25 +234,25 @@ int gesture_sequence(int currentgesture)
 
 			    //change buffer so it does not trigger again
 			    gbuffer[1] = GESTURE_OTHER;
-			    return 5;
+			    return GESTURE_UDU;
 		    }
-				
+
 			if (check_command ( &gbuffer[0] , &command6[0] ))
 		    {
 			    // command 6
 
 			    //change buffer so it does not trigger again
 			    gbuffer[1] = GESTURE_OTHER;
-			    return 6;
+			    return GESTURE_UDD;
 		    }
-				
+
 			if (check_command ( &gbuffer[0] , &command7[0] ))
 		    {
 			    // command 7
 
 			    //change buffer so it does not trigger again
 			    gbuffer[1] = GESTURE_OTHER;
-			    return 7;
+			    return GESTURE_UDR;
 		    }
 			if (check_command ( &gbuffer[0] , &command8[0] ))
 		    {
@@ -260,14 +260,11 @@ int gesture_sequence(int currentgesture)
 
 			    //change buffer so it does not trigger again
 			    gbuffer[1] = GESTURE_OTHER;
-			    return 8;
+			    return GESTURE_UDL;
 		    }
 			#endif
 
-
-
-				
 	  }
 
-	return 0;
+	return GESTURE_NONE;
 }

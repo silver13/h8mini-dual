@@ -56,6 +56,7 @@ extern float pidoutput[PIDNUMBER];
 
 int onground = 1;
 int onground_long = 1;
+int pid_gestures_used = 0;
 
 float thrsum;
 float rxcopy[4];
@@ -172,12 +173,19 @@ aux[TOGGLE_OUT]=!aux[TOGGLE_OUT];
 
 	int command = gestures2();
 
-	if (command)
+	if (command != GESTURE_NONE)
 	  {
-		  if (command == 3)
+		  if (command == GESTURE_DDD)
 		    {
 			    gyro_cal();	// for flashing lights
-			    acc_cal();
+
+			    //skip accel calibration if pid gestures used
+			    if ( !pid_gestures_used )
+			    {
+				    acc_cal();
+				    pid_gestures_used = 0;
+			    }
+
 			    savecal();
 			    // reset loop time
 			    extern unsigned lastlooptime;
@@ -185,40 +193,42 @@ aux[TOGGLE_OUT]=!aux[TOGGLE_OUT];
 		    }
 		  else
 		    {
-			    if (command == 2)
+			    if (command == GESTURE_RRD)
 			      {
-					  ledcommand = 1;
+							ledcommand = 1;
 				      aux[CH_AUX1] = 1;
 
 			      }
-			    if (command == 1)
+			    if (command == GESTURE_LLD)
 			      {
-					  ledcommand = 1;
+							ledcommand = 1;
 				      aux[CH_AUX1] = 0;
 			      }
-			     if (command == 4)
+			     if (command == GESTURE_UUU)
 			      {
-					  ledcommand = 1;
+							ledcommand = 1;
 				      aux[CH_AUX2] = !aux[CH_AUX2];
 			      }
 			#ifdef PID_GESTURE_TUNING
+			      if ( command == GESTURE_UDR || command == GESTURE_UDL ) pid_gestures_used = 1;
+
 			  int blink = 0;
-			    if (command == 5)
+			    if (command == GESTURE_UDU)
 			      {
 							// Cycle to next pid term (P I D)
 							blink = next_pid_term();
 			      }
-			    if (command == 6)
+			    if (command == GESTURE_UDD)
 			      {
 							// Cycle to next axis (Roll Pitch Yaw)
 							blink = next_pid_axis();
 			      }
-			    if (command == 7)
+			    if (command == GESTURE_UDR)
 			      {
 				      // Increase by 10%
 							blink = increase_pid();
 			      }
-			    if (command == 8)
+			    if (command == GESTURE_UDL)
 			      {
 					// Descrease by 10%
 				      			blink = decrease_pid();
@@ -318,7 +328,7 @@ aux[TOGGLE_OUT]=!aux[TOGGLE_OUT];
 
 		if ( onground_long )
 		{
-			if ( gettime() - onground_long > 1000000)
+			if ( gettime() - onground_long > ENABLESTIX_TIMEOUT)
 			{
 				onground_long = 0;
 			}
@@ -411,6 +421,43 @@ aux[TOGGLE_OUT]=!aux[TOGGLE_OUT];
 extern float vbatt;
 if (vbatt < (float) LVC_PREVENT_RESET_VOLTAGE) throttle = 0;
 #endif
+
+
+#ifdef LVC_LOWER_THROTTLE
+extern float vbatt_comp;
+extern float vbattfilt;
+
+static float throttle_i = 0.0f;
+
+ float throttle_p = 0.0f;
+
+// can be made into a function
+if (vbattfilt < (float) LVC_LOWER_THROTTLE_VOLTAGE_RAW )
+   throttle_p = ((float) LVC_LOWER_THROTTLE_VOLTAGE_RAW - vbattfilt);
+// can be made into a function
+if (vbatt_comp < (float) LVC_LOWER_THROTTLE_VOLTAGE)
+   throttle_p = ((float) LVC_LOWER_THROTTLE_VOLTAGE - vbatt_comp) ;
+
+
+
+if ( throttle_p > 0 )
+{
+    throttle_i += throttle_p * 0.0001f; //ki
+}
+else throttle_i -= 0.001f;// ki on release
+
+if ( throttle_i > 0.5f) throttle_i = 0.5f;
+if ( throttle_i < 0.0f) throttle_i = 0.0f;
+
+throttle_p *= (float) LVC_LOWER_THROTTLE_KP;
+if ( throttle_p > 1.0f ) throttle_p = 1.0f;
+
+throttle -= throttle_p + throttle_i;
+
+if ( throttle < 0 ) throttle = 0;
+#endif
+
+
 		  onground = 0;
 		  float mix[4];
 
@@ -437,30 +484,66 @@ if (vbatt < (float) LVC_PREVENT_RESET_VOLTAGE) throttle = 0;
 
 #ifdef MIX_LOWER_THROTTLE_3
 {
+#ifndef MIX_THROTTLE_REDUCTION_MAX
+#define MIX_THROTTLE_REDUCTION_MAX 0.5f
+#endif
+
 float overthrottle = 0;
 
 for (int i = 0; i < 4; i++)
 		    {
 			    if (mix[i] > overthrottle)
-				    overthrottle = mix[i]; 
-            }                
+				    overthrottle = mix[i];
+            }
 
 
 overthrottle -=1.0f;
-// limit to half throttle max reduction            
-if ( overthrottle > 0.5f)  overthrottle = 0.5f;     
-            
+// limit to half throttle max reduction
+if ( overthrottle > (float) MIX_THROTTLE_REDUCTION_MAX)  overthrottle = (float) MIX_THROTTLE_REDUCTION_MAX;
+
 if ( overthrottle > 0.0f)
-{    
+{
     for ( int i = 0 ; i < 4 ; i++)
         mix[i] -= overthrottle;
 }
-#ifdef MIX_LOWER_THROTTLE_3_FLASHLED
+#ifdef MIX_THROTTLE_FLASHLED
 if ( overthrottle > 0.1f) ledcommand = 1;
 #endif
 }
 #endif
-        
+
+
+#ifdef MIX_INCREASE_THROTTLE_3
+{
+#ifndef MIX_THROTTLE_INCREASE_MAX
+#define MIX_THROTTLE_INCREASE_MAX 0.2f
+#endif
+
+float underthrottle = 0;
+
+for (int i = 0; i < 4; i++)
+    {
+        if (mix[i] < underthrottle)
+            underthrottle = mix[i];
+    }
+
+
+// limit to half throttle max reduction
+if ( underthrottle < -(float) MIX_THROTTLE_INCREASE_MAX)  underthrottle = -(float) MIX_THROTTLE_INCREASE_MAX;
+
+if ( underthrottle < 0.0f)
+    {
+        for ( int i = 0 ; i < 4 ; i++)
+            mix[i] -= underthrottle;
+    }
+#ifdef MIX_THROTTLE_FLASHLED
+if ( underthrottle < -0.01f) ledcommand = 1;
+#endif
+}
+#endif
+
+
+
 #if ( defined MIX_LOWER_THROTTLE || defined MIX_INCREASE_THROTTLE)
 
 //#define MIX_INCREASE_THROTTLE
@@ -496,7 +579,7 @@ if ( overthrottle > 0.1f) ledcommand = 1;
 		  for (int i = 0; i < 4; i++)
 		    {
 			    if (mix[i] > overthrottle)
-				    overthrottle = mix[i];               
+				    overthrottle = mix[i];
 					if (mix[i] < underthrottle)
 						underthrottle = mix[i];
 		    }
@@ -569,13 +652,17 @@ if ( overthrottle > 0.1f) ledcommand = 1;
 			underthrottle *= ((float)MIX_THROTTLE_REDUCTION_PERCENT / 100.0f);
 
 #else
-    underthrottle = 0.001f;        
+    underthrottle = 0.001f;
 #endif
 
 
 		  if (overthrottle > 0 || underthrottle < 0 )
 		    {		// exceeding max motor thrust
-					float temp = overthrottle + underthrottle;
+				float temp = overthrottle + underthrottle;
+
+                #ifdef MIX_THROTTLE_FLASHLED
+                ledcommand = 1;
+                #endif
 			    for (int i = 0; i < 4; i++)
 			      {
 				      mix[i] -= temp;
@@ -645,6 +732,7 @@ if ( overthrottle > 0.1f) ledcommand = 1;
 					#endif
 		    }
 
+
 		  thrsum = 0;
 		  for (int i = 0; i < 4; i++)
 		    {
@@ -708,7 +796,7 @@ float motormap(float input)
 // new curve
 float motormap(float input)
 {
-//      Hubsan 8.5mm motors and props 
+//      Hubsan 8.5mm motors and props
 
 	if (input > 1)
 		input = 1;
@@ -728,7 +816,7 @@ float motormap(float input)
 // Hubsan 8.5mm 8khz pwm motor map
 float motormap(float input)
 {
-//      Hubsan 8.5mm motors and props 
+//      Hubsan 8.5mm motors and props
 
 	if (input > 1)
 		input = 1;
@@ -747,7 +835,7 @@ float motormap(float input)
 // Hubsan 8.5mm 8khz pwm motor map
 float motormap(float input)
 {
-//      Hubsan 8.5mm motors and props 
+//      Hubsan 8.5mm motors and props
 
 	if (input > 1)
 		input = 1;
@@ -765,19 +853,19 @@ float motormap(float input)
 
 float motormap(float in)
 {
-    
+
 float exp = CUSTOM_MOTOR_CURVE;
 	if ( exp > 1 ) exp = 1;
 	if ( exp < -1 ) exp = -1;
- 
+
 if (in > 1.0f) in = 1.0f;
 if (in < 0) in = 0;
-    
+
 	float ans = in * (in*in * exp +  ( 1 - exp ));
 
 if (ans > 1.0f) ans = 1.0f;
 if (ans < 0) ans = 0;
-    
+
 	return ans;
 }
 #endif
@@ -799,7 +887,7 @@ float motorfilter(float motorin, int number)
 
 
 float clip_feedforward[4];
-// clip feedforward adds the amount of thrust exceeding 1.0 ( max) 
+// clip feedforward adds the amount of thrust exceeding 1.0 ( max)
 // to the next iteration(s) of the loop
 // so samples 0.5 , 1.5 , 0.4 would transform into 0.5 , 1.0 , 0.9;
 
@@ -809,7 +897,7 @@ float clip_ff(float motorin, int number)
 	if (motorin > 1.0f)
 	  {
 		  clip_feedforward[number] += (motorin - 1.0f);
-		  //cap feedforward to prevent windup 
+		  //cap feedforward to prevent windup
 		  if (clip_feedforward[number] > .5f)
 			  clip_feedforward[number] = .5f;
 	  }
