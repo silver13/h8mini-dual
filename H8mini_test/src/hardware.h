@@ -45,6 +45,7 @@
 // output driver type , esc settings in drv_esc.c file
 
 #define USE_PWM_DRIVER
+//#define USE_PWM_DRIVER_NEW
 //#define USE_ESC_DRIVER
 //#define USE_DSHOT_DRIVER
 
@@ -57,6 +58,8 @@
 
 // pwm pin initialization
 // enable the pwm pins to be used here ( multiple pins ok)
+// for USE_PWM_DRIVER_NEW only
+
 //#define PWM_PA0
 //#define PWM_PA1
 //#define PWM_PA2
