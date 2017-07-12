@@ -319,10 +319,6 @@
 
 // define logic
 
-// don't stop software on low battery so buzzer will still sound
-#ifdef BUZZER_ENABLE
-#undef STOP_LOWBATTERY
-#endif
 
 // disable startup battery check so beacon can work after a reset
 #ifdef RX_BAYANG_BLE

@@ -5,7 +5,7 @@
 #include "drv_time.h"
 #include "buzzer.h"
 
-#ifdef BUZZER_ENABLE
+
 
 // output polarity
 // BIT_SET = HIGH
@@ -111,8 +111,6 @@ void buzzer()
 	}
 
 }
-
-#endif
 
 
 
