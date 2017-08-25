@@ -179,7 +179,7 @@ int main(void)
 
 #ifdef STOP_LOWBATTERY
 // infinite loop
-	if (vbattfilt < STOP_LOWBATTERY_TRESH)
+	if (vbattfilt < 3.3f)
 		failloop(2);
 #endif
 

@@ -22,8 +22,6 @@
 // Analog battery input pin and adc channel
 
 // divider setting for adc uses 2 measurements(readout/value).
-// the adc readout can be found in debug mode , debug.adcfilt
-// #enable DEBUG should be in config.h
 // default for 1/2 divider
 
 // uncomment to enable acd on a pin

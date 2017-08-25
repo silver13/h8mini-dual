@@ -157,7 +157,7 @@
 // flash led when function is active
 //#define MIX_THROTTLE_FLASHLED
 
-// limits of increase / decrase
+// limits of increase / decrease
 //#define MIX_THROTTLE_REDUCTION_MAX 0.5f
 //#define MIX_THROTTLE_INCREASE_MAX 0.2f
 
@@ -275,8 +275,6 @@
 // invert yaw pid
 //#define INVERT_YAW_PID
 
-//some debug stuff
-//#define DEBUG
 
 // disable motors for testing
 //#define NOMOTORS
@@ -306,9 +304,6 @@
 //#define MOTOR_MAX_ENABLE
 #define MOTOR_MAX_VALUE 1.00
 
-// under this voltage the software will not start
-// if STOP_LOWBATTERY is defined
-#define STOP_LOWBATTERY_TRESH 3.3f
 
 
 

@@ -224,9 +224,7 @@ void imu_calc(void)
 
 #endif				// end small angle approx
 
-#ifdef DEBUG
-	attitude[2] += RADTODEG * gyro[2] * deltatime;
-#endif
+
 // orientation vector magnitude
 
 
