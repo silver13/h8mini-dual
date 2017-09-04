@@ -63,6 +63,8 @@
 //#define SOFT_LPF_4TH_088HZ
 //#define SOFT_LPF_4TH_160HZ
 //#define SOFT_LPF_4TH_250HZ
+//#define SOFT_LPF_1ST_HZ 100
+//#define SOFT_LPF_2ST_HZ 100
 #define SOFT_LPF_NONE
 
 // this works only on newer boards (non mpu-6050)
@@ -109,11 +111,6 @@
 // leds on / off channel
 #define LEDS_ON CH_ON
 
-
-// toggle is a block with an input and an output
-// uncomment input to enable ( aux 2 is gesture up - up - up )
-//#define TOGGLE_IN CH_AUX2
-#define TOGGLE_OUT CH_AUX4
 
 // Channel to turn a GPIO pin on/off. Can be used to switch
 // a FPV camera on/off . Select the FPV_PIN in hardware.h
@@ -201,9 +198,13 @@
 
 //#define PID_VOLTAGE_COMPENSATION
 
-// enable motor filter
-// hanning 3 sample fir filter
+
+// enable motor filter - select one
+// motorfilter1: hanning 3 sample fir filter
+// motorfilter2: 1st lpf, 0.2 - 0.6 , 0.6 = less filtering
 #define MOTOR_FILTER
+//#define MOTOR_FILTER2_ALPHA 0.3
+
 
 // lost quad beeps using motors
 //#define MOTOR_BEEPS

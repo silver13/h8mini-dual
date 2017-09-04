@@ -249,15 +249,123 @@ FilterBeLp4 filter[3];
 #endif
 
 
+#ifdef SOFT_LPF_1ST_HZ
+
+extern "C" float lpfcalc( float sampleperiod , float filtertime);
+extern "C" float lpfcalc_hz(float sampleperiod, float filterhz);
+extern "C" void lpf( float *out, float in , float coeff);
+
+static float alpha = 0.5;
+extern float looptime;
+
+void lpf_coeff()
+{
+ alpha = FILTERCALC( looptime , (1.0f/SOFT_LPF_1ST_HZ) );       
+}
+
+
+class  filter_lpf1
+{
+    private:
+		float lpf_last;
+    public:
+        filter_lpf1()
+    {
+      lpf_last = 0;   
+    }
+     float step( float in)
+     {
+       lpf ( &lpf_last , in , alpha); 
+         
+       return lpf_last;
+     }
+};
+
+filter_lpf1 filter[3];
+#endif
+
+
+
+#ifdef SOFT_LPF_2ST_HZ
+
+extern "C" float lpfcalc( float sampleperiod , float filtertime);
+extern "C" float lpfcalc_hz(float sampleperiod, float filterhz);
+extern "C" void lpf( float *out, float in , float coeff);
+
+extern float looptime;
+
+float alpha = 0.0;
+float two_one_minus_alpha = 2.0;
+float one_minus_alpha_sqr = 1.0;
+float alpha_sqr = 0.0;
+
+float looptime_filt = 0.001;
+
+class  filter_lpf2
+{
+    private:
+		float last_out;
+        float last_out2;
+    public:
+        filter_lpf2()
+        {
+          last_out = last_out2 = 0;   
+        }
+    
+         float step( float in)
+         {
+
+          float ans = in * alpha_sqr + two_one_minus_alpha * last_out
+              - one_minus_alpha_sqr * last_out2;   
+     
+          last_out2 = last_out;
+          last_out = ans;
+          
+          return ans;
+         }
+};
+
+void  lpf_coeff_2nd()
+{
+ 
+  lpf ( &looptime_filt , looptime , 0.96);
+  
+   float one_minus_alpha = FILTERCALC( looptime_filt , (1.0f/SOFT_LPF_2ST_HZ) );  
+    
+   one_minus_alpha_sqr = one_minus_alpha * one_minus_alpha;
+   
+   two_one_minus_alpha = 2*one_minus_alpha;
+    
+   alpha = 1 - one_minus_alpha;
+   alpha_sqr = alpha * alpha;
+     
+}
+
+filter_lpf2 filter[3];
+#endif
+
+
+
 extern "C" float lpffilter( float in,int num )
 {
 	#ifdef SOFT_LPF_NONE
 	return in;
 	#else
-	return filter[num].step(in );
+    
+    #ifdef SOFT_LPF_1ST_HZ
+    if ( num == 0 ) lpf_coeff();
+    #endif
+    
+    #ifdef SOFT_LPF_2ST_HZ
+    if ( num == 0 ) lpf_coeff_2nd();
+    #endif
+    
+	return filter[num].step(in );   
 	#endif
 	
 }
+
+
 
 
 // 16Hz hpf filter for throttle compensation
