@@ -176,10 +176,11 @@ void control(void)
 			    //skip accel calibration if pid gestures used
 			    if ( !pid_gestures_used )
 			    {
-				    acc_cal();
-				    pid_gestures_used = 0;
+				    acc_cal();				    
 			    }
-
+                
+                pid_gestures_used = 0;
+                
 			    savecal();
 			    // reset loop time
 			    extern unsigned lastlooptime;
@@ -189,19 +190,19 @@ void control(void)
 		    {
 			    if (command == GESTURE_RRD)
 			      {
-							ledcommand = 1;
-				      aux[CH_AUX1] = 1;
+                    ledcommand = 1;
+				    aux[CH_AUX1] = 1;
 
 			      }
 			    if (command == GESTURE_LLD)
 			      {
-							ledcommand = 1;
-				      aux[CH_AUX1] = 0;
+                    ledcommand = 1;
+				    aux[CH_AUX1] = 0;
 			      }
 			     if (command == GESTURE_UUU)
 			      {
-							ledcommand = 1;
-				      aux[CH_AUX2] = !aux[CH_AUX2];
+                    ledcommand = 1;
+                    aux[CH_AUX2] = !aux[CH_AUX2];
 			      }
 			#ifdef PID_GESTURE_TUNING
 			      if ( command == GESTURE_UDR || command == GESTURE_UDL ) pid_gestures_used = 1;
@@ -209,30 +210,30 @@ void control(void)
 			  int blink = 0;
 			    if (command == GESTURE_UDU)
 			      {
-							// Cycle to next pid term (P I D)
-							blink = next_pid_term();
+                    // Cycle to next pid term (P I D)
+                    blink = next_pid_term();
 			      }
 			    if (command == GESTURE_UDD)
 			      {
-							// Cycle to next axis (Roll Pitch Yaw)
-							blink = next_pid_axis();
+                    // Cycle to next axis (Roll Pitch Yaw)
+                    blink = next_pid_axis();
 			      }
 			    if (command == GESTURE_UDR)
 			      {
-				      // Increase by 10%
-							blink = increase_pid();
+                    // Increase by 10%
+                    blink = increase_pid();
 			      }
 			    if (command == GESTURE_UDL)
 			      {
 					// Descrease by 10%
-				      			blink = decrease_pid();
+				    blink = decrease_pid();
 			      }
-					// U D U - Next PID term
-					// U D D - Next PID Axis
-					// U D R - Increase value
-					// U D L - Descrease value
-					ledblink = blink; //Will cause led logic to blink the number of times ledblink has stored in it.
-			  #endif
+                // U D U - Next PID term
+                // U D D - Next PID Axis
+                // U D R - Increase value
+                // U D L - Descrease value
+                ledblink = blink; //Will cause led logic to blink the number of times ledblink has stored in it.
+            #endif
 		    }
 	  }
 
@@ -252,45 +253,45 @@ void control(void)
 
 	if ((aux[LEVELMODE]||level_override)&&!acro_override)
 	  {	// level mode
-			
-		extern	void stick_vector( float );
-		extern float errorvect[];	
+          
+        extern	void stick_vector( float );          
+        extern float errorvect[];	
+          
+        float yawerror[3];
+        extern float GEstG[3];
 
-			stick_vector( maxangle);
-			float yawerror[3];
-			extern float GEstG[3];
+        stick_vector( maxangle);
+          
+        float yawrate = rxcopy[2] * (float) MAX_RATEYAW * DEGTORAD * ratemultiyaw* ( 1/ 2048.0f);
 
-			float yawrate = rxcopy[2] * (float) MAX_RATEYAW * DEGTORAD * ratemultiyaw* ( 1/ 2048.0f);
-			
-		yawerror[0] = GEstG[1]  * yawrate;
-		yawerror[1] = - GEstG[0]  * yawrate;
-		yawerror[2] = GEstG[2]  * yawrate;
+        yawerror[0] = GEstG[1]  * yawrate;
+        yawerror[1] = - GEstG[0]  * yawrate;
+        yawerror[2] = GEstG[2]  * yawrate;
 
-		angleerror[0] = errorvect[0] * RADTODEG *1.1f;
-		angleerror[1] = errorvect[1] * RADTODEG *1.1f;
-	
-		for ( int i = 0 ; i <2; i++)
-			{
-			error[i] = apid(i) * anglerate * DEGTORAD + yawerror[i] - gyro[i];
-			}
+        angleerror[0] = errorvect[0] * RADTODEG *1.1f;
+        angleerror[1] = errorvect[1] * RADTODEG *1.1f;
 
-		error[2] = yawerror[2]  - gyro[2];
+        for ( int i = 0 ; i <2; i++)
+            {
+            error[i] = apid(i) * anglerate * DEGTORAD + yawerror[i] - gyro[i];
+            }
+
+        error[2] = yawerror[2]  - gyro[2];
 
 	  }
 	else
-	  {			// rate mode
+	  {			
+       // rate mode
+        error[0] = rxcopy[0] * MAX_RATE * DEGTORAD * ratemulti - gyro[0];
+        error[1] = rxcopy[1] * MAX_RATE * DEGTORAD * ratemulti - gyro[1];
 
-		  error[0] = rxcopy[0] * MAX_RATE * DEGTORAD * ratemulti - gyro[0];
-		  error[1] = rxcopy[1] * MAX_RATE * DEGTORAD * ratemulti - gyro[1];
-			
-			error[2] = rxcopy[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
-			
-		  // reduce angle Iterm towards zero
-		  extern float aierror[3];
+        error[2] = rxcopy[2] * MAX_RATEYAW * DEGTORAD * ratemultiyaw - gyro[2];
 
-		  aierror[0] = 0.0f;
-			aierror[1] = 0.0f;
+        // reduce angle Iterm towards zero
+        extern float aierror[3];
 
+        aierror[0] = 0.0f;
+        aierror[1] = 0.0f;
 
 	  }
 
