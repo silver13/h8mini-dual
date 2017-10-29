@@ -245,7 +245,7 @@ uint8_t _sendbyte(uint8_t value)
 
 	sclhigh();
 // skip ack since it is not used here
-	uint8_t ack;		// = _readsda();
+	uint8_t ack = 0;		// = _readsda();
 
 	if (ack)
 	  {

@@ -1,6 +1,22 @@
 
 
 
+// set zero to disable (0 - 4)
+#define LED_NUMBER       4
+
+#define LED1PIN          GPIO_PIN_0
+#define LED1PORT         GPIOF
+
+#define LED2PIN          GPIO_PIN_1
+#define LED2PORT         GPIOF
+
+#define LED3PIN          GPIO_PIN_0
+#define LED3PORT         GPIOB
+
+#define LED4PIN          GPIO_PIN_2
+#define LED4PORT         GPIOA
+
+
 // RGB led type ws2812 - ws2813
 // numbers over 8 could decrease performance
 

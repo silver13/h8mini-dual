@@ -22,77 +22,93 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+// from Mike Morrison
+// https://github.com/bikemike/h8mini-testing/blob/fq777-124/H8mini_test/src/led.c
+
 #include "gd32f1x0.h"
 #include "drv_time.h"
 #include "macros.h"
+#include "hardware.h"
 #include "led.h"
 
 #define LEDALL 15
 
-void ledon(uint8_t val)
+void ledon( uint8_t val )
 {
-#ifndef SERIAL
-	if (val & 8)
-		GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_SET);
+#if ( LED_NUMBER > 0 )
+	#ifdef LED1_INVERT
+	if ( val&1) GPIO_ResetBits( LED1PORT, LED1PIN);
+	#else
+	if ( val&1)	GPIO_SetBits( LED1PORT, LED1PIN);
+	#endif
 #endif
-	if (val & 1)
-		GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_SET);
-	if (val & 2)
-		GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_SET);
-
-	if (val & 4)
-		GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_SET);
-
+#if ( LED_NUMBER > 1 )
+	#ifdef LED2_INVERT
+  if ( val&2) GPIO_ResetBits( LED2PORT, LED2PIN);
+	#else
+	if ( val&2)	GPIO_SetBits( LED2PORT, LED2PIN);
+	#endif
+#endif
+#if ( LED_NUMBER > 2 )
+	#ifdef LED3_INVERT
+	if ( val&4) GPIO_ResetBits( LED3PORT, LED3PIN);
+	#else
+	if ( val&4)	GPIO_SetBits( LED3PORT, LED3PIN);
+	#endif
+#endif
+#if ( LED_NUMBER > 3 )
+	#ifdef LED4_INVERT
+	if ( val&8) GPIO_ResetBits( LED4PORT, LED4PIN);
+	#else
+	if ( val&8)	GPIO_SetBits( LED4PORT, LED4PIN);
+	#endif
+#endif
+			
 }
 
-void ledoff(uint8_t val)
+void ledoff( uint8_t val )
 {
-#ifndef SERIAL
-	if (val & 8)
-		GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_RESET);
+#if ( LED_NUMBER > 0 )	
+	#ifdef LED1_INVERT
+	if ( val&1)	GPIO_SetBits( LED1PORT, LED1PIN);
+	#else
+	if ( val&1) GPIO_ResetBits( LED1PORT, LED1PIN);
+	#endif
 #endif
-	if (val & 1)
-		GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_RESET);
-	if (val & 2)
-		GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_RESET);
-
-	if (val & 4)
-		GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_RESET);
+#if ( LED_NUMBER > 1 )
+	#ifdef LED2_INVERT
+	if ( val&2)	GPIO_SetBits( LED2PORT, LED2PIN);
+	#else
+	if ( val&2) GPIO_ResetBits( LED2PORT, LED2PIN);
+	#endif
+#endif
+#if ( LED_NUMBER > 2 )
+	#ifdef LED3_INVERT
+	if ( val&4)	GPIO_SetBits( LED3PORT, LED3PIN);
+	#else
+	if ( val&4) GPIO_ResetBits( LED3PORT, LED3PIN);
+	#endif
+#endif
+#if ( LED_NUMBER > 3 )
+	#ifdef LED1_INVERT
+	if ( val&8)	GPIO_SetBits( LED4PORT, LED4PIN);
+	#else
+	if ( val&8) GPIO_ResetBits( LED4PORT, LED4PIN);	
+	#endif
+#endif
 }
 
-void ledset(int val)
+
+void ledflash( uint32_t period , int duty )
 {
-#ifndef SERIAL
-	if (val & 8)
-		GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_SET);
+#if ( LED_NUMBER > 0 )	
+	if ( gettime() % period > (period*duty)>>4 )
+	{
+		ledon(LEDALL);
+	}
 	else
-		GPIO_WriteBit(GPIOA, GPIO_PIN_2, Bit_SET);
-#endif
-	if (val & 1)
-		GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_SET);
-	else
-		GPIO_WriteBit(GPIOF, GPIO_PIN_0, Bit_RESET);
-	if (val & 2)
-		GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_SET);
-	else
-		GPIO_WriteBit(GPIOF, GPIO_PIN_1, Bit_RESET);
-
-	if (val & 4)
-		GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_SET);
-	else
-		GPIO_WriteBit(GPIOB, GPIO_PIN_0, Bit_RESET);
-}
-
-void ledflash(uint32_t period, int duty)
-{
-	if (gettime() % period > (period * duty) / 16)
-	  {
-		  ledon(LEDALL);
-	  }
-	else
-	  {
-		  ledoff(LEDALL);
-	  }
-
-
+	{
+		ledoff(LEDALL);
+	}
+#endif	
 }
