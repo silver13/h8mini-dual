@@ -169,7 +169,7 @@
 // flashes 2 times repeatedly at startup
 #define STOP_LOWBATTERY
 
-// voltage too start warning
+// voltage to start warning
 // volts
 #define VBATTLOW 3.5f
 
@@ -180,7 +180,7 @@
 #define VDROP_FACTOR 0.70f
 
 // determine VDROP_FACTOR automatically in-flight, set factor ignored
-//#define AUTO_VDROP_FACTOR
+#define AUTO_VDROP_FACTOR
 
 // voltage hysteresys
 // in volts
@@ -335,7 +335,7 @@
 #pragma diag_error 260
 
 #endif
-// --fpmode=fast ON
+// --fpmode=fast ON``
 
 
 

@@ -26,7 +26,6 @@ THE SOFTWARE.
 // Eachine H8mini acro firmware
 // files of this project are assumed MIT licence unless otherwise noted
 
-// licence of files binary.h and macros.h LGPL 2.1
 
 
 #include "gd32f1x0.h"

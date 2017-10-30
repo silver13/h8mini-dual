@@ -16,6 +16,27 @@
 #define LED4PIN          GPIO_PIN_2
 #define LED4PORT         GPIOA
 
+//#define LED1_INVERT
+//#define LED2_INVERT
+//#define LED3_INVERT
+//#define LED4_INVERT
+
+// radio pins ( SPI )
+
+#define SPI_MOSI_PIN     GPIO_PIN_3
+#define SPI_MOSI_PORT    GPIOB
+
+#define SPI_MISO_PIN     GPIO_PIN_15
+#define SPI_MISO_PORT    GPIOA
+
+#define SPI_CLK_PIN      GPIO_PIN_4
+#define SPI_CLK_PORT     GPIOB
+
+#define SPI_SS_PIN       GPIO_PIN_5
+#define SPI_SS_PORT      GPIOB
+
+//#define DISABLE_GYRO_CHECK
+#define RADIO_CHECK
 
 // RGB led type ws2812 - ws2813
 // numbers over 8 could decrease performance

@@ -32,7 +32,7 @@ THE SOFTWARE.
 #include <stdio.h>
 #include "config.h"
 #include "defines.h"
-
+#include "hardware.h"
 #include "rx_bayang.h"
 
 #include "util.h"

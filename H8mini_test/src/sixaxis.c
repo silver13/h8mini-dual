@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "config.h"
 #include "led.h"
 #include "drv_serial.h"
-
+#include "hardware.h"
 #include "drv_i2c.h"
 
 

@@ -4,38 +4,47 @@
 #include "drv_spi.h"
 #include "macros.h"
 #include "binary.h"
+#include "hardware.h"
 
 void spi_init(void)
 {
+    
 	GPIO_InitPara GPIO_InitStructure;
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5;
 	GPIO_InitStructure.GPIO_Speed = GPIO_SPEED_50MHZ;
 	GPIO_InitStructure.GPIO_Mode = GPIO_MODE_OUT;
 	GPIO_InitStructure.GPIO_OType = GPIO_OTYPE_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_PULLUP;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
+	GPIO_InitStructure.GPIO_Pin = SPI_MOSI_PIN;
+	GPIO_Init(SPI_MOSI_PORT, &GPIO_InitStructure);
+	
+	GPIO_InitStructure.GPIO_Pin = SPI_CLK_PIN;
+	GPIO_Init(SPI_CLK_PORT, &GPIO_InitStructure);
+	
+	GPIO_InitStructure.GPIO_Pin = SPI_SS_PIN;
+	GPIO_Init(SPI_SS_PORT, &GPIO_InitStructure);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_15;
+	GPIO_InitStructure.GPIO_Pin = SPI_MISO_PIN;
 	GPIO_InitStructure.GPIO_Mode = GPIO_MODE_IN;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-
+	GPIO_Init(SPI_MISO_PORT, &GPIO_InitStructure);
+	
 	spi_csoff();
+    
 }
 
 
-#define gpioset( port , pin) port->BOR = (0x0001 << pin)
-#define gpioreset( port , pin) port->BCR = (0x0001 << pin)
+#define gpioset( port , pin) port->BOR = pin
+#define gpioreset( port , pin) port->BCR = pin
 
-#define MOSIHIGH gpioset( GPIOB, 3);
-#define MOSILOW gpioreset( GPIOB, 3);
-#define SCKHIGH gpioset( GPIOB, 4);
-#define SCKLOW gpioreset( GPIOB, 4);
+#define MOSIHIGH gpioset( SPI_MOSI_PORT, SPI_MOSI_PIN)
+#define MOSILOW  gpioreset( SPI_MOSI_PORT, SPI_MOSI_PIN)
+#define SCKHIGH  gpioset( SPI_CLK_PORT,  SPI_CLK_PIN)
+#define SCKLOW   gpioreset( SPI_CLK_PORT,  SPI_CLK_PIN)
 
-#define SPION gpioset( GPIOB, 5);
+#define SPION gpioset( SPI_SS_PORT, SPI_SS_PIN)
 
-#define READMISO ((GPIOA->DIR & GPIO_PIN_15) != (uint32_t)Bit_RESET)
+#define READMISO ((SPI_MISO_PORT->DIR & SPI_MISO_PIN) != (uint32_t)Bit_RESET)
 #ifndef __GNUC__
 
 #pragma push
@@ -46,13 +55,14 @@ void spi_init(void)
 #endif
 __inline void spi_cson()
 {
-	GPIO_WriteBit(GPIOB, GPIO_PIN_5, Bit_RESET);
+	GPIO_WriteBit(SPI_SS_PORT, SPI_SS_PIN, Bit_RESET);
 }
 
 __inline void spi_csoff()
 {
-	gpioset(GPIOB, 5);
+	gpioset(SPI_SS_PORT, SPI_SS_PIN);
 }
+
 
 
 void spi_sendbyte(int data)

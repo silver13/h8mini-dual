@@ -16,20 +16,21 @@ void gpio_init(void)
 	GPIO_InitStructure.GPIO_OType = GPIO_OTYPE_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PUPD_NOPULL;	// GPIO_PUPD_NOPULL
 
-// port F       
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_0 | GPIO_PIN_1;
-	GPIO_Init(GPIOF, &GPIO_InitStructure);
+     
+	GPIO_InitStructure.GPIO_Pin = LED1PIN;
+	GPIO_Init(LED1PORT, &GPIO_InitStructure);
 
-// port B       
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_0;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Pin = LED2PIN;
+	GPIO_Init(LED2PORT, &GPIO_InitStructure);
+    
+    GPIO_InitStructure.GPIO_Pin = LED3PIN;
+	GPIO_Init(LED3PORT, &GPIO_InitStructure);
+    
+    GPIO_InitStructure.GPIO_Pin = LED4PIN;
+	GPIO_Init(LED4PORT, &GPIO_InitStructure);
 
-// port A 
-// also used for serial out
-#ifndef SERIAL
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_2;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-#endif
+
+
 }
 
 
