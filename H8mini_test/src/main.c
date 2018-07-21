@@ -105,7 +105,30 @@ int main(void)
 
 	clk_init();
 
-	gpio_init();
+    
+	gpio_init();    
+
+// option bytes fix ( if hw watchdog is enabled )
+// is sometimes triggered by incorrect use of st-link utility
+    int user = FMC_OB_GetUser();
+  
+    if ( ~user & 0x01  ) 
+    {    
+    IWDG_Write_Enable(IWDG_WRITEACCESS_ENABLE);
+    IWDG_SetPrescaler(IWDG_PRESCALER_256);
+    IWDG_SetReloadValue(0xFFF);
+    IWDG_ReloadCounter();
+        
+    FMC_Unlock();
+    FMC_OB_Unlock(); 
+    FMC_ClearBitState(FMC_FLAG_EOP | FMC_FLAG_WERR | FMC_FLAG_PERR );    	
+
+    FMC_OB_Erase();
+    
+    FMC_Lock();
+    failloop(6);
+    }
+
 
 #ifdef SERIAL
 	serial_init();
